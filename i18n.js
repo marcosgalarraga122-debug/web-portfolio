@@ -29,7 +29,7 @@ window.I18N = {
     "portrait.aria": "Interactive particle portrait of Marcos",
     "portrait.label": "Interactive portrait",
     "portrait.title": "This is<br><em>me.</em>",
-    "portrait.text": "Almost 58,000 particles — each one a pixel of my photo — rebuilt live in your browser.",
+    "portrait.text": "{n} particles — each one a pixel of my photo — rebuilt live in your browser.",
     "portrait.hintFine": "Move through the picture · Click for a shockwave",
     "portrait.hintTouch": "Tap the picture for a shockwave",
 
@@ -162,7 +162,7 @@ window.I18N = {
     "portrait.aria": "Retrato interactivo de partículas de Marcos",
     "portrait.label": "Retrato interactivo",
     "portrait.title": "Este<br><em>soy yo.</em>",
-    "portrait.text": "Casi 58.000 partículas —cada una, un píxel de mi foto— reconstruidas en directo en tu navegador.",
+    "portrait.text": "{n} partículas —cada una, un píxel de mi foto— reconstruidas en directo en tu navegador.",
     "portrait.hintFine": "Mueve el cursor por la imagen · Haz clic para una onda expansiva",
     "portrait.hintTouch": "Toca la imagen para una onda expansiva",
 
@@ -295,7 +295,7 @@ window.I18N = {
     "portrait.aria": "Portrait interactif en particules de Marcos",
     "portrait.label": "Portrait interactif",
     "portrait.title": "C'est<br><em>moi.</em>",
-    "portrait.text": "Près de 58 000 particules — chacune un pixel de ma photo — recomposées en direct dans votre navigateur.",
+    "portrait.text": "{n} particules — chacune un pixel de ma photo — recomposées en direct dans votre navigateur.",
     "portrait.hintFine": "Passez la souris sur l'image · Cliquez pour une onde de choc",
     "portrait.hintTouch": "Touchez l'image pour une onde de choc",
 

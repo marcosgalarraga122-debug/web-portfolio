@@ -1,28 +1,30 @@
 :root {
-  --bg: #f6f5f1;
-  --bg-2: #eeede7;
-  --card: #ffffff;
-  --fg: #121317;
-  --muted: #6b6f78;
-  --soft: #3f424a;
-  --line: rgba(18, 19, 23, .1);
-  --accent: #c4532a;
-  --accent-2: #e8a23c;
-  --amber: #e8a23c;
-  --amber-ink: #b8740f;
-  --sage: #5d7f58;
-  --plum: #8c4a6a;
-  --accent-tint: #f8e3d8;
-  --amber-tint: #fbedd5;
-  --sage-tint: #e3ebdf;
-  --plum-tint: #f2e2ea;
-  --on-accent: #fbf1e7;
-  --nav-bg: rgba(246, 245, 241, .78);
-  --footer-bg: #1d1814;
-  --footer-fg: #bfb2a5;
-  --glow-1: rgba(232, 162, 60, .25);
-  --glow-2: rgba(140, 74, 106, .1);
-  --border-strong: rgba(18, 19, 23, .22);
+  /* Dark, professional palette: deep charcoal-navy with warm accents */
+  --bg: #0b0e13;
+  --bg-2: #10141b;
+  --card: #151a23;
+  --fg: #eef0f4;
+  --muted: #8d95a3;
+  --soft: #c5cad3;
+  --line: rgba(255, 255, 255, .08);
+  --accent: #e2683a;
+  --accent-2: #f0a94a;
+  --amber: #f0a94a;
+  --amber-ink: #f0a94a;
+  --sage: #8fb88a;
+  --plum: #c987aa;
+  --accent-tint: rgba(226, 104, 58, .1);
+  --amber-tint: rgba(240, 169, 74, .09);
+  --sage-tint: rgba(143, 184, 138, .09);
+  --plum-tint: rgba(201, 135, 170, .09);
+  --on-accent: #fff6ee;
+  --nav-bg: rgba(11, 14, 19, .78);
+  --footer-bg: #07090d;
+  --footer-fg: #8d95a3;
+  --glow-1: rgba(240, 169, 74, .12);
+  --glow-2: rgba(201, 135, 170, .08);
+  --border-strong: rgba(255, 255, 255, .18);
+  color-scheme: dark;
   --name-font: "Fraunces", Georgia, serif;
   --name-w: 600;
   /* Motion: strong custom curves — built-in CSS easings are too weak */
@@ -116,7 +118,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* ---------- Grain + progress ---------- */
 .grain {
-  position: fixed; inset: -50%; z-index: 90; pointer-events: none; opacity: .04; mix-blend-mode: multiply;
+  position: fixed; inset: -50%; z-index: 90; pointer-events: none; opacity: .05; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: grain 1s steps(6) infinite;
 }
@@ -161,7 +163,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .lang {
   position: relative; display: inline-flex; padding: 3px;
   border: 1px solid var(--border-strong); border-radius: 999px;
-  background: rgba(255, 255, 255, .55); backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, .05); backdrop-filter: blur(10px);
 }
 .lang button {
   position: relative; z-index: 1;
@@ -192,7 +194,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* ---------- Hero ---------- */
 .hero { position: relative; height: 100vh; height: 100svh; min-height: 640px; overflow: hidden; }
 .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hero-canvas.fallback { background: radial-gradient(80% 60% at 70% 40%, #f6d9c2, var(--bg)); }
+.hero-canvas.fallback { background: radial-gradient(80% 60% at 70% 40%, #1c2433, var(--bg)); }
 .hero-content {
   position: relative; height: 100%;
   display: flex; flex-direction: column; justify-content: space-between;
@@ -278,7 +280,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .about-photos { position: relative; width: 100%; max-width: 520px; aspect-ratio: 4 / 5; justify-self: end; }
 .photo {
   position: absolute; overflow: hidden; border-radius: 20px;
-  box-shadow: 0 40px 70px -40px rgba(18, 19, 23, .45);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .8);
 }
 .photo img {
   display: block; width: 100%; height: 100%; object-fit: cover;
@@ -295,7 +297,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   position: absolute; top: 18px; right: 18px; z-index: 2;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 14px; border-radius: 999px;
-  background: rgba(255, 255, 255, .88); backdrop-filter: blur(8px); color: var(--fg);
+  background: rgba(11, 14, 19, .72); backdrop-filter: blur(8px); color: var(--fg);
 }
 .photo-tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 .about-text {
@@ -312,7 +314,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   position: relative; overflow: hidden; isolation: isolate;
   min-height: 280px; padding: clamp(28px, 3vw, 44px);
   display: flex; flex-direction: column; justify-content: space-between;
-  border-radius: 24px; background: #111215; color: #f2f1ec;
+  border-radius: 24px; background: linear-gradient(160deg, #161b25, #0d1016); color: #f2f1ec;
   transition: translate 250ms var(--ease-out), box-shadow 250ms var(--ease-out);
 }
 /* Ambient colour glow in the corner + spotlight that follows the cursor */
@@ -363,12 +365,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   position: relative; overflow: hidden;
   padding: 40px; min-height: 260px;
   display: flex; flex-direction: column;
-  background: var(--t, var(--card)); border: 1px solid transparent; border-radius: 18px;
+  background: linear-gradient(var(--t, transparent), var(--t, transparent)), var(--card); border: 1px solid var(--line); border-radius: 18px;
   transition: border-color 200ms ease, box-shadow 250ms var(--ease-out), translate 250ms var(--ease-out);
 }
 .service::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .7), transparent 60%);
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .07), transparent 60%);
   opacity: 0; transition: opacity 200ms ease;
 }
 .service-num { position: relative; align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: var(--c); color: #fff; }
@@ -422,7 +424,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .process.armed .step { opacity: .35; }
 .process.armed .step.active { opacity: 1; }
 .step.active .step-num { background: var(--c); color: #fff; scale: 1.08; }
-.step.active .step-card { box-shadow: 0 24px 50px -32px rgba(18, 19, 23, .3); }
+.step.active .step-card { box-shadow: 0 24px 50px -30px rgba(0, 0, 0, .7); }
 
 /* ---------- Experience ---------- */
 .experience { isolation: isolate; }
@@ -492,7 +494,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .contact-form {
   display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
   background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: clamp(24px, 3vw, 40px);
-  box-shadow: 0 30px 60px -45px rgba(18, 19, 23, .35);
+  box-shadow: 0 30px 60px -40px rgba(0, 0, 0, .7);
 }
 .field { display: flex; flex-direction: column; gap: 8px; }
 .field.full, .form-foot.full { grid-column: 1 / -1; }
@@ -545,7 +547,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .nav-cta:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
   .roll:hover span { transform: translateY(-100%); }
   .photo:hover img { scale: 1.04; }
-  .service:hover { translate: 0 -4px; border-color: var(--c); box-shadow: 0 20px 50px -30px rgba(18, 19, 23, .25); }
+  .service:hover { translate: 0 -4px; border-color: var(--c); box-shadow: 0 24px 50px -30px rgba(0, 0, 0, .7); }
   .service:hover::before { opacity: 1; }
   .stat:hover { translate: 0 -4px; box-shadow: 0 30px 60px -30px color-mix(in srgb, var(--g2) 45%, transparent); }
   .exp-row:hover::before { opacity: 1; }

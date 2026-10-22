@@ -84,7 +84,7 @@ function applyTranslations() {
   $$("[data-i18n]").forEach((el) => {
     const text = t(el.dataset.i18n);
     if (text == null) return;
-    el.textContent = text;
+    el.textContent = text.replace("{n}", new Intl.NumberFormat(lang).format(portraitGrid() ** 2));
     if (el.hasAttribute("data-text")) el.dataset.text = text;
   });
   $$("[data-i18n-html]").forEach((el) => {
@@ -101,6 +101,10 @@ function applyTranslations() {
   document.title = t("meta.title");
   $('meta[name="description"]').setAttribute("content", t("meta.desc"));
 }
+
+// Phones and lower-powered machines get every second pixel (a quarter of the particles)
+const PORTRAIT_STEP = matchMedia("(max-width: 899px)").matches || (navigator.hardwareConcurrency || 8) <= 4 ? 2 : 1;
+const portraitGrid = () => (window.PORTRAIT ? Math.ceil(window.PORTRAIT.w / PORTRAIT_STEP) : 0);
 
 const roles = () => t("roles") || ["Web Developer", "Web Designer", "UI / UX Designer", "Digital Partner"];
 
@@ -179,12 +183,12 @@ function initShader() {
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
-      vec3 base=vec3(.965,.961,.945);
-      vec3 col=mix(base,vec3(.99,.86,.74),clamp(f*f*1.5,0.,1.));
-      col=mix(col,vec3(.93,.58,.4),clamp(length(q)*f*.4-.18,0.,1.));
-      col=mix(col,vec3(.98,.72,.45),exp(-d*3.5)*.2);
+      vec3 base=vec3(.043,.055,.075);
+      vec3 col=mix(base,vec3(.09,.115,.17),clamp(f*f*1.6,0.,1.));
+      col=mix(col,vec3(.42,.2,.11),clamp(length(q)*f*.4-.2,0.,1.)*.7);
+      col=mix(col,vec3(.55,.3,.16),exp(-d*3.5)*.14);
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=vec3(.008,-.03,-.06)*ring;
+      col+=vec3(.05,.03,.015)*ring;
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -273,7 +277,8 @@ function initShader() {
 /* ---------- Particle portrait ----------
    Every pixel of the photo becomes a particle with its own spring. Scrolling
    assembles them from an explosion; the cursor pushes them aside like sand;
-   a click sends a shockwave. Rendered with WebGL points for ~29k particles. */
+   a click sends a shockwave. Rendered with WebGL points (up to ~130k particles);
+   once everything has settled the simulation sleeps until something changes. */
 function initPortrait() {
   const section = $(".portrait");
   const canvas = $(".portrait-canvas");
@@ -281,10 +286,16 @@ function initPortrait() {
   const gl = data && canvas.getContext("webgl", { antialias: false, premultipliedAlpha: false });
   if (!gl) { section.remove(); return; } // no data or no WebGL: leave the section out entirely
 
-  const N = data.w * data.h;
+  const G = portraitGrid(); // particles per side
+  const N = G * G;
   const raw = atob(data.rgb);
   const colors = new Float32Array(N * 3);
-  for (let i = 0; i < N * 3; i++) colors[i] = raw.charCodeAt(i) / 255;
+  for (let i = 0; i < N; i++) {
+    const sx = Math.min(data.w - 1, (i % G) * PORTRAIT_STEP);
+    const sy = Math.min(data.h - 1, ((i / G) | 0) * PORTRAIT_STEP);
+    const src = (sy * data.w + sx) * 3;
+    for (let k = 0; k < 3; k++) colors[i * 3 + k] = raw.charCodeAt(src + k) / 255;
+  }
 
   const vert = `
     attribute vec2 a_pos; attribute vec3 a_col;
@@ -304,8 +315,9 @@ function initPortrait() {
       if(r>.5) discard;
       vec3 c=v_col;
       float l=dot(c,vec3(.299,.587,.114));
-      c=mix(vec3(l),c,1.5);   // saturation boost
-      c=(c-.5)*1.08+.5;       // a touch more contrast
+      c=mix(vec3(l),c,1.9);        // strong saturation boost
+      c=(c-.5)*1.15+.5+.03;        // extra contrast and a little lift
+      c=pow(clamp(c,0.,1.),vec3(.9)); // brighten the midtones
       gl_FragColor=vec4(clamp(c,0.,1.),smoothstep(.5,.3,r)*u_alpha);
     }`;
   const compile = (type, src) => {
@@ -350,6 +362,7 @@ function initPortrait() {
 
   const dpr = Math.min(devicePixelRatio, 2);
   let W = 0, H = 0, cell = 1, first = true;
+  let idle = false, lastProgress = -1; // simulation sleeps once particles settle
   const layout = () => {
     W = canvas.width = Math.floor(canvas.clientWidth * dpr);
     H = canvas.height = Math.floor(canvas.clientHeight * dpr);
@@ -357,10 +370,10 @@ function initPortrait() {
     const wide = canvas.clientWidth >= 900;
     const S = wide ? Math.min(H * 0.82, W * 0.5) : Math.min(W * 0.92, H * 0.55);
     const cx = wide ? W * 0.68 : W / 2, cy = wide ? H / 2 : H * 0.64;
-    cell = S / data.w;
+    cell = S / G;
     const far = Math.max(W, H);
     for (let i = 0; i < N; i++) {
-      const gx = i % data.w, gy = (i / data.w) | 0;
+      const gx = i % G, gy = (i / G) | 0;
       const hx = cx - S / 2 + (gx + 0.5) * cell, hy = cy - S / 2 + (gy + 0.5) * cell;
       home[i * 2] = hx; home[i * 2 + 1] = hy;
       scatter[i * 2] = hx + Math.cos(seedA[i]) * seedR[i] * far;
@@ -369,6 +382,7 @@ function initPortrait() {
       delay[i] = 0.42 * Math.hypot(hx - cx, hy - cy) / (S * 0.71) + seedD[i] * 0.08;
     }
     if (first) { pos.set(scatter); first = false; }
+    idle = false;
   };
   layout();
   addEventListener("resize", layout);
@@ -406,10 +420,16 @@ function initPortrait() {
       vel[i * 2] += (dx / d) * f;
       vel[i * 2 + 1] += (dy / d) * f;
     }
+    idle = false;
   });
 
   const frame = () => {
     if (!visible) { running = false; return; }
+    // Sleep while nothing moves: the canvas keeps showing the last frame
+    if (progress !== lastProgress || mouse.active) idle = false;
+    if (idle) { requestAnimationFrame(frame); return; }
+    lastProgress = progress;
+    let energy = 0;
     const pA = Math.min(1, progress / 0.8);
     const R = 95 * dpr, R2 = R * R, push = 4.5 * dpr;
     for (let i = 0; i < N; i++) {
@@ -431,6 +451,7 @@ function initPortrait() {
         }
       }
       vx *= 0.8; vy *= 0.8;
+      energy += vx * vx + vy * vy;
       vel[ix] = vx; vel[iy] = vy;
       pos[ix] += vx; pos[iy] += vy;
     }
@@ -439,9 +460,10 @@ function initPortrait() {
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, pos);
     gl.uniform2f(uRes, W, H);
-    gl.uniform1f(uSize, Math.max(1.5, cell * 0.95));
+    gl.uniform1f(uSize, Math.max(1.5, cell * 1.02));
     gl.uniform1f(uAlpha, Math.min(1, progress * 4));
     gl.drawArrays(gl.POINTS, 0, N);
+    if (energy / N < 1e-4) idle = true;
     requestAnimationFrame(frame);
   };
 
