@@ -16,7 +16,7 @@ Open `index.html` in a browser. No build step is needed.
 
 Everything to change is marked with `EDIT` comments in `index.html`:
 
-- **About / stats:** the intro text and the numbers
+- **About / stats:** the intro text, the numbers and the photos in `images/`
 - **Services:** the four service cards
 - **Process:** the four steps
 - **Experience:** replace the `[brackets]`

@@ -184,9 +184,37 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .marquee-track b { font-weight: 300; color: var(--accent-2); }
 
 /* ---------- About ---------- */
+.about-grid {
+  display: grid; grid-template-columns: 1.25fr 1fr;
+  gap: clamp(40px, 6vw, 96px); align-items: center;
+}
+.about-photos { position: relative; width: 100%; max-width: 520px; aspect-ratio: 4 / 5; justify-self: end; }
+.photo {
+  position: absolute; overflow: hidden; border-radius: 20px;
+  box-shadow: 0 40px 70px -40px rgba(18, 19, 23, .45);
+}
+.photo img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  transition: transform 1.2s var(--ease);
+}
+.photo:hover img { transform: scale(1.06); }
+.photo-main { top: 0; right: 0; width: 82%; height: 88%; }
+.photo-main img { object-position: 50% 62%; }
+.photo-second {
+  left: 0; bottom: 0; width: 46%; aspect-ratio: 3 / 4;
+  border: 6px solid var(--bg); border-radius: 22px;
+}
+.photo-second img { object-position: 46% 62%; }
+.photo-tag {
+  position: absolute; top: 18px; right: 18px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 999px;
+  background: rgba(255, 255, 255, .88); backdrop-filter: blur(8px); color: var(--fg);
+}
+.photo-tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 .about-text {
   font-family: var(--display); font-weight: 500;
-  font-size: clamp(1.6rem, 3.6vw, 3.2rem);
+  font-size: clamp(1.5rem, 2.8vw, 2.7rem);
   line-height: 1.18; letter-spacing: -.025em; max-width: 1150px;
 }
 .about-text .w { display: inline-block; }
@@ -329,6 +357,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .scroll-cue { display: none; }
   .hero-top { flex-direction: column; gap: 8px; }
   .stats { grid-template-columns: 1fr; }
+  .about-grid { grid-template-columns: 1fr; }
+  .about-photos { justify-self: center; max-width: 420px; }
   .service-grid { grid-template-columns: 1fr; }
   .service { padding: 28px; min-height: 0; }
   .service h3, .service p { position: relative; }

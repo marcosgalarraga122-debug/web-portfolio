@@ -86,17 +86,25 @@ function initShader() {
       float ring=0.;
       for(int i=0;i<16;i++){
         float age=s-tr[i].z;
-        if(age>0.&&age<2.4){
+        if(age>0.&&age<1.3){
           vec2 dv=p-(tr[i].xy-.5*r)/r.y;
           float dist=length(dv);
-          float x=dist-age*.32;
-          float wave=sin(x*42.)*exp(-x*x*70.)*exp(-age*1.5);
-          disp+=dv/(dist+.001)*wave*.025;
+          // Warp each ripple into an irregular, wobbly shape (seeded by its birth time)
+          float seed=tr[i].z*7.3;
+          dist*=1.+.35*sin(atan(dv.y,dv.x)*3.+seed)+.2*sin(atan(dv.y,dv.x)*5.-seed*1.7);
+          dist+=(noise(dv*9.+seed)-.5)*.09;
+          float x=dist-age*.45;
+          float wave=sin(x*55.)*exp(-x*x*45.)*exp(-age*3.2);
+          vec2 n=dv/(length(dv)+.001);
+          disp+=n*wave*.05+vec2(-n.y,n.x)*wave*.035;
           ring+=wave;
         }
       }
-      // Air pushed along by the cursor's movement
-      disp-=v*exp(-d*5.)*1.6;
+      // Air: swirl and push around the cursor depending on how fast it moves
+      float ang=length(v)*exp(-d*4.)*9.;
+      float cs=cos(ang),sn=sin(ang);
+      p=mm+mat2(cs,-sn,sn,cs)*(p-mm);
+      disp-=v*exp(-d*5.)*3.;
       p+=disp;
 
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
@@ -107,7 +115,7 @@ function initShader() {
       col=mix(col,vec3(.93,.58,.4),clamp(length(q)*f*.4-.18,0.,1.));
       col=mix(col,vec3(.98,.72,.45),exp(-d*3.5)*.2);
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=vec3(.05,.025,-.01)*ring;
+      col+=vec3(.09,.035,-.03)*ring;
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -163,9 +171,9 @@ function initShader() {
     }
     prevX = e.clientX; prevY = e.clientY;
 
-    // Drop a new ripple every ~40px of movement
+    // Drop a new ripple every ~25px of movement
     if (mouse.y < 0 || mouse.y > 1) return;
-    if (!lastPoint || Math.hypot(e.clientX - lastPoint.x, e.clientY - lastPoint.y) > 40) {
+    if (!lastPoint || Math.hypot(e.clientX - lastPoint.x, e.clientY - lastPoint.y) > 25) {
       lastPoint = { x: e.clientX, y: e.clientY };
       trail.set([mouse.x * w, mouse.y * h, (performance.now() - start) / 1000], trailIndex * 3);
       trailIndex = (trailIndex + 1) % 16;
@@ -332,6 +340,22 @@ function initScrollAnimations(aboutWords) {
   gsap.fromTo(aboutWords, { opacity: 0.12 }, {
     opacity: 1, stagger: 0.1, ease: "none",
     scrollTrigger: { trigger: ".about-text", start: "top 80%", end: "bottom 45%", scrub: true },
+  });
+
+  // About photos: wipe in, then drift at different speeds while scrolling
+  $$(".photo").forEach((fig, i) => {
+    gsap.from(fig, {
+      clipPath: "inset(100% 0% 0% 0%)", duration: 1.4, delay: i * 0.15, ease: "expo.out",
+      scrollTrigger: { trigger: ".about-photos", start: "top 80%" },
+    });
+    gsap.from($("img", fig), {
+      scale: 1.4, duration: 1.8, delay: i * 0.15, ease: "expo.out",
+      scrollTrigger: { trigger: ".about-photos", start: "top 80%" },
+    });
+    gsap.fromTo(fig, { y: i ? 70 : -30 }, {
+      y: i ? -70 : 30, ease: "none",
+      scrollTrigger: { trigger: ".about-photos", start: "top bottom", end: "bottom top", scrub: true },
+    });
   });
 
   $$(".reveal-up").forEach((el) =>
