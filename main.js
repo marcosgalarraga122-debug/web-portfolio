@@ -91,17 +91,17 @@ function initShader() {
           float dist=length(dv);
           // Warp each ripple into an irregular, wobbly shape (seeded by its birth time)
           float seed=tr[i].z*7.3;
-          dist*=1.+.35*sin(atan(dv.y,dv.x)*3.+seed)+.2*sin(atan(dv.y,dv.x)*5.-seed*1.7);
-          dist+=(noise(dv*9.+seed)-.5)*.09;
-          float x=dist-age*.45;
-          float wave=sin(x*55.)*exp(-x*x*45.)*exp(-age*3.2);
+          dist*=1.+.12*sin(atan(dv.y,dv.x)*2.+seed);
+          dist+=(noise(dv*6.+seed)-.5)*.03;
+          float x=dist-age*.35;
+          float wave=sin(x*34.)*exp(-x*x*30.)*exp(-age*2.6);
           vec2 n=dv/(length(dv)+.001);
-          disp+=n*wave*.015+vec2(-n.y,n.x)*wave*.01;
+          disp+=n*wave*.015;
           ring+=wave;
         }
       }
       // Air: swirl and push around the cursor depending on how fast it moves
-      float ang=length(v)*exp(-d*4.)*2.5;
+      float ang=length(v)*exp(-d*4.)*1.2;
       float cs=cos(ang),sn=sin(ang);
       p=mm+mat2(cs,-sn,sn,cs)*(p-mm);
       disp-=v*exp(-d*5.)*.8;
