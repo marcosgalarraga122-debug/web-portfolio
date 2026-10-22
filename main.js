@@ -387,13 +387,23 @@ function initPortrait() {
   layout();
   addEventListener("resize", layout);
 
-  // Scroll progress: 0 = exploded, 1 = fully assembled
+  // Scroll progress: 0 = exploded, 1 = fully assembled.
+  // Measured in screen heights from when the section is 70% down the screen:
+  //   0 → 1.15  assembles (finishing a little after the section locks in place)
+  //   1.15 → 1.7  holds, so you can play with it
+  //   1.7 → 2.3  explodes again as you scroll on — the reverse of coming in
   let progress = hasGSAP && !reduceMotion ? 0 : 1;
   if (hasGSAP && !reduceMotion) {
     ScrollTrigger.create({ trigger: section, start: "top top", end: "+=100%", pin: true });
+    const span = 2.4;
     ScrollTrigger.create({
-      trigger: section, start: "top 70%", end: () => `+=${innerHeight * 1.4}`,
-      onUpdate: (self) => (progress = self.progress),
+      trigger: section, start: "top 70%", end: () => `+=${innerHeight * span}`,
+      onUpdate: (self) => {
+        const s = self.progress * span;
+        const assemble = Math.min(1, s / 1.15);
+        const explode = Math.min(1, Math.max(0, (s - 1.7) / 0.6));
+        progress = assemble * (1 - explode);
+      },
     });
   }
 
@@ -430,7 +440,7 @@ function initPortrait() {
     if (idle) { requestAnimationFrame(frame); return; }
     lastProgress = progress;
     let energy = 0;
-    const pA = Math.min(1, progress / 0.8);
+    const pA = progress;
     const R = 95 * dpr, R2 = R * R, push = 4.5 * dpr;
     for (let i = 0; i < N; i++) {
       const ix = i * 2, iy = ix + 1;

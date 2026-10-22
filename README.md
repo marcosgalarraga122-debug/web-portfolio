@@ -8,7 +8,7 @@ A one-page interactive CV that shows my skills and work. It's built to stand out
 - Process timeline that fills and lights up step by step as you scroll
 - Interactive particle portrait: ~58k particles rebuilt from the photo's pixels (`portrait-data.js`), assembled by scroll, pushed by the cursor, click for a shockwave
 - English / Spanish / French switcher (all text in `i18n.js`)
-- Stat numbers that roll in like an odometer, on glowing gradient cards
+- Stat numbers that roll in like an odometer
 - Enquiry form that opens the visitor's email app with their message filled in
 - Magnetic buttons, a velocity-reactive marquee and film grain
 
