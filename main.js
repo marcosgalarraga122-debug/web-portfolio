@@ -519,6 +519,7 @@ function initPortrait() {
    underneath the hero, assembling as you approach and landing just as the zoom completes.
    Everything is driven by scroll position, so scrolling back up reverses it. */
 let portalT = 0;
+const PORTAL_HOVER_LIMIT = 0.05; // the name's hover effect works until the zoom passes this point
 const smoothstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const easeInOutCubic = (u) => (u < 0.5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2);
 
@@ -587,7 +588,8 @@ function initPortal(chars) {
 
   const render = (t) => {
     if (!m) return;
-    if (t > 0 && portalT === 0) chars.forEach((c) => { c.style.fontWeight = ""; c.style.scale = ""; c.style.color = ""; });
+    // Hand over from the hover effect to the zoom: reset the letters once the zoom gets going
+    if (t > PORTAL_HOVER_LIMIT && portalT <= PORTAL_HOVER_LIMIT) chars.forEach((c) => { c.style.fontWeight = ""; c.style.scale = ""; c.style.color = ""; });
     portalT = t;
     const { W, H } = m;
     const S = Math.pow(m.end, t);                                  // camera dolly
@@ -705,7 +707,9 @@ function initNameWeight(chars) {
   if (!finePointer || reduceMotion) return;
   const name = $(".hero-name");
   addEventListener("pointermove", (e) => {
-    if (scrollY > innerHeight || portalT > 0) return;
+    // Paused only once the zoom into the "o" is really under way (smooth scrolling can
+    // leave the page a fraction of a pixel from the top, which used to switch it off)
+    if (scrollY > innerHeight || portalT > PORTAL_HOVER_LIMIT) return;
     const base = parseFloat(getComputedStyle(name).fontWeight);
     chars.forEach((c) => {
       const r = c.getBoundingClientRect();
