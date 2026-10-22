@@ -147,14 +147,17 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .hero-name {
   font-family: var(--display); font-weight: 700;
-  font-size: clamp(3.5rem, 14vw, 15rem);
-  line-height: .9; letter-spacing: -.045em;
-  display: flex; justify-content: center;
-  padding: .08em 0;
+  /* Sized by both width and height so the full name always fits */
+  font-size: clamp(2.8rem, min(11vw, 17vh), 12rem);
+  line-height: .95; letter-spacing: -.045em;
+  display: flex; flex-direction: column;
+  width: 100%; max-width: 1400px; margin: 0 auto;
   user-select: none;
 }
+.name-line { display: block; white-space: nowrap; padding-top: .14em; margin-top: -.14em; }
+.name-line:last-child { align-self: flex-end; }
 /* Clip letters only while they rise in during the intro */
-.loading .hero-name { overflow: hidden; }
+.loading .name-line { overflow: hidden; }
 .hero-name .char {
   display: inline-block; transform-origin: 50% 70%;
   transition: font-weight .5s var(--ease), scale .5s var(--ease), color .5s;

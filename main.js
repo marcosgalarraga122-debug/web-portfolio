@@ -425,7 +425,7 @@ function intro(chars) {
 }
 
 /* ---------- Boot ---------- */
-const nameChars = splitChars($(".hero-name"));
+const nameChars = $$(".name-line").flatMap(splitChars);
 const aboutWords = splitWords($(".about-text"));
 $(".year").textContent = new Date().getFullYear();
 
