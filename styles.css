@@ -135,7 +135,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .hero-content {
   position: relative; height: 100%;
   display: flex; flex-direction: column; justify-content: space-between;
-  padding: 104px var(--pad) 36px;
+  padding: 104px var(--pad) 28px;
 }
 .hero-top { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); }
 .status { display: inline-flex; align-items: center; gap: 10px; color: var(--soft); }
@@ -145,17 +145,17 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 @keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(232, 162, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(232, 162, 60, 0); } }
 
+.hero-main { display: flex; flex-direction: column; gap: clamp(28px, 5vh, 56px); }
+/* One line along the bottom; main.js sets the exact font-size so it fills the width */
 .hero-name {
   font-family: var(--display); font-weight: 700;
-  /* Sized by both width and height so the full name always fits */
-  font-size: clamp(2.8rem, min(11vw, 17vh), 12rem);
+  font-size: 9vw;
   line-height: .95; letter-spacing: -.045em;
-  display: flex; flex-direction: column;
-  width: 100%; max-width: 1400px; margin: 0 auto;
+  display: flex; gap: .24em;
+  width: max-content; margin-bottom: -.06em;
   user-select: none;
 }
 .name-line { display: block; white-space: nowrap; padding-top: .14em; margin-top: -.14em; }
-.name-line:last-child { align-self: flex-end; }
 /* Clip letters only while they rise in during the intro */
 .loading .name-line { overflow: hidden; }
 .hero-name .char {
@@ -164,7 +164,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   will-change: transform;
 }
 
-.hero-bottom { display: grid; grid-template-columns: 1fr 1.3fr auto; align-items: end; gap: 40px; }
+.hero-bottom {
+  display: grid; grid-template-columns: 1fr 1.3fr auto; align-items: end; gap: 40px;
+  padding-bottom: clamp(24px, 4vh, 40px); border-bottom: 1px solid var(--line);
+}
 .hero-role { display: flex; flex-direction: column; gap: 6px; }
 .hero-role .mono { color: var(--muted); }
 .scramble { font-family: var(--display); font-weight: 500; font-size: clamp(1.3rem, 2.2vw, 1.9rem); letter-spacing: -.02em; min-height: 1.3em; }
@@ -357,6 +360,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (max-width: 899px) {
   .nav-links { display: none; }
   .hero-bottom { grid-template-columns: 1fr; gap: 24px; }
+  .hero-name { flex-direction: column; gap: 0; }
   .scroll-cue { display: none; }
   .hero-top { flex-direction: column; gap: 8px; }
   .stats { grid-template-columns: 1fr; }
