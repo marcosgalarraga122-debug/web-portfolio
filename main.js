@@ -82,10 +82,11 @@ function initShader() {
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
-      vec3 col=mix(vec3(.039,.043,.055),vec3(.13,.17,.36),clamp(f*f*1.4,0.,1.));
-      col=mix(col,vec3(.52,.6,.95),clamp(length(q)*f*.35-.16,0.,1.));
-      col+=vec3(.35,.42,.9)*exp(-d*3.5)*.1;
-      col*=smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5);
+      vec3 base=vec3(.965,.961,.945);
+      vec3 col=mix(base,vec3(.8,.85,.99),clamp(f*f*1.5,0.,1.));
+      col=mix(col,vec3(.55,.64,1.),clamp(length(q)*f*.4-.18,0.,1.));
+      col=mix(col,vec3(.62,.7,1.),exp(-d*3.5)*.18);
+      col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
       gl_FragColor=vec4(col,1.);
     }`;
 
