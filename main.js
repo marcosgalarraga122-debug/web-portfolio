@@ -41,9 +41,9 @@ function splitWords(el) {
 }
 
 // Wrap each word in a clipping mask (keeps <br> line breaks) so it can rise into view
-function splitMaskWords(el) {
-  const inner = [];
+function splitMaskWords(el, inner = []) {
   [...el.childNodes].forEach((node) => {
+    if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "BR") { splitMaskWords(node, inner); return; }
     if (node.nodeType !== Node.TEXT_NODE) return;
     const frag = document.createDocumentFragment();
     node.textContent.split(/(\s+)/).forEach((part) => {
@@ -107,8 +107,8 @@ function applyTranslations() {
   $('meta[name="description"]').setAttribute("content", t("meta.desc"));
 }
 
-// Phones and lower-powered machines get every second pixel (a quarter of the particles)
-const PORTRAIT_STEP = matchMedia("(max-width: 899px)").matches || (navigator.hardwareConcurrency || 8) <= 4 ? 2 : 1;
+// Phones and machines with fewer than 8 cores get every second pixel (a quarter of the particles)
+const PORTRAIT_STEP = matchMedia("(max-width: 899px)").matches || (navigator.hardwareConcurrency || 8) < 8 ? 2 : 1;
 const portraitGrid = () => (window.PORTRAIT ? Math.ceil(window.PORTRAIT.w / PORTRAIT_STEP) : 0);
 
 const roles = () => t("roles") || ["Web Developer", "Web Designer", "UI / UX Designer", "Digital Partner"];
@@ -395,20 +395,23 @@ function initPortrait() {
   addEventListener("resize", layout);
 
   // Scroll progress: 0 = exploded, 1 = fully assembled.
-  // Measured in screen heights from when the section is 70% down the screen:
-  //   0 → 1.15  assembles (finishing a little after the section locks in place)
-  //   1.15 → 1.7  holds, so you can play with it
-  //   1.7 → 2.3  explodes again as you scroll on — the reverse of coming in
+  // Measured in screen heights from when the section's top is 25% down the screen:
+  //   0 → 0.7    assembles (finishing a little after the section locks in place)
+  //   0.7 → 1.15 holds, so you can play with it
+  //   1.15 → 1.55 explodes, the reverse of coming in
+  // The explosion finishes before the pin releases, so the particles are already off-screen
+  // when the next section (About, with the stats) scrolls in. Previously the explosion ran
+  // after unpinning: particles flew over the About text and were wiped mid-flight.
   let progress = hasGSAP && !reduceMotion ? 0 : 1;
   if (hasGSAP && !reduceMotion) {
-    ScrollTrigger.create({ trigger: section, start: "top top", end: "+=100%", pin: true });
-    const span = 2.4;
+    ScrollTrigger.create({ trigger: section, start: "top top", end: "+=130%", pin: true });
+    const span = 1.55;
     ScrollTrigger.create({
-      trigger: section, start: "top 70%", end: () => `+=${innerHeight * span}`,
+      trigger: section, start: "top 25%", end: () => `+=${innerHeight * span}`,
       onUpdate: (self) => {
         const s = self.progress * span;
-        const assemble = Math.min(1, s / 1.15);
-        const explode = Math.min(1, Math.max(0, (s - 1.7) / 0.6));
+        const assemble = Math.min(1, s / 0.7);
+        const explode = Math.min(1, Math.max(0, (s - 1.15) / 0.4));
         progress = assemble * (1 - explode);
       },
     });
@@ -538,7 +541,7 @@ function initScramble() {
   setInterval(() => {
     roleIndex = (roleIndex + 1) % roles().length;
     scramble.set(roles()[roleIndex]);
-  }, 3000);
+  }, 3500);
 }
 
 /* ---------- Hero name: scale it to exactly fill the available width ---------- */

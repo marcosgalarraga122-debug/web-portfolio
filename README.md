@@ -25,7 +25,8 @@ All text (in all three languages) lives in `i18n.js`. Other things to change are
 - **Process:** the four steps
 - **Experience:** fill in the commented-out rows
 - **Why me / FAQ:** check the promises and answers match how you work
-- **Contact:** add your social profiles (commented out in the Contact section)
+- **Contact:** add your phone number and social profiles (commented out in the Contact section)
+- **Work:** add real client projects as further case studies next to "this website"
 - **Hero roles:** the `roles` list in `main.js`
 - **Colours:** the variables at the top of `styles.css`
 

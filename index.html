@@ -23,6 +23,7 @@
     "knowsAbout": ["Web design", "Web development", "UI/UX design", "SEO"]}
   </script>
   <link rel="stylesheet" href="styles.css">
+  <noscript><style>.intro { display: none; } body.loading { overflow: auto; } .portrait { display: none; }</style></noscript>
 </head>
 <body class="loading">
   <!-- Text is translated by main.js using i18n.js (data-i18n = text, data-i18n-html = text with markup,
@@ -44,6 +45,7 @@
     <nav class="nav-links" aria-label="Main">
       <a href="#about" class="roll"><span data-text="About" data-i18n="nav.about">About</span></a>
       <a href="#services" class="roll"><span data-text="Services" data-i18n="nav.services">Services</span></a>
+      <a href="#work" class="roll"><span data-text="Work" data-i18n="nav.work">Work</span></a>
       <a href="#process" class="roll"><span data-text="Process" data-i18n="nav.process">Process</span></a>
       <a href="#experience" class="roll"><span data-text="Experience" data-i18n="nav.experience">Experience</span></a>
       <a href="#faq" class="roll"><span data-text="FAQ" data-i18n="nav.faq">FAQ</span></a>
@@ -55,7 +57,7 @@
         <button type="button" data-lang="es" aria-pressed="false" lang="es">ES</button>
         <button type="button" data-lang="fr" aria-pressed="false" lang="fr">FR</button>
       </div>
-      <a href="#contact" class="nav-cta magnetic" data-i18n="nav.cta">Start a project</a>
+      <a href="#contact" class="nav-cta magnetic"><span class="cta-long" data-i18n="nav.cta">Start a project</span><span class="cta-short" data-i18n="nav.ctaShort">Contact</span></a>
     </div>
   </header>
 
@@ -75,7 +77,7 @@
         </h1>
         <div class="hero-bottom">
           <p class="hero-role hero-fade">
-            <span class="mono" data-i18n="hero.rolePrefix">Professional</span>
+            <span class="mono" data-i18n="hero.rolePrefix">Freelance</span>
             <span class="scramble">Web Developer</span>
           </p>
           <div class="hero-intro hero-fade">
@@ -149,29 +151,64 @@
     <section class="section services" id="services">
       <div class="section-head">
         <span class="mono label"><span class="lnum">(02) </span><span data-i18n="services.label">Services</span></span>
-        <h2 class="title" data-i18n-html="services.title">How I can help<br>your business</h2>
+        <h2 class="title" data-i18n-html="services.title">How I can help<br>your <em>business</em></h2>
       </div>
-      <div class="service-grid">
-        <article class="service spot reveal-up" style="--c: var(--accent); --t: var(--accent-tint)">
+      <ol class="service-list">
+        <li class="service reveal-up">
           <span class="mono service-num">01</span>
           <h3 data-i18n="s1.t">Website design</h3>
           <p data-i18n="s1.d">Custom, on-brand designs that build trust and guide visitors towards getting in touch or buying.</p>
-        </article>
-        <article class="service spot reveal-up" style="--c: var(--amber-ink); --t: var(--amber-tint)">
+          <span class="service-arrow" aria-hidden="true">↗</span>
+        </li>
+        <li class="service reveal-up">
           <span class="mono service-num">02</span>
           <h3 data-i18n="s2.t">Website development</h3>
           <p data-i18n="s2.d">Fast, responsive and search-engine-ready websites built with clean, modern code.</p>
-        </article>
-        <article class="service spot reveal-up" style="--c: var(--sage); --t: var(--sage-tint)">
+          <span class="service-arrow" aria-hidden="true">↗</span>
+        </li>
+        <li class="service reveal-up">
           <span class="mono service-num">03</span>
           <h3 data-i18n="s3.t">Redesign & optimisation</h3>
           <p data-i18n="s3.d">Turn an outdated website into a modern one that loads faster and converts better.</p>
-        </article>
-        <article class="service spot reveal-up" style="--c: var(--plum); --t: var(--plum-tint)">
+          <span class="service-arrow" aria-hidden="true">↗</span>
+        </li>
+        <li class="service reveal-up">
           <span class="mono service-num">04</span>
           <h3 data-i18n="s4.t">Care & support</h3>
           <p data-i18n="s4.d">Updates, improvements and reliable support after launch, so your site keeps performing.</p>
-        </article>
+          <span class="service-arrow" aria-hidden="true">↗</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ============ WORK: CASE STUDY (this website) ============ -->
+    <!-- EDIT: add real client projects here as further case studies when you have them -->
+    <section class="section work" id="work">
+      <div class="section-head">
+        <span class="mono label"><span class="lnum">(03) </span><span data-i18n="work.label">Selected work</span></span>
+        <h2 class="title" data-i18n-html="work.title">Case study:<br><em>this website</em></h2>
+      </div>
+      <div class="work-layout">
+        <div class="work-main">
+          <p class="work-intro reveal-up" data-i18n="work.intro">The clearest proof of what I can build for you is the site you're looking at. It was designed and built from scratch — no templates, no page builders.</p>
+          <p class="mono work-hl-label reveal-up" data-i18n="work.hl">Highlights</p>
+          <ol class="work-highlights">
+            <li class="reveal-up"><span class="mono">01</span><span data-i18n="work.h1">A real-time WebGL background that reacts to your cursor</span></li>
+            <li class="reveal-up"><span class="mono">02</span><span data-i18n="work.h2">A portrait rebuilt from {n} particles, driven by scroll</span></li>
+            <li class="reveal-up"><span class="mono">03</span><span data-i18n="work.h3">Instant switching between three languages</span></li>
+            <li class="reveal-up"><span class="mono">04</span><span data-i18n="work.h4">Keyboard-friendly and respectful of reduced-motion settings</span></li>
+            <li class="reveal-up"><span class="mono">05</span><span data-i18n="work.h5">Fully responsive, from phones to large screens</span></li>
+          </ol>
+        </div>
+        <aside class="work-spec reveal-up">
+          <dl>
+            <div><dt class="mono" data-i18n="work.role">Role</dt><dd data-i18n="work.roleVal">Design & development</dd></div>
+            <div><dt class="mono" data-i18n="work.stack">Built with</dt><dd>HTML · CSS · JavaScript · WebGL · GSAP</dd></div>
+            <div><dt class="mono" data-i18n="work.langs">Languages</dt><dd>English · Español · Français</dd></div>
+          </dl>
+          <p class="work-cta-text" data-i18n="work.cta">Want something like this for your business?</p>
+          <a href="#contact" class="btn"><span class="btn-label" data-i18n="work.ctaBtn">Start a project</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+        </aside>
       </div>
     </section>
 
@@ -179,8 +216,8 @@
     <!-- EDIT: make sure these promises match how you work (text lives in i18n.js) -->
     <section class="section why" id="why">
       <div class="section-head">
-        <span class="mono label"><span class="lnum">(03) </span><span data-i18n="why.label">Why work with me</span></span>
-        <h2 class="title" data-i18n-html="why.title">A reliable partner<br>for your website</h2>
+        <span class="mono label"><span class="lnum">(04) </span><span data-i18n="why.label">Why work with me</span></span>
+        <h2 class="title" data-i18n-html="why.title">A reliable partner<br>for your <em>website</em></h2>
       </div>
       <div class="why-grid">
         <div class="why-item reveal-up"><span class="mono">01</span><h3 data-i18n="w1.t">Clear quotes</h3><p data-i18n="w1.d">A written quote before any work starts, so you know exactly what you're getting and what it costs.</p></div>
@@ -194,27 +231,27 @@
     <section class="section process" id="process">
       <div class="process-layout">
         <div class="process-intro">
-          <span class="mono label"><span class="lnum">(04) </span><span data-i18n="process.label">Process</span></span>
-          <h2 class="title" data-i18n-html="process.title">How we'll<br>work together</h2>
+          <span class="mono label"><span class="lnum">(05) </span><span data-i18n="process.label">Process</span></span>
+          <h2 class="title" data-i18n-html="process.title">How we'll<br><em>work together</em></h2>
           <p class="reveal-up" data-i18n="process.text">A clear, simple process so you always know what's happening, what comes next and when your website will be ready.</p>
-          <a href="#contact" class="btn reveal-up"><span class="btn-label" data-i18n="process.cta">Book a free call</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+          <a href="#contact" class="btn reveal-up"><span class="btn-label" data-i18n="process.cta">Start a conversation</span><span class="btn-arrow" aria-hidden="true">→</span></a>
         </div>
 
         <ol class="steps">
           <li class="steps-line" aria-hidden="true"><span></span></li>
-          <li class="step" style="--c: var(--accent)">
+          <li class="step">
             <span class="step-num">01</span>
             <div class="step-card"><h3 data-i18n="p1.t">Discovery call</h3><p data-i18n="p1.d">We talk about your business, your customers and your goals, so the website is built around what really matters to you.</p></div>
           </li>
-          <li class="step" style="--c: var(--amber-ink)">
+          <li class="step">
             <span class="step-num">02</span>
             <div class="step-card"><h3 data-i18n="p2.t">Strategy & design</h3><p data-i18n="p2.d">I plan the structure and design the look and feel. You review it and give feedback before any code is written.</p></div>
           </li>
-          <li class="step" style="--c: var(--sage)">
+          <li class="step">
             <span class="step-num">03</span>
             <div class="step-card"><h3 data-i18n="p3.t">Development</h3><p data-i18n="p3.d">I build a fast, responsive website with smooth interactions, sharing progress with you along the way.</p></div>
           </li>
-          <li class="step" style="--c: var(--plum)">
+          <li class="step">
             <span class="step-num">04</span>
             <div class="step-card"><h3 data-i18n="p4.t">Launch & support</h3><p data-i18n="p4.d">Your site goes live, I show you how to manage it, and I'm there for updates and improvements afterwards.</p></div>
           </li>
@@ -226,8 +263,8 @@
     <!-- EDIT: to add rows, copy the <li> below and add matching keys (exp2.year, exp2.t, …) to i18n.js -->
     <section class="section experience" id="experience">
       <div class="section-head">
-        <span class="mono label"><span class="lnum">(05) </span><span data-i18n="exp.label">Experience</span></span>
-        <h2 class="title" data-i18n-html="exp.title">Experience &<br>education</h2>
+        <span class="mono label"><span class="lnum">(06) </span><span data-i18n="exp.label">Experience</span></span>
+        <h2 class="title" data-i18n-html="exp.title">My <em>experience</em></h2>
       </div>
       <ol class="exp-list">
         <li class="exp-row reveal-up">
@@ -243,8 +280,8 @@
     <section class="section faq" id="faq">
       <div class="faq-layout">
         <div class="section-head">
-          <span class="mono label"><span class="lnum">(06) </span><span data-i18n="faq.label">FAQ</span></span>
-          <h2 class="title" data-i18n-html="faq.title">Frequently asked questions</h2>
+          <span class="mono label"><span class="lnum">(07) </span><span data-i18n="faq.label">FAQ</span></span>
+          <h2 class="title" data-i18n-html="faq.title">Frequently asked<br><em>questions</em></h2>
         </div>
         <div class="faq-list">
           <details><summary data-i18n="q1">How long does a website take?</summary><p data-i18n="a1">It depends on the size of the project — a one-page site is quicker than a multi-page site or an online shop. You'll get a clear timeline together with your quote.</p></details>
@@ -258,7 +295,7 @@
 
     <!-- ============ CONTACT ============ -->
     <section class="section contact" id="contact">
-      <span class="mono label"><span class="lnum">(07) </span><span data-i18n="contact.label">Contact</span></span>
+      <span class="mono label"><span class="lnum">(08) </span><span data-i18n="contact.label">Contact</span></span>
       <h2 class="contact-title">
         <span class="line"><span data-i18n="contact.l1">Let's work</span></span>
         <span class="line"><span><em data-i18n="contact.l2">together.</em></span></span>
@@ -291,6 +328,9 @@
           <div><p class="mono" data-i18n="side.email">Email</p>
             <button class="copy-email" type="button" data-email="Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com <span class="copy-state mono" data-i18n="copy">Copy</span></button>
           </div>
+          <!-- EDIT: phone number goes here (waiting for the real number), e.g.
+          <div><p class="mono" data-i18n="side.phone">Phone</p><a class="contact-phone" href="tel:+34600000000">+34 600 000 000</a></div>
+          -->
           <div><p class="mono" data-i18n="side.response">Response time</p><p data-i18n="side.responseVal">Within 24 hours</p></div>
           <div><p class="mono" data-i18n="side.availability">Availability</p><p><span class="status-dot"></span><span data-i18n="side.availabilityVal">Taking on new projects</span></p></div>
         </aside>
