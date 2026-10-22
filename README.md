@@ -2,11 +2,11 @@
 
 A one-page interactive CV that shows my skills and work. It's built to stand out:
 
-- WebGL shader background in the hero that follows the mouse
+- WebGL shader background in the hero with ripples and air movement that follow the mouse
 - Preloader, split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
 - Process timeline that fills and lights up step by step as you scroll
-- Custom cursor, magnetic buttons, a velocity-reactive marquee and film grain
+- Magnetic buttons, a velocity-reactive marquee and film grain
 
 ## View it
 

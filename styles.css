@@ -100,28 +100,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 60; }
 .progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); transform: scaleX(0); transform-origin: left; }
 
-/* ---------- Custom cursor ---------- */
-.cursor-dot, .cursor-ring { display: none; }
-.has-cursor, .has-cursor * { cursor: none !important; }
-.has-cursor .cursor-dot, .has-cursor .cursor-ring {
-  display: block; position: fixed; top: 0; left: 0; z-index: 95; pointer-events: none;
-}
-.cursor-dot { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: var(--fg); }
-.cursor-ring span {
-  position: absolute; left: 0; top: 0; width: 34px; height: 34px;
-  transform: translate(-50%, -50%);
-  border: 1px solid rgba(18, 19, 23, .35); border-radius: 50%;
-  display: grid; place-items: center;
-  transition: width .4s var(--ease), height .4s var(--ease), background .3s, border-color .3s;
-}
-.cursor-ring.is-hover span { width: 54px; height: 54px; border-color: var(--accent); }
-.cursor-ring.is-label span { width: 80px; height: 80px; background: var(--fg); border-color: var(--fg); }
-.cursor-label {
-  font: 500 .68rem "JetBrains Mono", monospace; text-transform: uppercase; font-style: normal;
-  color: var(--bg); opacity: 0; transition: opacity .2s;
-}
-.cursor-ring.is-label .cursor-label { opacity: 1; }
-
 /* ---------- Nav ---------- */
 .nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50;

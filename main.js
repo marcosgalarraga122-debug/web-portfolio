@@ -69,7 +69,8 @@ function initShader() {
   const vert = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
   const frag = `
     precision highp float;
-    uniform vec2 r; uniform float t; uniform vec2 m;
+    uniform vec2 r; uniform float t; uniform vec2 m; uniform float s; uniform vec2 v;
+    uniform vec3 tr[16]; // recent cursor points: x, y (pixels), time created (seconds)
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
       return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}
@@ -79,6 +80,25 @@ function initShader() {
       vec2 p=(gl_FragCoord.xy-.5*r)/r.y;
       vec2 mm=(m-.5*r)/r.y;
       float d=length(p-mm);
+
+      // Ripples spreading out from where the cursor has been
+      vec2 disp=vec2(0.);
+      float ring=0.;
+      for(int i=0;i<16;i++){
+        float age=s-tr[i].z;
+        if(age>0.&&age<2.4){
+          vec2 dv=p-(tr[i].xy-.5*r)/r.y;
+          float dist=length(dv);
+          float x=dist-age*.32;
+          float wave=sin(x*42.)*exp(-x*x*70.)*exp(-age*1.5);
+          disp+=dv/(dist+.001)*wave*.025;
+          ring+=wave;
+        }
+      }
+      // Air pushed along by the cursor's movement
+      disp-=v*exp(-d*5.)*1.6;
+      p+=disp;
+
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
@@ -87,6 +107,7 @@ function initShader() {
       col=mix(col,vec3(.93,.58,.4),clamp(length(q)*f*.4-.18,0.,1.));
       col=mix(col,vec3(.98,.72,.45),exp(-d*3.5)*.2);
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
+      col+=vec3(.05,.025,-.01)*ring;
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -111,6 +132,13 @@ function initShader() {
   const uR = gl.getUniformLocation(prog, "r");
   const uT = gl.getUniformLocation(prog, "t");
   const uM = gl.getUniformLocation(prog, "m");
+  const uS = gl.getUniformLocation(prog, "s");
+  const uV = gl.getUniformLocation(prog, "v");
+  const uTr = gl.getUniformLocation(prog, "tr");
+  const trail = new Float32Array(16 * 3).fill(-100);
+  let trailIndex = 0, lastPoint = null;
+
+  const start = performance.now();
 
   // Render at reduced resolution — the soft gradient doesn't need full detail
   const scale = Math.min(devicePixelRatio, 2) * 0.5;
@@ -123,16 +151,30 @@ function initShader() {
   resize();
   addEventListener("resize", resize);
 
-  const mouse = { x: 0.7, y: 0.6 }, smooth = { ...mouse };
+  const mouse = { x: 0.7, y: 0.6 }, smooth = { ...mouse }, vel = { x: 0, y: 0 };
+  let prevX = null, prevY = null;
   addEventListener("pointermove", (e) => {
-    mouse.x = e.clientX / innerWidth;
-    mouse.y = 1 - e.clientY / innerHeight;
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = (e.clientX - rect.left) / rect.width;
+    mouse.y = 1 - (e.clientY - rect.top) / rect.height;
+    if (prevX !== null) {
+      vel.x += ((e.clientX - prevX) / rect.height) * 0.5;
+      vel.y -= ((e.clientY - prevY) / rect.height) * 0.5;
+    }
+    prevX = e.clientX; prevY = e.clientY;
+
+    // Drop a new ripple every ~40px of movement
+    if (mouse.y < 0 || mouse.y > 1) return;
+    if (!lastPoint || Math.hypot(e.clientX - lastPoint.x, e.clientY - lastPoint.y) > 40) {
+      lastPoint = { x: e.clientX, y: e.clientY };
+      trail.set([mouse.x * w, mouse.y * h, (performance.now() - start) / 1000], trailIndex * 3);
+      trailIndex = (trailIndex + 1) % 16;
+    }
   });
 
   let visible = true;
   new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(canvas);
 
-  const start = performance.now();
   const frame = (now) => {
     if (visible) {
       smooth.x += (mouse.x - smooth.x) * 0.05;
@@ -140,6 +182,10 @@ function initShader() {
       gl.uniform2f(uR, w, h);
       gl.uniform1f(uT, (now - start) / 1600);
       gl.uniform2f(uM, smooth.x * w, smooth.y * h);
+      vel.x *= 0.9; vel.y *= 0.9;
+      gl.uniform2f(uV, Math.max(-0.2, Math.min(0.2, vel.x)), Math.max(-0.2, Math.min(0.2, vel.y)));
+      gl.uniform1f(uS, (now - start) / 1000);
+      gl.uniform3fv(uTr, trail);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     if (!reduceMotion) requestAnimationFrame(frame);
@@ -203,34 +249,6 @@ function initNameWeight(chars) {
       c.style.scale = (1 + 0.15 * near).toFixed(3);
       c.style.color = near > 0.6 ? "var(--accent)" : "";
     });
-  });
-}
-
-/* ---------- Custom cursor ---------- */
-function initCursor() {
-  if (!finePointer) return;
-  document.documentElement.classList.add("has-cursor");
-  const dot = $(".cursor-dot"), ring = $(".cursor-ring"), label = $(".cursor-label");
-  let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
-  addEventListener("pointermove", (e) => {
-    mx = e.clientX; my = e.clientY;
-    dot.style.transform = `translate(${mx}px, ${my}px)`;
-  });
-  const loop = () => {
-    rx += (mx - rx) * 0.16;
-    ry += (my - ry) * 0.16;
-    ring.style.transform = `translate(${rx}px, ${ry}px)`;
-    requestAnimationFrame(loop);
-  };
-  loop();
-  document.addEventListener("pointerover", (e) => {
-    const labelled = e.target.closest("[data-cursor]");
-    const link = e.target.closest("a, button");
-    // Show the label over [data-cursor] areas, but the normal hover ring over links and buttons inside them
-    const showLabel = labelled && !(link && labelled.contains(link) && link !== labelled);
-    ring.classList.toggle("is-label", !!showLabel);
-    ring.classList.toggle("is-hover", !showLabel && !!link);
-    label.textContent = showLabel ? labelled.dataset.cursor : "";
   });
 }
 
@@ -390,7 +408,6 @@ $(".year").textContent = new Date().getFullYear();
 initShader();
 initScramble();
 initNameWeight(nameChars);
-initCursor();
 initMagnetic();
 initMarquee();
 initCopyEmail();
