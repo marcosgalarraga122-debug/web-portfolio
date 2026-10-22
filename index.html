@@ -33,7 +33,7 @@
     <nav class="nav-links" aria-label="Main">
       <a href="#about" class="roll"><span data-text="About">About</span></a>
       <a href="#services" class="roll"><span data-text="Services">Services</span></a>
-      <a href="#skills" class="roll"><span data-text="Skills">Skills</span></a>
+      <a href="#process" class="roll"><span data-text="Process">Process</span></a>
       <a href="#experience" class="roll"><span data-text="Experience">Experience</span></a>
     </nav>
     <a href="#contact" class="nav-cta magnetic">Start a project</a>
@@ -95,22 +95,22 @@
         <h2 class="title reveal-up">How I can help<br>your business</h2>
       </div>
       <div class="service-grid">
-        <article class="service spot reveal-up">
+        <article class="service spot reveal-up" style="--c: var(--accent); --t: var(--accent-tint)">
           <span class="mono service-num">01</span>
           <h3>Website design</h3>
           <p>Custom, on-brand designs that build trust and guide visitors towards getting in touch or buying.</p>
         </article>
-        <article class="service spot reveal-up">
+        <article class="service spot reveal-up" style="--c: var(--amber-ink); --t: var(--amber-tint)">
           <span class="mono service-num">02</span>
           <h3>Website development</h3>
           <p>Fast, responsive and search-engine-ready websites built with clean, modern code.</p>
         </article>
-        <article class="service spot reveal-up">
+        <article class="service spot reveal-up" style="--c: var(--sage); --t: var(--sage-tint)">
           <span class="mono service-num">03</span>
           <h3>Redesign & optimisation</h3>
           <p>Turn an outdated website into a modern one that loads faster and converts better.</p>
         </article>
-        <article class="service spot reveal-up">
+        <article class="service spot reveal-up" style="--c: var(--plum); --t: var(--plum-tint)">
           <span class="mono service-num">04</span>
           <h3>Care & support</h3>
           <p>Updates, improvements and reliable support after launch, so your site keeps performing.</p>
@@ -118,48 +118,47 @@
       </div>
     </section>
 
-    <!-- ============ SKILLS ============ -->
-    <section class="section skills" id="skills">
-      <div class="section-head">
-        <span class="mono label">(03) Skills</span>
-        <h2 class="title reveal-up">Expertise & tools</h2>
-        <p class="mono hint reveal-up">Interactive — drag and throw the skills</p>
-      </div>
-
-      <div class="skills-layout">
-        <!-- EDIT: one bubble per skill. data-size makes it bigger/smaller (0.8 – 1.4) -->
-        <div class="playground" data-cursor="Drag">
-          <div class="bubble" data-size="1.4">JavaScript</div>
-          <div class="bubble" data-size="1.2">HTML</div>
-          <div class="bubble" data-size="1.2">CSS</div>
-          <div class="bubble" data-size="1.1">React</div>
-          <div class="bubble" data-size="1">GSAP</div>
-          <div class="bubble" data-size="1">WebGL</div>
-          <div class="bubble" data-size="1.3">UI / UX</div>
-          <div class="bubble" data-size="1.1">Figma</div>
-          <div class="bubble" data-size="0.9">Git</div>
-          <div class="bubble" data-size="0.9">Node.js</div>
-          <div class="bubble" data-size="1">SEO</div>
-          <div class="bubble" data-size="1.2">Animation</div>
-          <div class="bubble" data-size="0.9">Three.js</div>
-          <div class="bubble" data-size="1">Branding</div>
-          <button class="playground-reset mono" type="button">Reset ↻</button>
+    <!-- ============ PROCESS ============ -->
+    <section class="section process" id="process">
+      <div class="process-layout">
+        <div class="process-intro">
+          <span class="mono label">(03) Process</span>
+          <h2 class="title reveal-up">How we'll<br>work together</h2>
+          <p class="reveal-up">A clear, simple process so you always know what's happening, what comes next and when your website will be ready.</p>
+          <a href="#contact" class="btn reveal-up">Book a free call</a>
         </div>
 
-        <div class="skill-groups">
-          <div class="skill-group reveal-up">
-            <h3><span class="mono">A.</span> Design</h3>
-            <ul><li>UI / UX design</li><li>Figma prototypes</li><li>Branding & identity</li><li>Responsive layouts</li></ul>
-          </div>
-          <div class="skill-group reveal-up">
-            <h3><span class="mono">B.</span> Development</h3>
-            <ul><li>HTML, CSS & JavaScript</li><li>React</li><li>Node.js</li><li>Git & GitHub</li></ul>
-          </div>
-          <div class="skill-group reveal-up">
-            <h3><span class="mono">C.</span> Interaction</h3>
-            <ul><li>GSAP animation</li><li>WebGL</li><li>Three.js</li><li>Micro-interactions</li></ul>
-          </div>
-        </div>
+        <ol class="steps">
+          <li class="steps-line" aria-hidden="true"><span></span></li>
+          <li class="step" style="--c: var(--accent)">
+            <span class="step-num">01</span>
+            <div class="step-card">
+              <h3>Discovery call</h3>
+              <p>We talk about your business, your customers and your goals, so the website is built around what really matters to you.</p>
+            </div>
+          </li>
+          <li class="step" style="--c: var(--amber-ink)">
+            <span class="step-num">02</span>
+            <div class="step-card">
+              <h3>Strategy & design</h3>
+              <p>I plan the structure and design the look and feel. You review it and give feedback before any code is written.</p>
+            </div>
+          </li>
+          <li class="step" style="--c: var(--sage)">
+            <span class="step-num">03</span>
+            <div class="step-card">
+              <h3>Development</h3>
+              <p>I build a fast, responsive website with smooth interactions, sharing progress with you along the way.</p>
+            </div>
+          </li>
+          <li class="step" style="--c: var(--plum)">
+            <span class="step-num">04</span>
+            <div class="step-card">
+              <h3>Launch & support</h3>
+              <p>Your site goes live, I show you how to manage it, and I'm there for updates and improvements afterwards.</p>
+            </div>
+          </li>
+        </ol>
       </div>
     </section>
 

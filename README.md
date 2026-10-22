@@ -5,7 +5,7 @@ A one-page interactive CV that shows my skills and work. It's built to stand out
 - WebGL shader background in the hero that follows the mouse
 - Preloader, split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
-- Physics "skills playground" where visitors can grab and throw the bubbles
+- Process timeline that fills and lights up step by step as you scroll
 - Custom cursor, magnetic buttons, a velocity-reactive marquee and film grain
 
 ## View it
@@ -18,7 +18,7 @@ Everything to change is marked with `EDIT` comments in `index.html`:
 
 - **About / stats:** the intro text and the numbers
 - **Services:** the four service cards
-- **Skills:** the bubbles and skill lists
+- **Process:** the four steps
 - **Experience:** replace the `[brackets]`
 - **Contact:** the social links
 - **Hero roles:** the `roles` list in `main.js`

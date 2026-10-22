@@ -226,7 +226,7 @@ function initCursor() {
   document.addEventListener("pointerover", (e) => {
     const labelled = e.target.closest("[data-cursor]");
     const link = e.target.closest("a, button");
-    // Over a bubble in the playground show "Drag", over the reset button show the normal hover ring
+    // Show the label over [data-cursor] areas, but the normal hover ring over links and buttons inside them
     const showLabel = labelled && !(link && labelled.contains(link) && link !== labelled);
     ring.classList.toggle("is-label", !!showLabel);
     ring.classList.toggle("is-hover", !showLabel && !!link);
@@ -274,116 +274,6 @@ function initMarquee() {
     requestAnimationFrame(loop);
   };
   loop();
-}
-
-/* ---------- Skills playground (tiny physics engine) ---------- */
-function initPlayground() {
-  const box = $(".playground");
-  const bodies = $$(".bubble", box).map((el) => ({ el, size: +el.dataset.size || 1, r: 0, x: 0, y: 0, vx: 0, vy: 0 }));
-  let W = 0, H = 0, running = false, started = false, drag = null;
-
-  const measure = () => {
-    W = box.clientWidth;
-    H = box.clientHeight;
-    const base = Math.max(36, Math.min(68, W / 13));
-    bodies.forEach((b) => {
-      b.r = base * b.size;
-      b.el.style.width = b.el.style.height = `${b.r * 2}px`;
-      b.el.style.fontSize = `${Math.max(11, b.r * 0.27)}px`;
-    });
-  };
-
-  const drop = () => {
-    bodies.forEach((b, i) => {
-      b.x = b.r + Math.random() * (W - 2 * b.r);
-      b.y = -b.r - i * 70 - Math.random() * 80;
-      b.vx = (Math.random() - 0.5) * 4;
-      b.vy = 0;
-    });
-  };
-
-  const step = () => {
-    for (const b of bodies) {
-      if (drag && drag.b === b) continue;
-      b.vy += 0.5;
-      b.vx *= 0.995; b.vy *= 0.995;
-      b.x += b.vx; b.y += b.vy;
-      if (b.x < b.r) { b.x = b.r; b.vx *= -0.6; }
-      if (b.x > W - b.r) { b.x = W - b.r; b.vx *= -0.6; }
-      if (b.y > H - b.r) { b.y = H - b.r; b.vy *= -0.45; b.vx *= 0.97; }
-    }
-    for (let k = 0; k < 3; k++) {
-      for (let i = 0; i < bodies.length; i++) {
-        for (let j = i + 1; j < bodies.length; j++) {
-          const a = bodies[i], c = bodies[j];
-          const dx = c.x - a.x, dy = c.y - a.y;
-          const dist = Math.hypot(dx, dy) || 0.01;
-          const overlap = a.r + c.r - dist;
-          if (overlap <= 0) continue;
-          const nx = dx / dist, ny = dy / dist;
-          const aFixed = drag && drag.b === a, cFixed = drag && drag.b === c;
-          const ka = aFixed ? 0 : cFixed ? 1 : 0.5, kc = cFixed ? 0 : aFixed ? 1 : 0.5;
-          a.x -= nx * overlap * ka; a.y -= ny * overlap * ka;
-          c.x += nx * overlap * kc; c.y += ny * overlap * kc;
-          const vn = (c.vx - a.vx) * nx + (c.vy - a.vy) * ny;
-          if (vn < 0) {
-            const imp = -1.4 * vn;
-            a.vx -= imp * nx * ka; a.vy -= imp * ny * ka;
-            c.vx += imp * nx * kc; c.vy += imp * ny * kc;
-          }
-        }
-      }
-    }
-    for (const b of bodies) b.el.style.transform = `translate(${b.x - b.r}px, ${b.y - b.r}px)`;
-  };
-
-  const loop = () => {
-    if (!running) return;
-    step();
-    requestAnimationFrame(loop);
-  };
-
-  const local = (e) => {
-    const r = box.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
-  bodies.forEach((b) => {
-    b.el.addEventListener("pointerdown", (e) => {
-      const p = local(e);
-      drag = { b, ox: p.x - b.x, oy: p.y - b.y };
-      b.el.setPointerCapture(e.pointerId);
-      b.el.style.zIndex = 1;
-    });
-    b.el.addEventListener("pointermove", (e) => {
-      if (!drag || drag.b !== b) return;
-      const p = local(e);
-      const nx = Math.max(b.r, Math.min(W - b.r, p.x - drag.ox));
-      const ny = Math.max(b.r, Math.min(H - b.r, p.y - drag.oy));
-      b.vx = nx - b.x; b.vy = ny - b.y;
-      b.x = nx; b.y = ny;
-    });
-    const release = () => {
-      if (!drag || drag.b !== b) return;
-      b.vx = Math.max(-40, Math.min(40, b.vx));
-      b.vy = Math.max(-40, Math.min(40, b.vy));
-      b.el.style.zIndex = "";
-      drag = null;
-    };
-    b.el.addEventListener("pointerup", release);
-    b.el.addEventListener("pointercancel", release);
-  });
-
-  $(".playground-reset").addEventListener("click", () => {
-    bodies.forEach((b) => { b.vy = -12 - Math.random() * 14; b.vx = (Math.random() - 0.5) * 30; });
-  });
-
-  measure();
-  addEventListener("resize", measure);
-  new IntersectionObserver(([e]) => {
-    running = e.isIntersecting;
-    if (running && !started) { started = true; drop(); }
-    if (running) loop();
-  }, { threshold: 0.2 }).observe(box);
 }
 
 /* ---------- Copy email ---------- */
@@ -442,6 +332,20 @@ function initScrollAnimations(aboutWords) {
     });
   });
 
+  // Process timeline: line fills and steps light up as you scroll
+  $(".process").classList.add("armed");
+  gsap.to(".steps-line span", {
+    scaleY: 1, ease: "none",
+    scrollTrigger: { trigger: ".steps", start: "top 65%", end: "bottom 65%", scrub: true },
+  });
+  $$(".step").forEach((step) =>
+    ScrollTrigger.create({
+      trigger: step, start: "top 65%",
+      onEnter: () => step.classList.add("active"),
+      onLeaveBack: () => step.classList.remove("active"),
+    })
+  );
+
   gsap.from(".contact-title .line > span", {
     yPercent: 110, duration: 1.4, stagger: 0.12, ease: "expo.out",
     scrollTrigger: { trigger: ".contact-title", start: "top 80%" },
@@ -489,7 +393,6 @@ initNameWeight(nameChars);
 initCursor();
 initMagnetic();
 initMarquee();
-initPlayground();
 initCopyEmail();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars);
