@@ -6,8 +6,9 @@
   --muted: #6b6f78;
   --soft: #3f424a;
   --line: rgba(18, 19, 23, .1);
-  --accent: #3a5bff;
-  --accent-tint: rgba(58, 91, 255, .08);
+  --accent: #c4532a;
+  --accent-2: #e8a23c;
+  --accent-tint: rgba(196, 83, 42, .09);
   --ease: cubic-bezier(.22, 1, .36, 1);
   --pad: clamp(16px, 5vw, 80px);
   --display: "Inter Tight", "Inter", system-ui, sans-serif;
@@ -90,7 +91,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   80% { transform: translate(6%, 2%); } 100% { transform: translate(0, 0); }
 }
 .progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 60; }
-.progress span { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; }
+.progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); transform: scaleX(0); transform-origin: left; }
 
 /* ---------- Custom cursor ---------- */
 .cursor-dot, .cursor-ring { display: none; }
@@ -145,7 +146,7 @@ a.magnetic:not(.btn) { display: inline-block; }
 /* ---------- Hero ---------- */
 .hero { position: relative; height: 100vh; height: 100svh; min-height: 640px; overflow: hidden; }
 .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hero-canvas.fallback { background: radial-gradient(80% 60% at 70% 40%, #d4dcfb, var(--bg)); }
+.hero-canvas.fallback { background: radial-gradient(80% 60% at 70% 40%, #f6d9c2, var(--bg)); }
 .hero-content {
   position: relative; height: 100%;
   display: flex; flex-direction: column; justify-content: space-between;
@@ -154,10 +155,10 @@ a.magnetic:not(.btn) { display: inline-block; }
 .hero-top { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); }
 .status { display: inline-flex; align-items: center; gap: 10px; color: var(--soft); }
 .status i {
-  width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
-  box-shadow: 0 0 0 0 rgba(74, 222, 128, .5); animation: pulse 2.4s infinite;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2);
+  box-shadow: 0 0 0 0 rgba(232, 162, 60, .55); animation: pulse 2.4s infinite;
 }
-@keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
+@keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(232, 162, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(232, 162, 60, 0); } }
 
 .hero-name {
   font-family: var(--display); font-weight: 700;
@@ -195,7 +196,7 @@ a.magnetic:not(.btn) { display: inline-block; }
   font-size: clamp(1.4rem, 3vw, 2.6rem); line-height: 1; letter-spacing: -.02em;
   padding: 0 .6em; white-space: nowrap; color: var(--soft);
 }
-.marquee-track b { font-weight: 300; color: var(--accent); }
+.marquee-track b { font-weight: 300; color: var(--accent-2); }
 
 /* ---------- About ---------- */
 .about-text {
@@ -226,7 +227,7 @@ a.magnetic:not(.btn) { display: inline-block; }
   background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--accent-tint), transparent 60%);
   opacity: 0; transition: opacity .4s;
 }
-.service:hover { border-color: rgba(58, 91, 255, .3); box-shadow: 0 20px 50px -30px rgba(18, 19, 23, .25); }
+.service:hover { border-color: rgba(196, 83, 42, .3); box-shadow: 0 20px 50px -30px rgba(18, 19, 23, .25); }
 .service:hover::before { opacity: 1; }
 .service-num { color: var(--accent); }
 .service h3 { font-family: var(--display); font-weight: 600; font-size: clamp(1.4rem, 2.2vw, 1.9rem); letter-spacing: -.025em; margin-top: auto; padding-top: 48px; }
@@ -255,6 +256,7 @@ a.magnetic:not(.btn) { display: inline-block; }
 }
 .bubble:nth-child(3n+1) { background: var(--accent); color: #fff; }
 .bubble:nth-child(3n+2) { background: var(--bg); color: var(--fg); border: 1px solid rgba(18, 19, 23, .2); }
+.bubble:nth-child(4n) { background: var(--accent-2); color: var(--fg); border: 0; }
 .bubble:active { cursor: grabbing; }
 .playground-reset {
   position: absolute; top: 16px; right: 16px; z-index: 2;
@@ -301,7 +303,7 @@ a.magnetic:not(.btn) { display: inline-block; }
 /* ---------- Contact ---------- */
 .contact {
   min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
-  background: radial-gradient(60% 50% at 85% 100%, rgba(58, 91, 255, .1), transparent);
+  background: radial-gradient(60% 50% at 85% 100%, rgba(232, 162, 60, .16), transparent);
 }
 .contact-title {
   font-family: var(--display); font-weight: 600;
