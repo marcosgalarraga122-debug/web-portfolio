@@ -63,9 +63,9 @@ $$('a[href^="#"]').forEach((a) =>
 /* ---------- WebGL hero background ---------- */
 const PALETTES = {
   creative: [[0.965, 0.961, 0.945], [0.99, 0.86, 0.74], [0.93, 0.58, 0.4], [0.98, 0.72, 0.45]],
-  business: [[0.957, 0.961, 0.969], [0.84, 0.88, 0.94], [0.35, 0.47, 0.66], [0.62, 0.72, 0.86]],
+  business: [[0.043, 0.071, 0.125], [0.07, 0.105, 0.18], [0.16, 0.22, 0.34], [0.14, 0.19, 0.3]],
 };
-const heroPalette = { current: PALETTES.creative.map((c) => [...c]), target: PALETTES.creative };
+const heroPalette = { current: PALETTES.creative.map((c) => [...c]), target: PALETTES.creative, fx: 1, fxTarget: 1 };
 
 function initShader() {
   const canvas = $(".hero-canvas");
@@ -76,6 +76,7 @@ function initShader() {
   const frag = `
     precision highp float;
     uniform vec2 r; uniform float t; uniform vec2 m; uniform float s; uniform vec2 v;
+    uniform float fx; // cursor effect strength (0 in business mode)
     uniform vec3 cb, c1, c2, c3; // palette: base, clouds, highlights, cursor glow
     uniform vec3 tr[16]; // recent cursor points: x, y (pixels), time created (seconds)
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -112,7 +113,7 @@ function initShader() {
       float cs=cos(ang),sn=sin(ang);
       p=mm+mat2(cs,-sn,sn,cs)*(p-mm);
       disp-=v*exp(-d*5.)*.8;
-      p+=disp;
+      p+=disp*fx;
 
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
@@ -122,7 +123,7 @@ function initShader() {
       col=mix(col,c2,clamp(length(q)*f*.4-.18,0.,1.));
       col=mix(col,c3,exp(-d*3.5)*.2);
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=(c1-cb)*ring*.3;
+      col+=(c1-cb)*ring*.3*fx;
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -151,6 +152,7 @@ function initShader() {
   const uV = gl.getUniformLocation(prog, "v");
   const uTr = gl.getUniformLocation(prog, "tr");
   const uPal = ["cb", "c1", "c2", "c3"].map((n) => gl.getUniformLocation(prog, n));
+  const uFx = gl.getUniformLocation(prog, "fx");
   const trail = new Float32Array(16 * 3).fill(-100);
   let trailIndex = 0, lastPoint = null;
 
@@ -207,6 +209,8 @@ function initShader() {
         for (let k = 0; k < 3; k++) c[k] += (heroPalette.target[i][k] - c[k]) * (reduceMotion ? 1 : 0.06);
         gl.uniform3fv(uPal[i], c);
       });
+      heroPalette.fx += (heroPalette.fxTarget - heroPalette.fx) * 0.06;
+      gl.uniform1f(uFx, heroPalette.fx);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     if (!reduceMotion) requestAnimationFrame(frame);
@@ -257,10 +261,13 @@ function initScramble() {
   setInterval(() => { i = (i + 1) % roles.length; s.set(roles[i]); }, 3000);
 }
 
+const isBusiness = () => document.documentElement.dataset.theme === "business";
+
 /* ---------- Hero name: scale it to exactly fill the available width ---------- */
 function initNameFit() {
   const name = $(".hero-name");
   const fit = () => {
+    if (isBusiness()) { name.style.fontSize = ""; return; }
     const box = name.parentElement;
     const cs = getComputedStyle(box);
     const available = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
@@ -281,7 +288,7 @@ function initNameWeight(chars) {
   if (!finePointer || reduceMotion) return;
   const name = $(".hero-name");
   addEventListener("pointermove", (e) => {
-    if (scrollY > innerHeight) return;
+    if (scrollY > innerHeight || isBusiness()) return;
     const base = parseFloat(getComputedStyle(name).fontWeight);
     chars.forEach((c) => {
       const r = c.getBoundingClientRect();
@@ -349,7 +356,10 @@ function initThemeToggle(fitName, chars) {
     btn.setAttribute("aria-label", business ? "Switch to creative mode" : "Switch to business mode");
     label.textContent = business ? "Creative mode" : "Business mode";
     heroPalette.target = business ? PALETTES.business : PALETTES.creative;
+    heroPalette.fxTarget = business ? 0 : 1;
+    chars.forEach((c) => { c.style.fontWeight = ""; c.style.scale = ""; c.style.color = ""; });
     fitName();
+    if (hasGSAP) requestAnimationFrame(() => ScrollTrigger.refresh());
     try { localStorage.setItem("theme", business ? "business" : "creative"); } catch {}
   };
 
@@ -358,6 +368,7 @@ function initThemeToggle(fitName, chars) {
   if (saved === "business") {
     apply(true);
     heroPalette.current = PALETTES.business.map((c) => [...c]);
+    heroPalette.fx = 0;
   }
 
   btn.addEventListener("click", () => {
