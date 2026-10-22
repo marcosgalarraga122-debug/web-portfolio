@@ -282,7 +282,7 @@ function initShader() {
 /* ---------- Particle portrait ----------
    Every pixel of the photo becomes a particle with its own spring. Scrolling
    assembles them from an explosion; the cursor pushes them aside like sand;
-   a click sends a shockwave. Rendered with WebGL points (up to ~130k particles);
+   a click sends a shockwave. Rendered with WebGL points (up to ~200k particles);
    once everything has settled the simulation sleeps until something changes. */
 function initPortrait() {
   const section = $(".portrait");
@@ -395,23 +395,20 @@ function initPortrait() {
   addEventListener("resize", layout);
 
   // Scroll progress: 0 = exploded, 1 = fully assembled.
-  // Measured in screen heights from when the section's top is 25% down the screen:
-  //   0 → 0.7    assembles (finishing a little after the section locks in place)
-  //   0.7 → 1.15 holds, so you can play with it
-  //   1.15 → 1.55 explodes, the reverse of coming in
-  // The explosion finishes before the pin releases, so the particles are already off-screen
-  // when the next section (About, with the stats) scrolls in. Previously the explosion ran
-  // after unpinning: particles flew over the About text and were wiped mid-flight.
+  // Measured in screen heights from when the section is 70% down the screen:
+  //   0 → 1.15  assembles (finishing a little after the section locks in place)
+  //   1.15 → 1.7  holds, so you can play with it
+  //   1.7 → 2.2  explodes as you scroll on — the reverse of coming in
   let progress = hasGSAP && !reduceMotion ? 0 : 1;
   if (hasGSAP && !reduceMotion) {
-    ScrollTrigger.create({ trigger: section, start: "top top", end: "+=130%", pin: true });
-    const span = 1.55;
+    ScrollTrigger.create({ trigger: section, start: "top top", end: "+=100%", pin: true });
+    const span = 2.2;
     ScrollTrigger.create({
-      trigger: section, start: "top 25%", end: () => `+=${innerHeight * span}`,
+      trigger: section, start: "top 70%", end: () => `+=${innerHeight * span}`,
       onUpdate: (self) => {
         const s = self.progress * span;
-        const assemble = Math.min(1, s / 0.7);
-        const explode = Math.min(1, Math.max(0, (s - 1.15) / 0.4));
+        const assemble = Math.min(1, s / 1.15);
+        const explode = Math.min(1, Math.max(0, (s - 1.7) / 0.5));
         progress = assemble * (1 - explode);
       },
     });
@@ -442,12 +439,21 @@ function initPortrait() {
   });
 
   const frame = () => {
-    if (!visible) { running = false; return; }
     // The picture follows the section as it scrolls in and out of view
     const offset = section.getBoundingClientRect().top * dpr;
-    // Sleep while nothing moves: the canvas keeps showing the last frame
-    if (progress !== lastProgress || offset !== lastOffset) idle = false;
-    if (idle) { requestAnimationFrame(frame); return; }
+    // Static (reduced-motion) picture: just stop and clear once the section is far away
+    if (!visible && (reduceMotion || !hasGSAP)) { running = false; gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); return; }
+    // Sleep while nothing moves: the canvas keeps showing the last frame. Scrolling only
+    // matters while the picture is (partly) assembled — once fully exploded every particle
+    // is off-screen, so there's nothing to recompute (this was costing ~130k updates per
+    // scroll frame while reading the About section and stats)
+    const exploded = progress === 0 && lastProgress === 0;
+    if (progress !== lastProgress || (offset !== lastOffset && !exploded)) idle = false;
+    if (idle) {
+      if (!visible && exploded) { running = false; gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); return; }
+      requestAnimationFrame(frame);
+      return;
+    }
     lastProgress = progress; lastOffset = offset;
     let energy = 0;
     const pA = progress;
@@ -487,14 +493,14 @@ function initPortrait() {
     requestAnimationFrame(frame);
   };
 
-  // Run while the section is within a screen's height of the viewport (so the explosion
-  // can play out above and below it); clear the layer once it's far away
+  // Run while the section is near the viewport. When it moves away, the loop only stops
+  // (and clears the layer) once every particle has settled off-screen — never mid-flight,
+  // which is what used to make particles vanish as the stats scrolled into view
   let visible = false, running = false;
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
     if (visible && !running) { running = true; idle = false; requestAnimationFrame(frame); }
-    if (!visible) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
-  }, { rootMargin: "100% 0px 100% 0px" }).observe(section);
+  }, { rootMargin: "150% 0px 150% 0px" }).observe(section);
 }
 
 /* ---------- Text scramble for the role ---------- */
@@ -648,10 +654,10 @@ function initContactForm() {
     e.preventDefault();
     if (!form.reportValidity()) return;
     const d = Object.fromEntries(new FormData(form));
-    const subject = `${t("mail.subject")} — ${d.type}${d.company ? ` (${d.company})` : ""}`;
+    const subject = `${t("mail.subject")}${d.company ? ` — ${d.company}` : ""}`;
     const lines = [`${t("mail.name")}: ${d.name}`, `${t("mail.email")}: ${d.email}`];
     if (d.company) lines.push(`${t("mail.company")}: ${d.company}`);
-    lines.push(`${t("mail.type")}: ${d.type}`, "", d.message);
+    lines.push("", d.message);
     const body = lines.join("\n");
     location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     const label = $(".btn-label", form);

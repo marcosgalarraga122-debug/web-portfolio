@@ -242,7 +242,7 @@ html.intro-active .nav, html.intro-active .hero-fade { opacity: 0; }
 @keyframes bob { 50% { transform: translateY(5px); } }
 
 /* ---------- Marquee ---------- */
-.marquee { overflow: hidden; padding: 22px 0; background: var(--bg-2); border-block: 1px solid var(--line); }
+.marquee { overflow: hidden; padding: 22px 0; border-block: 1px solid var(--line); }
 .marquee-track { display: flex; align-items: center; width: max-content; will-change: transform; }
 .marquee-track span, .marquee-track b {
   font-family: var(--name-font); font-style: italic; font-weight: 300; font-variation-settings: "opsz" 144;
@@ -252,11 +252,12 @@ html.intro-active .nav, html.intro-active .hero-fade { opacity: 0; }
 .marquee-track b { font-style: normal; font-weight: 300; color: var(--accent); }
 
 /* ---------- Particle portrait ---------- */
-.portrait { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: var(--bg); }
-/* Full-screen layer (moved to <body> by main.js) so particles can fly across every section */
-.portrait-canvas { position: fixed; inset: 0; z-index: 5; width: 100%; height: 100%; display: block; pointer-events: none; }
+.portrait { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; }
+/* Full-screen layer (moved to <body> by main.js) so particles can fly across every section.
+   It sits behind the page content, so flying particles pass under text and buttons, never over them. */
+.portrait-canvas { position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%; display: block; pointer-events: none; }
 .portrait-copy {
-  position: relative; z-index: 6; pointer-events: none;
+  position: relative; pointer-events: none;
   height: 100%; max-width: 44%;
   display: flex; flex-direction: column; justify-content: center;
   padding: 0 var(--pad);
