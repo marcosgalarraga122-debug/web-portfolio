@@ -82,10 +82,10 @@ function initShader() {
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
-      vec3 col=mix(vec3(.03,.03,.045),vec3(.42,.32,1.),clamp(f*f*1.5,0.,1.));
-      col=mix(col,vec3(.78,1.,.24),clamp(length(q)*f*.5-.12,0.,1.));
-      col+=vec3(.48,.38,1.)*exp(-d*3.5)*.22;
-      col*=smoothstep(1.25,.15,length(uv-vec2(.55,.5))*1.5);
+      vec3 col=mix(vec3(.039,.043,.055),vec3(.13,.17,.36),clamp(f*f*1.4,0.,1.));
+      col=mix(col,vec3(.52,.6,.95),clamp(length(q)*f*.35-.16,0.,1.));
+      col+=vec3(.35,.42,.9)*exp(-d*3.5)*.1;
+      col*=smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5);
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -137,7 +137,7 @@ function initShader() {
       smooth.x += (mouse.x - smooth.x) * 0.05;
       smooth.y += (mouse.y - smooth.y) * 0.05;
       gl.uniform2f(uR, w, h);
-      gl.uniform1f(uT, (now - start) / 1000);
+      gl.uniform1f(uT, (now - start) / 1600);
       gl.uniform2f(uM, smooth.x * w, smooth.y * h);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
@@ -183,7 +183,7 @@ class Scramble {
 
 function initScramble() {
   // EDIT: the words that cycle in the hero
-  const roles = ["Web Developer", "Web Designer", "Creative Coder", "Problem Solver"];
+  const roles = ["Web Developer", "Web Designer", "UI / UX Designer", "Digital Partner"];
   const s = new Scramble($(".scramble"));
   let i = 0;
   setInterval(() => { i = (i + 1) % roles.length; s.set(roles[i]); }, 3000);
@@ -198,9 +198,9 @@ function initNameWeight(chars) {
       const r = c.getBoundingClientRect();
       const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
       const near = Math.max(0, 1 - d / 350);
-      c.style.fontWeight = Math.round(800 - 400 * near);
-      c.style.scale = (1 + 0.18 * near).toFixed(3);
-      c.style.color = near > 0.6 ? "var(--lime)" : "";
+      c.style.fontWeight = Math.round(700 - 400 * near);
+      c.style.scale = (1 + 0.15 * near).toFixed(3);
+      c.style.color = near > 0.6 ? "var(--accent)" : "";
     });
   });
 }
@@ -245,6 +245,15 @@ function initMagnetic() {
     });
     el.addEventListener("pointerleave", () => (el.style.transform = ""));
   });
+
+  // Soft spotlight that follows the cursor across service cards
+  $$(".spot").forEach((el) =>
+    el.addEventListener("pointermove", (e) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    })
+  );
 }
 
 /* ---------- Marquee that speeds up with scroll ---------- */
@@ -253,14 +262,14 @@ function initMarquee() {
   const original = track.innerHTML;
   track.innerHTML = original.repeat(4);
   if (reduceMotion) return;
-  let x = 0, skew = 0;
+  let x = 0, speed = 0;
   const loop = () => {
-    const v = lenis ? lenis.velocity : 0;
-    x -= 0.8 + Math.min(Math.abs(v), 60) * 0.25;
+    const v = lenis ? Math.abs(lenis.velocity) : 0;
+    speed += (0.5 + Math.min(v, 40) * 0.12 - speed) * 0.08;
+    x -= speed;
     const quarter = track.scrollWidth / 4;
     if (-x >= quarter) x += quarter;
-    skew += (Math.max(-12, Math.min(12, v * 0.4)) - skew) * 0.1;
-    track.style.transform = `translate3d(${x}px,0,0) skewX(${-skew}deg)`;
+    track.style.transform = `translate3d(${x}px,0,0)`;
     requestAnimationFrame(loop);
   };
   loop();
@@ -398,7 +407,9 @@ function initScrollAnimations(aboutWords) {
     start: 0, end: "max",
     onUpdate: (self) => {
       progress.style.transform = `scaleX(${self.progress})`;
-      $(".nav").classList.toggle("hidden", self.direction === 1 && self.scroll() > 300);
+      const nav = $(".nav");
+      nav.classList.toggle("hidden", self.direction === 1 && self.scroll() > 300);
+      nav.classList.toggle("scrolled", self.scroll() > 40);
     },
   });
 
@@ -450,9 +461,16 @@ function intro(chars) {
 
   lenis && lenis.stop();
   const count = $(".preloader-count");
+  const bar = $(".preloader-bar span");
   const n = { v: 0 };
   gsap.timeline({ defaults: { ease: "expo.inOut" } })
-    .to(n, { v: 100, duration: reduceMotion ? 0.01 : 1.8, ease: "power2.inOut", onUpdate: () => (count.textContent = Math.round(n.v)) })
+    .to(n, {
+      v: 100, duration: reduceMotion ? 0.01 : 1.6, ease: "power2.inOut",
+      onUpdate: () => {
+        count.textContent = Math.round(n.v);
+        bar.style.transform = `scaleX(${n.v / 100})`;
+      },
+    })
     .to(preloader, { yPercent: -100, duration: reduceMotion ? 0.01 : 1.1 })
     .from(chars, { yPercent: 115, duration: 1.4, stagger: 0.07, ease: "expo.out" }, "-=0.55")
     .from(".hero-fade", { y: 24, opacity: 0, duration: 1, stagger: 0.1, ease: "power3.out" }, "-=1.1")

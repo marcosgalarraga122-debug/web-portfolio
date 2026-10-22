@@ -4,19 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marcos — Web Developer & Designer</title>
-  <meta name="description" content="Marcos designs and builds bold, interactive websites that make brands stand out.">
-  <meta name="theme-color" content="#08080b">
+  <meta name="description" content="Marcos designs and builds high-quality, high-performance websites for businesses.">
+  <meta name="theme-color" content="#0a0b0e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300..800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="loading">
 
   <!-- Loading screen -->
   <div class="preloader" aria-hidden="true">
-    <span class="mono">Loading portfolio</span>
-    <span class="preloader-count">0</span>
+    <div class="preloader-row">
+      <span class="mono">Marcos — Web Developer & Designer</span>
+      <span class="preloader-count">0</span>
+    </div>
+    <div class="preloader-bar"><span></span></div>
   </div>
 
   <!-- Global effects -->
@@ -26,13 +29,14 @@
   <div class="cursor-ring" aria-hidden="true"><span><em class="cursor-label"></em></span></div>
 
   <header class="nav">
-    <a href="#top" class="nav-logo magnetic">M<span>.</span></a>
+    <a href="#top" class="nav-logo magnetic">Marcos<span>.</span></a>
     <nav class="nav-links" aria-label="Main">
       <a href="#about" class="roll"><span data-text="About">About</span></a>
+      <a href="#services" class="roll"><span data-text="Services">Services</span></a>
       <a href="#skills" class="roll"><span data-text="Skills">Skills</span></a>
       <a href="#experience" class="roll"><span data-text="Experience">Experience</span></a>
     </nav>
-    <a href="#contact" class="nav-cta magnetic">Let's talk</a>
+    <a href="#contact" class="nav-cta magnetic">Start a project</a>
   </header>
 
   <main>
@@ -41,7 +45,7 @@
       <canvas class="hero-canvas" aria-hidden="true"></canvas>
       <div class="hero-content">
         <div class="hero-top hero-fade">
-          <span class="mono">Portfolio — ©2026</span>
+          <span class="mono">Web Design & Development</span>
           <span class="mono status"><i></i>Available for new projects</span>
         </div>
 
@@ -49,10 +53,16 @@
 
         <div class="hero-bottom">
           <p class="hero-role hero-fade">
-            <span class="mono">I am a</span>
+            <span class="mono">Professional</span>
             <span class="scramble">Web Developer</span>
           </p>
-          <p class="hero-intro hero-fade">I design and build websites that look incredible, move beautifully and help businesses win customers.</p>
+          <div class="hero-intro hero-fade">
+            <p>I design and build high-quality websites that strengthen your brand, earn your customers' trust and grow your business.</p>
+            <div class="hero-actions">
+              <a href="#contact" class="btn magnetic">Start a project</a>
+              <a href="#services" class="btn btn-ghost">View services</a>
+            </div>
+          </div>
           <a href="#about" class="scroll-cue mono hero-fade">Scroll <span>↓</span></a>
         </div>
       </div>
@@ -61,29 +71,59 @@
     <!-- ============ MARQUEE ============ -->
     <div class="marquee" aria-hidden="true">
       <div class="marquee-track">
-        <span>Web Design</span><b>✦</b><span>Development</span><b>✦</b><span>Animation</span><b>✦</b><span>WebGL</span><b>✦</b><span>UI / UX</span><b>✦</b><span>Interaction</span><b>✦</b>
+        <span>Web Design</span><b>/</b><span>Web Development</span><b>/</b><span>UI / UX</span><b>/</b><span>Responsive Websites</span><b>/</b><span>SEO</span><b>/</b><span>Performance</span><b>/</b>
       </div>
     </div>
 
     <!-- ============ ABOUT ============ -->
     <section class="section about" id="about">
       <span class="mono label">(01) About</span>
-      <p class="about-text">Hi, I'm Marcos — a web developer and designer who turns ideas into websites people remember. I mix bold design, smooth animation and clean code to create fast, interactive experiences that make brands stand out and bring in real results.</p>
+      <p class="about-text">I'm Marcos, a web developer and designer who helps businesses stand out online. I combine clear design, smooth interaction and clean, reliable code to deliver fast websites that represent your brand professionally and turn visitors into clients.</p>
 
       <!-- EDIT: change these numbers to your real ones -->
       <div class="stats">
-        <div class="stat reveal-up"><p class="stat-num"><span data-count="10">0</span>+</p><p class="mono">Websites built</p></div>
+        <div class="stat reveal-up"><p class="stat-num"><span data-count="10">0</span>+</p><p class="mono">Websites delivered</p></div>
         <div class="stat reveal-up"><p class="stat-num"><span data-count="100">0</span>%</p><p class="mono">Responsive & mobile-first</p></div>
-        <div class="stat reveal-up"><p class="stat-num"><span data-count="24">0</span>h</p><p class="mono">Reply time</p></div>
+        <div class="stat reveal-up"><p class="stat-num"><span data-count="24">0</span>h</p><p class="mono">Response time</p></div>
+      </div>
+    </section>
+
+    <!-- ============ SERVICES ============ -->
+    <section class="section services" id="services">
+      <div class="section-head">
+        <span class="mono label">(02) Services</span>
+        <h2 class="title reveal-up">How I can help<br>your business</h2>
+      </div>
+      <div class="service-grid">
+        <article class="service spot reveal-up">
+          <span class="mono service-num">01</span>
+          <h3>Website design</h3>
+          <p>Custom, on-brand designs that build trust and guide visitors towards getting in touch or buying.</p>
+        </article>
+        <article class="service spot reveal-up">
+          <span class="mono service-num">02</span>
+          <h3>Website development</h3>
+          <p>Fast, responsive and search-engine-ready websites built with clean, modern code.</p>
+        </article>
+        <article class="service spot reveal-up">
+          <span class="mono service-num">03</span>
+          <h3>Redesign & optimisation</h3>
+          <p>Turn an outdated website into a modern one that loads faster and converts better.</p>
+        </article>
+        <article class="service spot reveal-up">
+          <span class="mono service-num">04</span>
+          <h3>Care & support</h3>
+          <p>Updates, improvements and reliable support after launch, so your site keeps performing.</p>
+        </article>
       </div>
     </section>
 
     <!-- ============ SKILLS ============ -->
     <section class="section skills" id="skills">
       <div class="section-head">
-        <span class="mono label">(02) Skills</span>
-        <h2 class="title reveal-up">My toolkit</h2>
-        <p class="mono hint reveal-up">Grab, throw and play with the bubbles ↓</p>
+        <span class="mono label">(03) Skills</span>
+        <h2 class="title reveal-up">Expertise & tools</h2>
+        <p class="mono hint reveal-up">Interactive — drag and throw the skills</p>
       </div>
 
       <div class="skills-layout">
@@ -100,10 +140,10 @@
           <div class="bubble" data-size="0.9">Git</div>
           <div class="bubble" data-size="0.9">Node.js</div>
           <div class="bubble" data-size="1">SEO</div>
-          <div class="bubble" data-size="1.2">Motion</div>
+          <div class="bubble" data-size="1.2">Animation</div>
           <div class="bubble" data-size="0.9">Three.js</div>
           <div class="bubble" data-size="1">Branding</div>
-          <button class="playground-reset mono" type="button">Shake ↻</button>
+          <button class="playground-reset mono" type="button">Reset ↻</button>
         </div>
 
         <div class="skill-groups">
@@ -116,8 +156,8 @@
             <ul><li>HTML, CSS & JavaScript</li><li>React</li><li>Node.js</li><li>Git & GitHub</li></ul>
           </div>
           <div class="skill-group reveal-up">
-            <h3><span class="mono">C.</span> Motion & 3D</h3>
-            <ul><li>GSAP animation</li><li>WebGL & shaders</li><li>Three.js</li><li>Micro-interactions</li></ul>
+            <h3><span class="mono">C.</span> Interaction</h3>
+            <ul><li>GSAP animation</li><li>WebGL</li><li>Three.js</li><li>Micro-interactions</li></ul>
           </div>
         </div>
       </div>
@@ -127,14 +167,14 @@
     <!-- EDIT: replace the [brackets] with your real experience and education -->
     <section class="section experience" id="experience">
       <div class="section-head">
-        <span class="mono label">(03) Experience</span>
-        <h2 class="title reveal-up">The journey<br>so far</h2>
+        <span class="mono label">(04) Experience</span>
+        <h2 class="title reveal-up">Experience &<br>education</h2>
       </div>
       <ol class="exp-list">
         <li class="exp-row reveal-up">
-          <span class="mono exp-year">2025 — Now</span>
+          <span class="mono exp-year">2025 — Present</span>
           <div><h3>Freelance Web Developer</h3><p class="exp-place">Self-employed</p></div>
-          <p class="exp-desc">Designing and building custom websites for small businesses, creators and brands — from first idea to launch.</p>
+          <p class="exp-desc">Designing and building custom websites for small businesses, professionals and brands — from first idea to launch.</p>
         </li>
         <li class="exp-row reveal-up">
           <span class="mono exp-year">[Year — Year]</span>
@@ -152,28 +192,29 @@
     <!-- ============ CONTACT ============ -->
     <!-- EDIT: replace the social links with your own -->
     <section class="section contact" id="contact">
-      <span class="mono label">(04) Contact</span>
+      <span class="mono label">(05) Contact</span>
       <h2 class="contact-title">
-        <span class="line"><span>Let's build</span></span>
-        <span class="line"><span>something <em>amazing</em></span></span>
+        <span class="line"><span>Let's work</span></span>
+        <span class="line"><span><em>together.</em></span></span>
       </h2>
+      <p class="contact-lead">Tell me about your business and your goals. I'll reply within 24 hours with ideas and a clear quote.</p>
       <div class="contact-row">
-        <a href="mailto:Marcos.galarraga122@outlook.com" class="contact-btn magnetic" data-cursor="Email"><span>Say hello</span></a>
+        <a href="mailto:Marcos.galarraga122@outlook.com" class="contact-btn magnetic" data-cursor="Email"><span>Get in touch</span></a>
         <button class="copy-email mono" type="button" data-email="Marcos.galarraga122@outlook.com">
           Marcos.galarraga122@outlook.com <span class="copy-state">Copy</span>
         </button>
       </div>
       <ul class="socials">
-        <li><a href="#" class="roll"><span data-text="GitHub">GitHub</span></a></li>
         <li><a href="#" class="roll"><span data-text="LinkedIn">LinkedIn</span></a></li>
+        <li><a href="#" class="roll"><span data-text="GitHub">GitHub</span></a></li>
         <li><a href="#" class="roll"><span data-text="Instagram">Instagram</span></a></li>
       </ul>
     </section>
   </main>
 
   <footer class="footer mono">
-    <span>© <span class="year">2026</span> Marcos</span>
-    <span>Designed & coded by hand</span>
+    <span>© <span class="year">2026</span> Marcos. All rights reserved.</span>
+    <span>Web Design & Development</span>
     <a href="#top">Back to top ↑</a>
   </footer>
 

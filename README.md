@@ -17,6 +17,7 @@ Open `index.html` in a browser. No build step is needed.
 Everything to change is marked with `EDIT` comments in `index.html`:
 
 - **About / stats:** the intro text and the numbers
+- **Services:** the four service cards
 - **Skills:** the bubbles and skill lists
 - **Experience:** replace the `[brackets]`
 - **Contact:** the social links
