@@ -97,6 +97,8 @@ window.I18N = {
 
     "services.label": "Services",
     "services.title": "How I can help<br>your <em>business</em>",
+    "services.hintFine": "Scroll to explore",
+    "services.hintTouch": "Swipe to explore",
     "s1.t": "Website design",
     "s1.d": "Custom, on-brand designs that build trust and guide visitors towards getting in touch or buying.",
     "s2.t": "Website development",
@@ -295,6 +297,8 @@ window.I18N = {
 
     "services.label": "Servicios",
     "services.title": "Cómo puedo ayudar<br>a tu <em>negocio</em>",
+    "services.hintFine": "Desplázate para explorar",
+    "services.hintTouch": "Desliza para explorar",
     "s1.t": "Diseño web",
     "s1.d": "Diseños a medida, fieles a tu marca, que generan confianza y guían a tus visitantes a contactarte o comprar.",
     "s2.t": "Desarrollo web",
@@ -493,6 +497,8 @@ window.I18N = {
 
     "services.label": "Services",
     "services.title": "Comment je peux aider<br>votre <em>entreprise</em>",
+    "services.hintFine": "Faites défiler pour explorer",
+    "services.hintTouch": "Balayez pour explorer",
     "s1.t": "Design de site web",
     "s1.d": "Des designs sur mesure, fidèles à votre marque, qui inspirent confiance et incitent les visiteurs à vous contacter ou à acheter.",
     "s2.t": "Développement web",

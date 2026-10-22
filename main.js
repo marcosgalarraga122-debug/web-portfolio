@@ -728,6 +728,127 @@ function initJourney() {
     .to(dots, { "--gap": "56px", opacity: 0.35, ease: "none", duration: 1.4 });
 }
 
+/* ---------- Services: cards that travel sideways ----------
+   Large screens: the section pins and vertical scrolling moves the row of cards sideways,
+   each card's big outline numeral drifting at its own pace. Phones: a native swipeable row
+   (no pinning). Reduced motion on large screens: a plain grid. */
+function initServicesTrack() {
+  const root = document.documentElement;
+  const section = $(".services"), track = $(".service-track");
+  const cards = $$(".service", track);
+  const count = $(".services-count b"), bar = $(".services-progress span");
+  let current = -1;
+  const setProgress = (p) => {
+    bar.style.transform = `scaleX(${(1 + p * (cards.length - 1)) / cards.length})`;
+    const i = Math.min(cards.length - 1, Math.round(p * (cards.length - 1)));
+    if (i === current) return;
+    current = i;
+    cards.forEach((c, k) => c.classList.toggle("lit", k === i));
+    swapText(count, String(i + 1).padStart(2, "0"));
+  };
+  setProgress(0);
+  track.addEventListener("scroll", () => {
+    const max = track.scrollWidth - track.clientWidth;
+    setProgress(max > 0 ? track.scrollLeft / max : 0);
+  }, { passive: true });
+  if (!hasGSAP) return;
+
+  gsap.matchMedia().add({
+    move: "(min-width: 900px) and (prefers-reduced-motion: no-preference)",
+    still: "(min-width: 900px) and (prefers-reduced-motion: reduce)",
+  }, (ctx) => {
+    if (ctx.conditions.still) { root.classList.add("no-track"); return () => root.classList.remove("no-track"); }
+    root.classList.add("track-on");
+    const distance = () => track.scrollWidth - track.clientWidth;
+    const tween = gsap.to(track, {
+      x: () => -distance(), ease: "none",
+      scrollTrigger: {
+        trigger: section, start: "top top", end: () => `+=${distance()}`,
+        pin: true, scrub: true, invalidateOnRefresh: true,
+        onUpdate: (self) => setProgress(self.progress),
+      },
+    });
+    cards.forEach((card) => gsap.fromTo($(".service-index", card), { xPercent: 22 }, {
+      xPercent: -22, ease: "none",
+      scrollTrigger: { trigger: card, containerAnimation: tween, start: "left right", end: "right left", scrub: true },
+    }));
+    return () => root.classList.remove("track-on");
+  });
+}
+
+/* ---------- Work: the browser window illustrates the highlight in view ---------- */
+function initWorkStage() {
+  const items = $$(".work-highlights li"), screens = $$(".screen");
+  const count = $(".stage-count b");
+  if (!items.length) return;
+  let current = 0;
+  items[0].classList.add("on");
+  const show = (i) => {
+    if (i === current) return;
+    current = i;
+    screens.forEach((s, k) => s.classList.toggle("on", k === i));
+    items.forEach((li, k) => li.classList.toggle("on", k === i));
+    swapText(count, String(i + 1).padStart(2, "0"));
+  };
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => e.isIntersecting && show(+e.target.dataset.screen));
+  }, { rootMargin: "-45% 0px -45% 0px" });
+  items.forEach((li) => io.observe(li));
+}
+
+/* ---------- Why me: covered cards ease back as the next one slides over ---------- */
+function initWhyStack() {
+  if (!hasGSAP) return;
+  const cards = $$(".why-item");
+  gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
+    cards.slice(0, -1).forEach((card, i) => {
+      const scrollTrigger = { trigger: cards[i + 1], start: "top bottom", end: "top 35%", scrub: true };
+      gsap.to(card, { scale: 0.93, ease: "none", scrollTrigger });
+      gsap.to(card.children, { opacity: 0.3, ease: "none", scrollTrigger });
+    });
+  });
+}
+
+/* ---------- Contact: a panel that opens out to the full width as it arrives ---------- */
+function initContactCurtain() {
+  if (!hasGSAP) return;
+  gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
+    gsap.fromTo(".contact", { clipPath: "inset(0% 4% 0% 4% round 40px)" }, {
+      clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "none",
+      scrollTrigger: { trigger: ".contact", start: "top bottom", end: "top 10%", scrub: true },
+    });
+  });
+}
+
+/* ---------- "You are here": the current section's number and name, bottom left ---------- */
+let refreshWhere = () => {};
+function initSectionIndex() {
+  const where = $(".where"), text = $(".where-text", where);
+  let current = null;
+  const render = () => {
+    const label = current && $(".label", current);
+    if (!label) return;
+    const num = document.createElement("span");
+    num.className = "lnum";
+    num.textContent = $(".lnum", label).textContent;
+    text.replaceChildren(num, label.lastElementChild.textContent);
+  };
+  refreshWhere = render;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const numbered = !!$(".lnum", e.target);
+      where.classList.toggle("show", numbered);
+      if (!numbered || e.target === current) return;
+      const first = !current;
+      current = e.target;
+      if (first) render();
+      else { text.classList.add("swapping"); setTimeout(() => { render(); text.classList.remove("swapping"); }, 160); }
+    });
+  }, { rootMargin: "-50% 0px -50% 0px" });
+  $$("main > section").forEach((s) => io.observe(s));
+}
+
 // "This is me" facts: while the portrait is pinned, each row draws its hairline and its value
 // decodes in, one after another; as the picture explodes they leave in reverse order
 function initFacts() {
@@ -1000,6 +1121,7 @@ function rebuildAfterLanguageChange() {
   const words = splitWords($(".about-text"));
   if (hasGSAP) makeAboutScrub(words);
   renderMarquee();
+  refreshWhere();
   if (scramble) {
     cancelAnimationFrame(scramble.raf);
     $(".scramble").textContent = roles()[roleIndex % roles().length];
@@ -1300,5 +1422,10 @@ initLangSwitch();
 initPortal(nameChars);
 initPortrait();
 initJourney();
+initServicesTrack();
+initWorkStage();
+initWhyStack();
+initContactCurtain();
+initSectionIndex();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars, fitName);

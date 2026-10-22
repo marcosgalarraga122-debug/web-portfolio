@@ -255,37 +255,52 @@
       </div>
     </section>
 
+    <!-- Services: on large screens the cards travel sideways while the section is pinned
+         (initServicesTrack in main.js); on phones they're a swipeable row -->
     <section class="section services" id="services">
-      <div class="section-head">
-        <span class="mono label"><span class="lnum">(03) </span><span data-i18n="services.label">Services</span></span>
-        <h2 class="title" data-i18n-html="services.title">How I can help<br>your <em>business</em></h2>
+      <div class="services-pin">
+        <div class="section-head services-head">
+          <div>
+            <span class="mono label"><span class="lnum">(03) </span><span data-i18n="services.label">Services</span></span>
+            <h2 class="title" data-i18n-html="services.title">How I can help<br>your <em>business</em></h2>
+          </div>
+          <div class="services-meta mono" aria-hidden="true">
+            <span class="hint-fine" data-i18n="services.hintFine">Scroll to explore</span><span class="hint-touch" data-i18n="services.hintTouch">Swipe to explore</span>
+            <span class="services-count"><b>01</b> / 04</span>
+          </div>
+        </div>
+        <ol class="service-track">
+          <li class="service">
+            <span class="service-index" aria-hidden="true">01</span>
+            <span class="mono service-num">01 / 04</span>
+            <h3 data-i18n="s1.t">Website design</h3>
+            <p data-i18n="s1.d">Custom, on-brand designs that build trust and guide visitors towards getting in touch or buying.</p>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </li>
+          <li class="service">
+            <span class="service-index" aria-hidden="true">02</span>
+            <span class="mono service-num">02 / 04</span>
+            <h3 data-i18n="s2.t">Website development</h3>
+            <p data-i18n="s2.d">Fast, responsive and search-engine-ready websites built with clean, modern code.</p>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </li>
+          <li class="service">
+            <span class="service-index" aria-hidden="true">03</span>
+            <span class="mono service-num">03 / 04</span>
+            <h3 data-i18n="s3.t">Redesign & optimisation</h3>
+            <p data-i18n="s3.d">Turn an outdated website into a modern one that loads faster and converts better.</p>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </li>
+          <li class="service">
+            <span class="service-index" aria-hidden="true">04</span>
+            <span class="mono service-num">04 / 04</span>
+            <h3 data-i18n="s4.t">Care & support</h3>
+            <p data-i18n="s4.d">Updates, improvements and reliable support after launch, so your site keeps performing.</p>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </li>
+        </ol>
+        <div class="services-progress" aria-hidden="true"><span></span></div>
       </div>
-      <ol class="service-list">
-        <li class="service reveal-up">
-          <span class="mono service-num">01</span>
-          <h3 data-i18n="s1.t">Website design</h3>
-          <p data-i18n="s1.d">Custom, on-brand designs that build trust and guide visitors towards getting in touch or buying.</p>
-          <span class="service-arrow" aria-hidden="true">↗</span>
-        </li>
-        <li class="service reveal-up">
-          <span class="mono service-num">02</span>
-          <h3 data-i18n="s2.t">Website development</h3>
-          <p data-i18n="s2.d">Fast, responsive and search-engine-ready websites built with clean, modern code.</p>
-          <span class="service-arrow" aria-hidden="true">↗</span>
-        </li>
-        <li class="service reveal-up">
-          <span class="mono service-num">03</span>
-          <h3 data-i18n="s3.t">Redesign & optimisation</h3>
-          <p data-i18n="s3.d">Turn an outdated website into a modern one that loads faster and converts better.</p>
-          <span class="service-arrow" aria-hidden="true">↗</span>
-        </li>
-        <li class="service reveal-up">
-          <span class="mono service-num">04</span>
-          <h3 data-i18n="s4.t">Care & support</h3>
-          <p data-i18n="s4.d">Updates, improvements and reliable support after launch, so your site keeps performing.</p>
-          <span class="service-arrow" aria-hidden="true">↗</span>
-        </li>
-      </ol>
     </section>
 
     <!-- ============ WORK: CASE STUDY (this website) ============ -->
@@ -295,19 +310,32 @@
         <span class="mono label"><span class="lnum">(04) </span><span data-i18n="work.label">Selected work</span></span>
         <h2 class="title" data-i18n-html="work.title">Case study:<br><em>this website</em></h2>
       </div>
-      <div class="work-layout">
-        <div class="work-main">
-          <p class="work-intro reveal-up" data-i18n="work.intro">The clearest proof of what I can build for you is the site you're looking at. It was designed and built from scratch — no templates, no page builders.</p>
+      <p class="work-intro reveal-up" data-i18n="work.intro">The clearest proof of what I can build for you is the site you're looking at. It was designed and built from scratch — no templates, no page builders.</p>
+      <div class="work-exhibit">
+        <!-- A browser window whose "screen" changes to illustrate the highlight in view -->
+        <div class="work-stage" aria-hidden="true">
+          <div class="browser">
+            <div class="browser-bar"><i></i><i></i><i></i><span class="mono">marcos.portfolio</span></div>
+            <div class="browser-screen">
+              <div class="screen screen-wave on"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="cursor"></span></div>
+              <div class="screen screen-dots"><span class="dots"></span></div>
+              <div class="screen screen-lang"><span>Hello</span><span>Hola</span><span>Bonjour</span></div>
+              <div class="screen screen-keys"><span class="key mono">Tab</span><span class="key mono">↵</span><span class="focus-btn"><span data-i18n="work.ctaBtn">Start a project</span> →</span></div>
+              <div class="screen screen-devices"><span class="device"><i></i><i></i><i></i></span></div>
+            </div>
+          </div>
+          <p class="stage-count mono"><b>01</b> / 05</p>
+        </div>
+        <div class="work-scroll">
           <p class="mono work-hl-label reveal-up" data-i18n="work.hl">Highlights</p>
           <ol class="work-highlights">
-            <li class="reveal-up"><span class="mono">01</span><span data-i18n="work.h1">A real-time WebGL background that reacts to your cursor</span></li>
-            <li class="reveal-up"><span class="mono">02</span><span data-i18n="work.h2">A portrait rebuilt from {n} particles, driven by scroll</span></li>
-            <li class="reveal-up"><span class="mono">03</span><span data-i18n="work.h3">Instant switching between three languages</span></li>
-            <li class="reveal-up"><span class="mono">04</span><span data-i18n="work.h4">Keyboard-friendly and respectful of reduced-motion settings</span></li>
-            <li class="reveal-up"><span class="mono">05</span><span data-i18n="work.h5">Fully responsive, from phones to large screens</span></li>
+              <li data-screen="0"><span class="mono">01</span><span data-i18n="work.h1">A real-time WebGL background that reacts to your cursor</span></li>
+              <li data-screen="1"><span class="mono">02</span><span data-i18n="work.h2">A portrait rebuilt from {n} particles, driven by scroll</span></li>
+              <li data-screen="2"><span class="mono">03</span><span data-i18n="work.h3">Instant switching between three languages</span></li>
+              <li data-screen="3"><span class="mono">04</span><span data-i18n="work.h4">Keyboard-friendly and respectful of reduced-motion settings</span></li>
+              <li data-screen="4"><span class="mono">05</span><span data-i18n="work.h5">Fully responsive, from phones to large screens</span></li>
           </ol>
-        </div>
-        <aside class="work-spec reveal-up">
+          <aside class="work-spec">
           <dl>
             <div><dt class="mono" data-i18n="work.role">Role</dt><dd data-i18n="work.roleVal">Design & development</dd></div>
             <div><dt class="mono" data-i18n="work.stack">Built with</dt><dd>HTML · CSS · JavaScript · WebGL · GSAP</dd></div>
@@ -316,6 +344,7 @@
           <p class="work-cta-text" data-i18n="work.cta">Want something like this for your business?</p>
           <a href="#contact" class="btn"><span class="btn-label" data-i18n="work.ctaBtn">Start a project</span><span class="btn-arrow" aria-hidden="true">→</span></a>
         </aside>
+        </div>
       </div>
     </section>
 
@@ -326,11 +355,11 @@
         <span class="mono label"><span class="lnum">(05) </span><span data-i18n="why.label">Why work with me</span></span>
         <h2 class="title" data-i18n-html="why.title">A reliable partner<br>for your <em>website</em></h2>
       </div>
-      <div class="why-grid">
-        <div class="why-item reveal-up"><span class="mono">01</span><h3 data-i18n="w1.t">Clear quotes</h3><p data-i18n="w1.d">A written quote before any work starts, so you know exactly what you're getting and what it costs.</p></div>
-        <div class="why-item reveal-up"><span class="mono">02</span><h3 data-i18n="w2.t">Agreed timelines</h3><p data-i18n="w2.d">A schedule we agree on together, with regular updates so you always know where the project stands.</p></div>
-        <div class="why-item reveal-up"><span class="mono">03</span><h3 data-i18n="w3.t">Built to perform</h3><p data-i18n="w3.d">Fast, secure, mobile-first websites, set up from the start to be found on search engines.</p></div>
-        <div class="why-item reveal-up"><span class="mono">04</span><h3 data-i18n="w4.t">Direct communication</h3><p data-i18n="w4.d">You work directly with me — from the first call to launch and beyond. No middlemen.</p></div>
+      <div class="why-stack">
+        <div class="why-item"><span class="why-num" aria-hidden="true">01</span><div class="why-body"><span class="mono">01 / 04</span><h3 data-i18n="w1.t">Clear quotes</h3><p data-i18n="w1.d">A written quote before any work starts, so you know exactly what you're getting and what it costs.</p></div></div>
+        <div class="why-item"><span class="why-num" aria-hidden="true">02</span><div class="why-body"><span class="mono">02 / 04</span><h3 data-i18n="w2.t">Agreed timelines</h3><p data-i18n="w2.d">A schedule we agree on together, with regular updates so you always know where the project stands.</p></div></div>
+        <div class="why-item"><span class="why-num" aria-hidden="true">03</span><div class="why-body"><span class="mono">03 / 04</span><h3 data-i18n="w3.t">Built to perform</h3><p data-i18n="w3.d">Fast, secure, mobile-first websites, set up from the start to be found on search engines.</p></div></div>
+        <div class="why-item"><span class="why-num" aria-hidden="true">04</span><div class="why-body"><span class="mono">04 / 04</span><h3 data-i18n="w4.t">Direct communication</h3><p data-i18n="w4.d">You work directly with me — from the first call to launch and beyond. No middlemen.</p></div></div>
       </div>
     </section>
 
@@ -439,6 +468,9 @@
       -->
     </section>
   </main>
+
+  <!-- "You are here": the current section's number and name (initSectionIndex in main.js) -->
+  <p class="where mono" aria-hidden="true"><span class="where-text"></span></p>
 
   <footer class="footer mono">
     <span>© <span class="year">2026</span> Marcos Cañellas. <span data-i18n="footer.rights">All rights reserved.</span></span>
