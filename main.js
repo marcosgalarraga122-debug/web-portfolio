@@ -35,6 +35,38 @@ function splitWords(el) {
   });
 }
 
+// Wrap each word in a clipping mask (keeps <br> line breaks) so it can rise into view
+function splitMaskWords(el) {
+  const inner = [];
+  [...el.childNodes].forEach((node) => {
+    if (node.nodeType !== Node.TEXT_NODE) return;
+    const frag = document.createDocumentFragment();
+    node.textContent.split(/(\s+)/).forEach((part) => {
+      if (!part) return;
+      if (/^\s+$/.test(part)) { frag.append(" "); return; }
+      const mask = document.createElement("span");
+      mask.className = "wm";
+      const word = document.createElement("span");
+      word.textContent = part;
+      mask.append(word);
+      frag.append(mask);
+      inner.push(word);
+    });
+    node.replaceWith(frag);
+  });
+  return inner;
+}
+
+// Crossfade a piece of text through a light blur so the swap reads as one motion
+function swapText(el, text, onSwap) {
+  el.classList.add("swapping");
+  setTimeout(() => {
+    el.textContent = text;
+    onSwap && onSwap();
+    el.classList.remove("swapping");
+  }, 160);
+}
+
 /* ---------- Smooth scrolling (Lenis) ---------- */
 let lenis = null;
 if (window.Lenis && !reduceMotion) {
@@ -282,15 +314,28 @@ function initNameWeight(chars) {
 
 /* ---------- Magnetic buttons ---------- */
 function initMagnetic() {
-  if (!finePointer) return;
+  if (!finePointer || reduceMotion) return;
+  // Spring physics instead of snapping to the cursor: the pull has momentum and
+  // settles naturally, and can be interrupted mid-motion without a jump
   $$(".magnetic").forEach((el) => {
+    const s = { x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, running: false };
+    const tick = () => {
+      s.vx = (s.vx + (s.tx - s.x) * 0.15) * 0.72;
+      s.vy = (s.vy + (s.ty - s.y) * 0.15) * 0.72;
+      s.x += s.vx; s.y += s.vy;
+      el.style.translate = `${s.x.toFixed(2)}px ${s.y.toFixed(2)}px`;
+      const settled = Math.abs(s.tx - s.x) < 0.05 && Math.abs(s.ty - s.y) < 0.05 && Math.abs(s.vx) + Math.abs(s.vy) < 0.05;
+      if (settled) { s.running = false; return; }
+      requestAnimationFrame(tick);
+    };
+    const kick = () => { if (!s.running) { s.running = true; requestAnimationFrame(tick); } };
     el.addEventListener("pointermove", (e) => {
       const r = el.getBoundingClientRect();
-      const x = e.clientX - r.left - r.width / 2;
-      const y = e.clientY - r.top - r.height / 2;
-      el.style.transform = `translate(${x * 0.35}px, ${y * 0.35}px)`;
+      s.tx = (e.clientX - r.left - r.width / 2) * 0.3;
+      s.ty = (e.clientY - r.top - r.height / 2) * 0.3;
+      kick();
     });
-    el.addEventListener("pointerleave", () => (el.style.transform = ""));
+    el.addEventListener("pointerleave", () => { s.tx = 0; s.ty = 0; kick(); });
   });
 
   // Soft spotlight that follows the cursor across service cards
@@ -336,8 +381,24 @@ function initContactForm() {
     lines.push(`Project type: ${d.type}`, "", d.message);
     const body = lines.join("\n");
     location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    note.textContent = "Your email app should open now — just press send.";
+    const label = $(".btn-label", form);
+    swapText(label, "Opening your email…");
+    swapText(note, "Your email app should open now — just press send.");
+    setTimeout(() => swapText(label, "Send enquiry"), 3000);
   });
+}
+
+/* ---------- Underline the menu link for the section in view ---------- */
+function initNavActive() {
+  const links = new Map($$(".nav-links a").map((a) => [a.getAttribute("href").slice(1), a]));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      links.forEach((a) => a.classList.remove("active"));
+      links.get(entry.target.id)?.classList.add("active");
+    });
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  $$("main section[id]").forEach((s) => io.observe(s));
 }
 
 /* ---------- Copy email ---------- */
@@ -347,11 +408,12 @@ function initCopyEmail() {
   btn.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(btn.dataset.email);
-      state.textContent = "Copied!";
+      swapText(state, "Copied ✓", () => state.classList.add("done"));
+      clearTimeout(state.timer);
+      state.timer = setTimeout(() => swapText(state, "Copy", () => state.classList.remove("done")), 2000);
     } catch {
       location.href = `mailto:${btn.dataset.email}`;
     }
-    setTimeout(() => (state.textContent = "Copy"), 2000);
   });
 }
 
@@ -396,12 +458,26 @@ function initScrollAnimations(aboutWords) {
     });
   });
 
-  $$(".reveal-up").forEach((el) =>
-    gsap.from(el, {
-      y: 60, opacity: 0, duration: 1.2, ease: "expo.out",
-      scrollTrigger: { trigger: el, start: "top 88%" },
-    })
-  );
+  if (!reduceMotion) {
+    // Section titles: each word rises out of its own mask, 50ms apart
+    $$(".title").forEach((title) => {
+      gsap.from(splitMaskWords(title), {
+        yPercent: 105, duration: 1, stagger: 0.05, ease: "power4.out",
+        scrollTrigger: { trigger: title, start: "top 85%", once: true },
+      });
+    });
+
+    // Content: elements entering together are batched and staggered 60ms apart;
+    // a light blur bridges the fade so it reads as one smooth motion
+    gsap.set(".reveal-up", { opacity: 0, y: 24, filter: "blur(6px)" });
+    ScrollTrigger.batch(".reveal-up", {
+      start: "top 88%", once: true,
+      onEnter: (els) => gsap.to(els, {
+        opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, stagger: 0.06, ease: "power4.out",
+        clearProps: "filter",
+      }),
+    });
+  }
 
   $$("[data-count]").forEach((el) => {
     const n = { v: 0 };
@@ -475,5 +551,6 @@ initMagnetic();
 initMarquee();
 initCopyEmail();
 initContactForm();
+initNavActive();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars);
