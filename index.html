@@ -3,196 +3,254 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Marcos — Web Design & Development</title>
-  <meta name="description" content="Custom websites that look great, load fast and bring in customers.">
+  <title>Marcos — Web Developer & Designer</title>
+  <meta name="description" content="Marcos designs and builds bold, interactive websites that make brands stand out.">
+  <meta name="theme-color" content="#08080b">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="loading">
+
+  <!-- Loading screen -->
+  <div class="preloader" aria-hidden="true">
+    <span class="mono">Loading portfolio</span>
+    <span class="preloader-count">0</span>
+  </div>
+
+  <!-- Global effects -->
+  <div class="grain" aria-hidden="true"></div>
+  <div class="progress" aria-hidden="true"><span></span></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"><span><em class="cursor-label"></em></span></div>
+
   <header class="nav">
-    <div class="container nav-inner">
-      <a href="#" class="logo">Marcos<span>.</span></a>
-      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
-      <nav class="nav-links">
-        <a href="#work">Work</a>
-        <a href="#services">Services</a>
-        <a href="#process">Process</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#contact" class="btn btn-small">Get a quote</a>
-      </nav>
-    </div>
+    <a href="#top" class="nav-logo magnetic">M<span>.</span></a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#about" class="roll"><span data-text="About">About</span></a>
+      <a href="#skills" class="roll"><span data-text="Skills">Skills</span></a>
+      <a href="#work" class="roll"><span data-text="Work">Work</span></a>
+      <a href="#experience" class="roll"><span data-text="Experience">Experience</span></a>
+    </nav>
+    <a href="#contact" class="nav-cta magnetic">Let's talk</a>
   </header>
 
   <main>
-    <!-- Hero -->
-    <section class="hero">
-      <div class="container hero-inner">
-        <p class="eyebrow">Web design &amp; development</p>
-        <h1>Websites that make people <span class="highlight">want to buy</span> from you.</h1>
-        <p class="lead">I design and build fast, modern websites for small businesses, creators and startups — from first idea to live site.</p>
-        <div class="hero-actions">
-          <a href="#work" class="btn">See my work</a>
-          <a href="#contact" class="btn btn-ghost">Start a project</a>
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="top">
+      <canvas class="hero-canvas" aria-hidden="true"></canvas>
+      <div class="hero-content">
+        <div class="hero-top hero-fade">
+          <span class="mono">Portfolio — ©2026</span>
+          <span class="mono status"><i></i>Available for new projects</span>
+        </div>
+
+        <h1 class="hero-name">MARCOS</h1>
+
+        <div class="hero-bottom">
+          <p class="hero-role hero-fade">
+            <span class="mono">I am a</span>
+            <span class="scramble">Web Developer</span>
+          </p>
+          <p class="hero-intro hero-fade">I design and build websites that look incredible, move beautifully and help businesses win customers.</p>
+          <a href="#about" class="scroll-cue mono hero-fade">Scroll <span>↓</span></a>
         </div>
       </div>
     </section>
 
-    <!-- Portfolio -->
-    <section id="work" class="section">
-      <div class="container">
-        <p class="eyebrow">Portfolio</p>
-        <h2>Recent projects</h2>
-        <p class="section-lead">A few examples of the kind of sites I build. Click a filter to explore.</p>
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Web Design</span><b>✦</b><span>Development</span><b>✦</b><span>Animation</span><b>✦</b><span>WebGL</span><b>✦</b><span>UI / UX</span><b>✦</b><span>Interaction</span><b>✦</b>
+      </div>
+    </div>
 
-        <div class="filters" role="group" aria-label="Filter projects">
-          <button class="filter active" data-filter="all">All</button>
-          <button class="filter" data-filter="business">Business</button>
-          <button class="filter" data-filter="shop">Online shop</button>
-          <button class="filter" data-filter="personal">Personal</button>
-        </div>
+    <!-- ============ ABOUT ============ -->
+    <section class="section about" id="about">
+      <span class="mono label">(01) About</span>
+      <p class="about-text">Hi, I'm Marcos — a web developer and designer who turns ideas into websites people remember. I mix bold design, smooth animation and clean code to create fast, interactive experiences that make brands stand out and bring in real results.</p>
 
-        <!-- To add a real project: copy one <article>, change the text,
-             and replace the .mock div with <img src="images/your-screenshot.png" alt="..."> -->
-        <div class="grid projects">
-          <article class="card project" data-category="business">
-            <div class="mock mock-restaurant"><div class="mock-bar"></div><div class="mock-body"><div class="m-title"></div><div class="m-line"></div><div class="m-line short"></div><div class="m-btn"></div></div></div>
-            <div class="card-body">
-              <h3>Restaurant website</h3>
-              <p>Menu, online table booking and opening hours — designed to look great on phones.</p>
-              <ul class="tags"><li>Business</li><li>Booking</li></ul>
-            </div>
-          </article>
-
-          <article class="card project" data-category="shop">
-            <div class="mock mock-shop"><div class="mock-bar"></div><div class="mock-body grid-mock"><span></span><span></span><span></span><span></span></div></div>
-            <div class="card-body">
-              <h3>Online clothing store</h3>
-              <p>Product catalogue, shopping cart and secure checkout for a small fashion brand.</p>
-              <ul class="tags"><li>Online shop</li><li>E‑commerce</li></ul>
-            </div>
-          </article>
-
-          <article class="card project" data-category="personal">
-            <div class="mock mock-portfolio"><div class="mock-bar"></div><div class="mock-body"><div class="m-avatar"></div><div class="m-title"></div><div class="m-line"></div></div></div>
-            <div class="card-body">
-              <h3>Photographer portfolio</h3>
-              <p>A clean gallery site that puts the photos first, with a simple contact form.</p>
-              <ul class="tags"><li>Personal</li><li>Gallery</li></ul>
-            </div>
-          </article>
-
-          <article class="card project" data-category="business">
-            <div class="mock mock-hotel"><div class="mock-bar"></div><div class="mock-body"><div class="m-title"></div><div class="m-line"></div><div class="m-line short"></div><div class="m-btn"></div></div></div>
-            <div class="card-body">
-              <h3>Boutique hotel</h3>
-              <p>Rooms, photo gallery and a booking enquiry form to turn visitors into guests.</p>
-              <ul class="tags"><li>Business</li><li>Hospitality</li></ul>
-            </div>
-          </article>
-
-          <article class="card project" data-category="personal">
-            <div class="mock mock-dj"><div class="mock-bar"></div><div class="mock-body"><div class="m-title"></div><div class="m-wave"></div><div class="m-line short"></div></div></div>
-            <div class="card-body">
-              <h3>DJ / music artist</h3>
-              <p>Upcoming gigs, embedded mixes and a press kit for booking agents.</p>
-              <ul class="tags"><li>Personal</li><li>Music</li></ul>
-            </div>
-          </article>
-
-          <article class="card project" data-category="shop">
-            <div class="mock mock-coffee"><div class="mock-bar"></div><div class="mock-body grid-mock"><span></span><span></span><span></span><span></span></div></div>
-            <div class="card-body">
-              <h3>Coffee subscription</h3>
-              <p>A landing page and shop for monthly coffee deliveries, focused on sign-ups.</p>
-              <ul class="tags"><li>Online shop</li><li>Landing page</li></ul>
-            </div>
-          </article>
-        </div>
+      <!-- EDIT: change these numbers to your real ones -->
+      <div class="stats">
+        <div class="stat reveal-up"><p class="stat-num"><span data-count="10">0</span>+</p><p class="mono">Websites built</p></div>
+        <div class="stat reveal-up"><p class="stat-num"><span data-count="100">0</span>%</p><p class="mono">Responsive & mobile-first</p></div>
+        <div class="stat reveal-up"><p class="stat-num"><span data-count="24">0</span>h</p><p class="mono">Reply time</p></div>
       </div>
     </section>
 
-    <!-- Services -->
-    <section id="services" class="section alt">
-      <div class="container">
-        <p class="eyebrow">Services</p>
-        <h2>What I can build for you</h2>
-        <div class="grid services">
-          <div class="card service"><div class="icon">🖥️</div><h3>Business websites</h3><p>A professional home for your business that builds trust and gets customers to contact you.</p></div>
-          <div class="card service"><div class="icon">🛒</div><h3>Online shops</h3><p>Sell your products online with a store that's easy for you to manage.</p></div>
-          <div class="card service"><div class="icon">🚀</div><h3>Landing pages</h3><p>One focused page for a product, event or campaign, built to convert.</p></div>
-          <div class="card service"><div class="icon">📱</div><h3>Mobile-first design</h3><p>Every site looks and works great on phones, tablets and desktops.</p></div>
-          <div class="card service"><div class="icon">⚡</div><h3>Fast &amp; SEO-ready</h3><p>Quick loading and set up so Google can find you.</p></div>
-          <div class="card service"><div class="icon">🛠️</div><h3>Ongoing support</h3><p>Updates, changes and help after launch so your site stays fresh.</p></div>
+    <!-- ============ SKILLS ============ -->
+    <section class="section skills" id="skills">
+      <div class="section-head">
+        <span class="mono label">(02) Skills</span>
+        <h2 class="title reveal-up">My toolkit</h2>
+        <p class="mono hint reveal-up">Grab, throw and play with the bubbles ↓</p>
+      </div>
+
+      <div class="skills-layout">
+        <!-- EDIT: one bubble per skill. data-size makes it bigger/smaller (0.8 – 1.4) -->
+        <div class="playground" data-cursor="Drag">
+          <div class="bubble" data-size="1.4">JavaScript</div>
+          <div class="bubble" data-size="1.2">HTML</div>
+          <div class="bubble" data-size="1.2">CSS</div>
+          <div class="bubble" data-size="1.1">React</div>
+          <div class="bubble" data-size="1">GSAP</div>
+          <div class="bubble" data-size="1">WebGL</div>
+          <div class="bubble" data-size="1.3">UI / UX</div>
+          <div class="bubble" data-size="1.1">Figma</div>
+          <div class="bubble" data-size="0.9">Git</div>
+          <div class="bubble" data-size="0.9">Node.js</div>
+          <div class="bubble" data-size="1">SEO</div>
+          <div class="bubble" data-size="1.2">Motion</div>
+          <div class="bubble" data-size="0.9">Three.js</div>
+          <div class="bubble" data-size="1">Branding</div>
+          <button class="playground-reset mono" type="button">Shake ↻</button>
         </div>
-      </div>
-    </section>
 
-    <!-- Process -->
-    <section id="process" class="section">
-      <div class="container">
-        <p class="eyebrow">How it works</p>
-        <h2>From idea to live site in 4 steps</h2>
-        <ol class="steps">
-          <li><span>1</span><h3>Chat</h3><p>We talk about your business, goals and the style you like.</p></li>
-          <li><span>2</span><h3>Design</h3><p>I create a design for you to review and give feedback on.</p></li>
-          <li><span>3</span><h3>Build</h3><p>I build the site and you see progress as it comes together.</p></li>
-          <li><span>4</span><h3>Launch</h3><p>Your site goes live, and I show you how to update it.</p></li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- Pricing (edit the prices to suit you) -->
-    <section id="pricing" class="section alt">
-      <div class="container">
-        <p class="eyebrow">Pricing</p>
-        <h2>Simple packages</h2>
-        <div class="grid pricing">
-          <div class="card price">
-            <h3>Starter</h3>
-            <p class="amount">€XXX</p>
-            <ul><li>1-page website</li><li>Mobile friendly</li><li>Contact form</li><li>1 round of changes</li></ul>
-            <a href="#contact" class="btn btn-ghost">Choose Starter</a>
+        <div class="skill-groups">
+          <div class="skill-group reveal-up">
+            <h3><span class="mono">A.</span> Design</h3>
+            <ul><li>UI / UX design</li><li>Figma prototypes</li><li>Branding & identity</li><li>Responsive layouts</li></ul>
           </div>
-          <div class="card price featured">
-            <p class="badge">Most popular</p>
-            <h3>Business</h3>
-            <p class="amount">€XXX</p>
-            <ul><li>Up to 5 pages</li><li>Custom design</li><li>Basic SEO setup</li><li>3 rounds of changes</li></ul>
-            <a href="#contact" class="btn">Choose Business</a>
+          <div class="skill-group reveal-up">
+            <h3><span class="mono">B.</span> Development</h3>
+            <ul><li>HTML, CSS & JavaScript</li><li>React</li><li>Node.js</li><li>Git & GitHub</li></ul>
           </div>
-          <div class="card price">
-            <h3>Shop</h3>
-            <p class="amount">€XXX</p>
-            <ul><li>Online store</li><li>Product setup</li><li>Payments</li><li>1 month of support</li></ul>
-            <a href="#contact" class="btn btn-ghost">Choose Shop</a>
+          <div class="skill-group reveal-up">
+            <h3><span class="mono">C.</span> Motion & 3D</h3>
+            <ul><li>GSAP animation</li><li>WebGL & shaders</li><li>Three.js</li><li>Micro-interactions</li></ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Contact -->
-    <section id="contact" class="section cta">
-      <div class="container cta-inner">
-        <h2>Ready for a website that works for you?</h2>
-        <p>Tell me about your project and I'll get back to you within 24 hours with ideas and a quote.</p>
-        <form class="contact-form" id="contact-form">
-          <input type="text" name="name" placeholder="Your name" required>
-          <input type="email" name="email" placeholder="Your email" required>
-          <textarea name="message" rows="4" placeholder="What kind of website do you need?" required></textarea>
-          <button type="submit" class="btn">Send message</button>
-        </form>
+    <!-- ============ WORK (horizontal scroll) ============ -->
+    <!-- EDIT: replace these concept projects with your real ones.
+         To use a screenshot: put <img src="images/name.jpg" alt="..."> inside .project-visual -->
+    <section class="work" id="work">
+      <div class="work-track">
+        <div class="work-intro">
+          <span class="mono label">(03) Selected work</span>
+          <h2 class="title">Projects<br>I'm proud of</h2>
+          <p>A selection of sites and concepts — each one designed to look unique and turn visitors into customers.</p>
+          <div class="work-progress"><span></span></div>
+        </div>
+
+        <article class="project tilt" data-cursor="View">
+          <div class="project-visual v1">
+            <div class="pv-dots"><i></i><i></i><i></i></div>
+            <div class="pv-shape"></div>
+            <span class="pv-big">Lumen</span>
+          </div>
+          <div class="project-info">
+            <span class="mono">01 — Concept · Restaurant</span>
+            <h3>Lumen Bistro</h3>
+            <p>Warm, cinematic restaurant site with an animated menu and online table booking.</p>
+            <ul class="tags"><li>Design</li><li>Development</li><li>Booking</li></ul>
+          </div>
+        </article>
+
+        <article class="project tilt" data-cursor="View">
+          <div class="project-visual v2">
+            <div class="pv-dots"><i></i><i></i><i></i></div>
+            <div class="pv-shape"></div>
+            <span class="pv-big">Nøva</span>
+          </div>
+          <div class="project-info">
+            <span class="mono">02 — Concept · E-commerce</span>
+            <h3>Nøva Studio</h3>
+            <p>Minimal fashion store with 3D product previews and a lightning-fast checkout.</p>
+            <ul class="tags"><li>E-commerce</li><li>3D</li><li>UI</li></ul>
+          </div>
+        </article>
+
+        <article class="project tilt" data-cursor="View">
+          <div class="project-visual v3">
+            <div class="pv-dots"><i></i><i></i><i></i></div>
+            <div class="pv-shape"></div>
+            <span class="pv-big">Pulse</span>
+          </div>
+          <div class="project-info">
+            <span class="mono">03 — Concept · Music</span>
+            <h3>Pulse Sessions</h3>
+            <p>Event and DJ site with audio-reactive visuals, upcoming gigs and a press kit.</p>
+            <ul class="tags"><li>WebGL</li><li>Audio</li><li>Events</li></ul>
+          </div>
+        </article>
+
+        <article class="project tilt" data-cursor="View">
+          <div class="project-visual v4">
+            <div class="pv-dots"><i></i><i></i><i></i></div>
+            <div class="pv-shape"></div>
+            <span class="pv-big">Costa</span>
+          </div>
+          <div class="project-info">
+            <span class="mono">04 — Concept · Hospitality</span>
+            <h3>Costa Hotel</h3>
+            <p>Boutique hotel site with immersive galleries and a smooth booking enquiry flow.</p>
+            <ul class="tags"><li>Hospitality</li><li>Gallery</li><li>Booking</li></ul>
+          </div>
+        </article>
       </div>
+    </section>
+
+    <!-- ============ EXPERIENCE ============ -->
+    <!-- EDIT: replace the [brackets] with your real experience and education -->
+    <section class="section experience" id="experience">
+      <div class="section-head">
+        <span class="mono label">(04) Experience</span>
+        <h2 class="title reveal-up">The journey<br>so far</h2>
+      </div>
+      <ol class="exp-list">
+        <li class="exp-row reveal-up">
+          <span class="mono exp-year">2025 — Now</span>
+          <div><h3>Freelance Web Developer</h3><p class="exp-place">Self-employed</p></div>
+          <p class="exp-desc">Designing and building custom websites for small businesses, creators and brands — from first idea to launch.</p>
+        </li>
+        <li class="exp-row reveal-up">
+          <span class="mono exp-year">[Year — Year]</span>
+          <div><h3>[Job title]</h3><p class="exp-place">[Company]</p></div>
+          <p class="exp-desc">[What you did there and what you achieved.]</p>
+        </li>
+        <li class="exp-row reveal-up">
+          <span class="mono exp-year">[Year — Year]</span>
+          <div><h3>[Course or degree]</h3><p class="exp-place">[School / university]</p></div>
+          <p class="exp-desc">[What you studied and any highlights.]</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <!-- EDIT: replace hello@example.com and the social links with your own -->
+    <section class="section contact" id="contact">
+      <span class="mono label">(05) Contact</span>
+      <h2 class="contact-title">
+        <span class="line"><span>Let's build</span></span>
+        <span class="line"><span>something <em>amazing</em></span></span>
+      </h2>
+      <div class="contact-row">
+        <a href="mailto:hello@example.com" class="contact-btn magnetic" data-cursor="Email"><span>Say hello</span></a>
+        <button class="copy-email mono" type="button" data-email="hello@example.com">
+          hello@example.com <span class="copy-state">Copy</span>
+        </button>
+      </div>
+      <ul class="socials">
+        <li><a href="#" class="roll"><span data-text="GitHub">GitHub</span></a></li>
+        <li><a href="#" class="roll"><span data-text="LinkedIn">LinkedIn</span></a></li>
+        <li><a href="#" class="roll"><span data-text="Instagram">Instagram</span></a></li>
+      </ul>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="container">
-      <p>© <span id="year"></span> Marcos. All rights reserved.</p>
-    </div>
+  <footer class="footer mono">
+    <span>© <span class="year">2026</span> Marcos</span>
+    <span>Designed & coded by hand</span>
+    <a href="#top">Back to top ↑</a>
   </footer>
 
-  <script src="script.js"></script>
+  <script defer src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script defer src="main.js"></script>
 </body>
 </html>

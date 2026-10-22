@@ -1,18 +1,30 @@
-# Web Portfolio
+# Marcos — Interactive Portfolio / CV
 
-A one-page website that shows off the websites I build, so potential clients can see my work and get in touch.
+A one-page interactive CV that shows my skills and work. It's built to stand out:
+
+- WebGL shader background in the hero that follows the mouse
+- Preloader, split-letter animations and a text-scramble role switcher
+- Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
+- Physics "skills playground" where visitors can grab and throw the bubbles
+- Horizontal-scrolling project gallery with 3D tilt cards
+- Custom cursor, magnetic buttons, a velocity-reactive marquee and film grain
 
 ## View it
 
 Open `index.html` in a browser. No build step is needed.
 
-## Edit it
+## Edit the content
 
-- **Projects:** in `index.html`, copy an `<article class="card project">` block for each new project. Replace the `.mock` placeholder with a real screenshot: `<img src="images/name.png" alt="...">`.
-- **Prices:** replace `€XXX` in the Pricing section.
-- **Colours:** change the variables at the top of `styles.css`.
-- **Contact form:** it shows a thank-you message only. Connect it to a form service such as Formspree so that messages reach you.
+Everything to change is marked with `EDIT` comments in `index.html`:
+
+- **About / stats:** the intro text and the numbers
+- **Skills:** the bubbles and skill lists
+- **Projects:** the 4 concept projects. Add real screenshots with `<img>` inside `.project-visual`
+- **Experience:** replace the `[brackets]`
+- **Contact:** replace `hello@example.com` and the social links
+- **Hero roles:** the `roles` list in `main.js`
+- **Colours:** the variables at the top of `styles.css`
 
 ## Publish
 
-Push to GitHub, then enable **Settings → Pages → Deploy from branch → main** to get a free live link.
+Push to GitHub, then enable **Settings → Pages → Deploy from branch → main**.
