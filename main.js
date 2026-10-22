@@ -96,15 +96,15 @@ function initShader() {
           float x=dist-age*.45;
           float wave=sin(x*55.)*exp(-x*x*45.)*exp(-age*3.2);
           vec2 n=dv/(length(dv)+.001);
-          disp+=n*wave*.05+vec2(-n.y,n.x)*wave*.035;
+          disp+=n*wave*.038+vec2(-n.y,n.x)*wave*.026;
           ring+=wave;
         }
       }
       // Air: swirl and push around the cursor depending on how fast it moves
-      float ang=length(v)*exp(-d*4.)*9.;
+      float ang=length(v)*exp(-d*4.)*6.5;
       float cs=cos(ang),sn=sin(ang);
       p=mm+mat2(cs,-sn,sn,cs)*(p-mm);
-      disp-=v*exp(-d*5.)*3.;
+      disp-=v*exp(-d*5.)*2.2;
       p+=disp;
 
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
@@ -115,7 +115,7 @@ function initShader() {
       col=mix(col,vec3(.93,.58,.4),clamp(length(q)*f*.4-.18,0.,1.));
       col=mix(col,vec3(.98,.72,.45),exp(-d*3.5)*.2);
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=vec3(.09,.035,-.03)*ring;
+      col+=vec3(.07,.027,-.023)*ring;
       gl_FragColor=vec4(col,1.);
     }`;
 
