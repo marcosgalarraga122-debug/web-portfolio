@@ -225,6 +225,25 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 .marquee-track b { font-weight: 300; color: var(--accent-2); }
 
+/* ---------- Particle portrait ---------- */
+.portrait { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: var(--bg); }
+.portrait-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: pan-y; }
+.portrait-copy {
+  position: relative; z-index: 1; pointer-events: none;
+  height: 100%; max-width: 44%;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 var(--pad);
+}
+.portrait-title {
+  font-family: var(--name-font); font-weight: 500; font-variation-settings: "opsz" 144;
+  font-size: clamp(3rem, 8vw, 8rem); line-height: .95; letter-spacing: -.03em;
+}
+.portrait-title em { font-style: italic; color: var(--accent); }
+.portrait-copy p { color: var(--soft); max-width: 380px; margin-top: 24px; }
+.portrait-copy .portrait-hint { color: var(--muted); }
+.hint-touch { display: none; }
+@media (hover: none) { .hint-fine { display: none; } .hint-touch { display: inline; } }
+
 /* ---------- About ---------- */
 .about-grid {
   display: grid; grid-template-columns: 1.25fr 1fr;
@@ -493,6 +512,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .steps-line { left: 21px; }
   .step-card { padding: 24px; }
   .exp-row { grid-template-columns: 1fr; gap: 10px; padding: 28px 8px; }
+  .portrait-copy { max-width: none; justify-content: flex-start; padding-top: 96px; }
+  .portrait-copy p:not(.portrait-hint) { display: none; }
   .socials { gap: 20px; }
 }
 

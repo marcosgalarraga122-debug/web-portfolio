@@ -90,6 +90,18 @@
       </div>
     </div>
 
+    <!-- ============ PARTICLE PORTRAIT ============ -->
+    <!-- The photo is rebuilt from the pixel colours in portrait-data.js -->
+    <section class="portrait" id="portrait" aria-label="Interactive particle portrait of Marcos">
+      <canvas class="portrait-canvas" aria-hidden="true"></canvas>
+      <div class="portrait-copy">
+        <span class="mono label reveal-up">Interactive portrait</span>
+        <h2 class="portrait-title reveal-up">This is<br><em>me.</em></h2>
+        <p class="reveal-up">Almost 29,000 particles — each one a pixel of my photo — rebuilt live in your browser.</p>
+        <p class="mono portrait-hint reveal-up"><span class="hint-fine">Move through the picture · Click for a shockwave</span><span class="hint-touch">Tap the picture for a shockwave</span></p>
+      </div>
+    </section>
+
     <!-- ============ ABOUT ============ -->
     <section class="section about" id="about">
       <span class="mono label"><span class="lnum">(01) </span>About</span>
@@ -296,6 +308,7 @@
   <script defer src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script defer src="portrait-data.js"></script>
   <script defer src="main.js"></script>
 </body>
 </html>

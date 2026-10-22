@@ -6,6 +6,7 @@ A one-page interactive CV that shows my skills and work. It's built to stand out
 - Preloader, split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
 - Process timeline that fills and lights up step by step as you scroll
+- Interactive particle portrait: ~29k particles rebuilt from the photo's pixels (`portrait-data.js`), assembled by scroll, pushed by the cursor, click for a shockwave
 - Enquiry form that opens the visitor's email app with their message filled in
 - Magnetic buttons, a velocity-reactive marquee and film grain
 
