@@ -6,6 +6,8 @@
   <title>Marcos Cañellas — Web Developer & Designer</title>
   <meta name="description" content="Marcos designs and builds high-quality, high-performance websites for businesses.">
   <meta name="theme-color" content="#0b0e13">
+  <!-- Always start at the top: set before anything loads so the browser doesn't restore an old position -->
+  <script>if ("scrollRestoration" in history) history.scrollRestoration = "manual";</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..800;1,9..144,200..800&family=Inter+Tight:wght@300..800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -27,13 +29,10 @@
        data-i18n-attr = attributes). The English here is the fallback. -->
   <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
 
-  <!-- Loading screen -->
-  <div class="preloader" aria-hidden="true">
-    <div class="preloader-row">
-      <span class="mono" data-i18n="preloader">Marcos Cañellas — Web Developer & Designer</span>
-      <span class="preloader-count">0</span>
-    </div>
-    <div class="preloader-bar"><span></span></div>
+  <!-- Intro: on the first visit of a session, particles assemble the name and the site opens around it -->
+  <div class="intro" aria-hidden="true">
+    <canvas class="intro-canvas"></canvas>
+    <span class="intro-status mono" data-i18n="preloader">Marcos Cañellas — Web Developer & Designer</span>
   </div>
 
   <!-- Global effects -->
@@ -120,19 +119,28 @@
         </div>
       </div>
 
-      <!-- Numbers roll in like a slot machine (see initOdometers in main.js) -->
+      <!-- Numbers roll into place and come into focus (see initOdometers in main.js) -->
       <div class="stats">
-        <div class="stat spot reveal-up">
+        <div class="stat reveal-up">
+          <p class="stat-kicker mono"><span>01</span><span data-i18n="stat.1k">Craft</span></p>
           <p class="stat-num"><span class="odo" data-value="100">100</span><span class="stat-suffix">%</span></p>
+          <span class="stat-rule" aria-hidden="true"></span>
           <p class="stat-label" data-i18n="stat.1">Custom design — no templates</p>
+          <p class="stat-desc" data-i18n="stat.1d">Every site is designed from scratch around your brand.</p>
         </div>
-        <div class="stat spot reveal-up">
+        <div class="stat reveal-up">
+          <p class="stat-kicker mono"><span>02</span><span data-i18n="stat.2k">Contact</span></p>
           <p class="stat-num"><span class="odo" data-value="1">1</span></p>
+          <span class="stat-rule" aria-hidden="true"></span>
           <p class="stat-label" data-i18n="stat.2">Direct point of contact</p>
+          <p class="stat-desc" data-i18n="stat.2d">You talk to the person who designs and builds your site.</p>
         </div>
-        <div class="stat spot reveal-up">
+        <div class="stat reveal-up">
+          <p class="stat-kicker mono"><span>03</span><span data-i18n="stat.3k">Response</span></p>
           <p class="stat-num"><span class="odo" data-value="24">24</span><span class="stat-suffix">h</span></p>
+          <span class="stat-rule" aria-hidden="true"></span>
           <p class="stat-label" data-i18n="stat.3">Response time</p>
+          <p class="stat-desc" data-i18n="stat.3d">Every message gets a reply within 24 hours.</p>
         </div>
       </div>
     </section>

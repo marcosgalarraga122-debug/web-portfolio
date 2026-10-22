@@ -5,7 +5,12 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const finePointer = matchMedia("(pointer: fine)").matches;
 const hasGSAP = !!(window.gsap && window.ScrollTrigger);
 if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
+// Every fresh load starts at the very top. The browser, a leftover #hash and ScrollTrigger's
+// own scroll memory can each restore an old position, so all three are switched off here.
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+if (hasGSAP && ScrollTrigger.clearScrollMemory) ScrollTrigger.clearScrollMemory("manual");
+window.scrollTo(0, 0);
 
 /* ---------- Text splitting helpers ---------- */
 function splitChars(el) {
@@ -285,6 +290,9 @@ function initPortrait() {
   const data = window.PORTRAIT;
   const gl = data && canvas.getContext("webgl", { antialias: false, premultipliedAlpha: false });
   if (!gl) { section.remove(); return; } // no data or no WebGL: leave the section out entirely
+  // Draw on a full-screen layer outside the (pinned) section, so particles are never
+  // clipped by section edges — they only vanish when they fly off the screen
+  document.body.append(canvas);
 
   const G = portraitGrid(); // particles per side
   const N = G * G;
@@ -315,9 +323,8 @@ function initPortrait() {
       if(r>.5) discard;
       vec3 c=v_col;
       float l=dot(c,vec3(.299,.587,.114));
-      c=mix(vec3(l),c,1.9);        // strong saturation boost
-      c=(c-.5)*1.15+.5+.03;        // extra contrast and a little lift
-      c=pow(clamp(c,0.,1.),vec3(.9)); // brighten the midtones
+      c=mix(vec3(l),c,1.15);       // a touch of extra saturation, kept understated
+      c=(c-.5)*1.05+.5+.02;        // slight contrast and lift so it reads on the dark background
       gl_FragColor=vec4(clamp(c,0.,1.),smoothstep(.5,.3,r)*u_alpha);
     }`;
   const compile = (type, src) => {
@@ -358,11 +365,11 @@ function initPortrait() {
   const home = new Float32Array(N * 2), scatter = new Float32Array(N * 2);
   const vel = new Float32Array(N * 2), delay = new Float32Array(N);
   const seedA = new Float32Array(N), seedR = new Float32Array(N), seedD = new Float32Array(N);
-  for (let i = 0; i < N; i++) { seedA[i] = Math.random() * Math.PI * 2; seedR[i] = 0.5 + Math.random(); seedD[i] = Math.random(); }
+  for (let i = 0; i < N; i++) { seedA[i] = Math.random() * Math.PI * 2; seedR[i] = 1.05 + Math.random() * 0.8; seedD[i] = Math.random(); }
 
   const dpr = Math.min(devicePixelRatio, 2);
   let W = 0, H = 0, cell = 1, first = true;
-  let idle = false, lastProgress = -1; // simulation sleeps once particles settle
+  let idle = false, lastProgress = -1, lastOffset = NaN; // simulation sleeps once particles settle
   const layout = () => {
     W = canvas.width = Math.floor(canvas.clientWidth * dpr);
     H = canvas.height = Math.floor(canvas.clientHeight * dpr);
@@ -371,7 +378,7 @@ function initPortrait() {
     const S = wide ? Math.min(H * 0.82, W * 0.5) : Math.min(W * 0.92, H * 0.55);
     const cx = wide ? W * 0.68 : W / 2, cy = wide ? H / 2 : H * 0.64;
     cell = S / G;
-    const far = Math.max(W, H);
+    const far = Math.hypot(W, H); // scattered particles start fully off-screen
     for (let i = 0; i < N; i++) {
       const gx = i % G, gy = (i / G) | 0;
       const hx = cx - S / 2 + (gx + 0.5) * cell, hy = cy - S / 2 + (gy + 0.5) * cell;
@@ -407,20 +414,18 @@ function initPortrait() {
     });
   }
 
-  // Cursor repels nearby particles; a click (or tap) sends a shockwave
+  // Cursor gently parts nearby particles; a click (or tap) on the section sends a shockwave
   const mouse = { x: 0, y: 0, active: false };
-  const local = (e) => {
-    const r = canvas.getBoundingClientRect();
-    return [(e.clientX - r.left) * dpr, (e.clientY - r.top) * dpr];
-  };
-  canvas.addEventListener("pointermove", (e) => {
+  addEventListener("pointermove", (e) => {
     if (e.pointerType !== "mouse") return;
-    [mouse.x, mouse.y] = local(e);
-    mouse.active = true;
+    const r = section.getBoundingClientRect();
+    mouse.active = e.clientY >= r.top && e.clientY <= r.bottom;
+    mouse.x = e.clientX * dpr; mouse.y = e.clientY * dpr;
+    if (mouse.active) idle = false;
   });
-  canvas.addEventListener("pointerleave", () => (mouse.active = false));
-  canvas.addEventListener("pointerdown", (e) => {
-    const [x, y] = local(e);
+  document.addEventListener("pointerleave", () => (mouse.active = false));
+  section.addEventListener("pointerdown", (e) => {
+    const x = e.clientX * dpr, y = e.clientY * dpr;
     const R = 420 * dpr;
     for (let i = 0; i < N; i++) {
       const dx = pos[i * 2] - x, dy = pos[i * 2 + 1] - y;
@@ -435,20 +440,22 @@ function initPortrait() {
 
   const frame = () => {
     if (!visible) { running = false; return; }
+    // The picture follows the section as it scrolls in and out of view
+    const offset = section.getBoundingClientRect().top * dpr;
     // Sleep while nothing moves: the canvas keeps showing the last frame
-    if (progress !== lastProgress || mouse.active) idle = false;
+    if (progress !== lastProgress || offset !== lastOffset) idle = false;
     if (idle) { requestAnimationFrame(frame); return; }
-    lastProgress = progress;
+    lastProgress = progress; lastOffset = offset;
     let energy = 0;
     const pA = progress;
-    const R = 95 * dpr, R2 = R * R, push = 4.5 * dpr;
+    const R = 38 * dpr, R2 = R * R, push = 2.2 * dpr;
     for (let i = 0; i < N; i++) {
       const ix = i * 2, iy = ix + 1;
       let l = (pA - delay[i]) / 0.5;
       l = l < 0 ? 0 : l > 1 ? 1 : l;
       const e = 1 - (1 - l) * (1 - l) * (1 - l);
       const tx = scatter[ix] + (home[ix] - scatter[ix]) * e;
-      const ty = scatter[iy] + (home[iy] - scatter[iy]) * e;
+      const ty = scatter[iy] + (home[iy] - scatter[iy]) * e + offset;
       let vx = vel[ix] + (tx - pos[ix]) * 0.09;
       let vy = vel[iy] + (ty - pos[iy]) * 0.09;
       if (mouse.active) {
@@ -471,17 +478,20 @@ function initPortrait() {
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, pos);
     gl.uniform2f(uRes, W, H);
     gl.uniform1f(uSize, Math.max(1.5, cell * 1.02));
-    gl.uniform1f(uAlpha, Math.min(1, progress * 4));
+    gl.uniform1f(uAlpha, 1);
     gl.drawArrays(gl.POINTS, 0, N);
     if (energy / N < 1e-4) idle = true;
     requestAnimationFrame(frame);
   };
 
+  // Run while the section is within a screen's height of the viewport (so the explosion
+  // can play out above and below it); clear the layer once it's far away
   let visible = false, running = false;
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
-    if (visible && !running) { running = true; requestAnimationFrame(frame); }
-  }).observe(section);
+    if (visible && !running) { running = true; idle = false; requestAnimationFrame(frame); }
+    if (!visible) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+  }, { rootMargin: "100% 0px 100% 0px" }).observe(section);
 }
 
 /* ---------- Text scramble for the role ---------- */
@@ -547,6 +557,7 @@ function initNameFit() {
   fit();
   document.fonts.ready.then(fit);
   addEventListener("resize", fit);
+  return fit;
 }
 
 /* ---------- Hero name: letters near the cursor get thinner and zoom in ---------- */
@@ -710,15 +721,23 @@ function initOdometers() {
       odo.append(digit);
       return { strip, d: +ch };
     });
+    const stat = odo.closest(".stat");
     if (reduceMotion) {
       strips.forEach(({ strip, d }) => { strip.style.transition = "none"; strip.style.transform = `translateY(${(-d / 30) * 100}%)`; });
+      odo.classList.add("rolled");
+      stat?.classList.add("in");
       return;
     }
-    // Spin through two full turns and land on the digit, left digits first
-    const roll = () => strips.forEach(({ strip, d }, j) => {
-      strip.style.transitionDelay = `${j * 120}ms`;
-      strip.style.transform = `translateY(${(-(20 + d) / 30) * 100}%)`;
-    });
+    // Spin through two full turns and land on the digit (left digits first) while
+    // coming into focus; then a hairline draws underneath
+    const roll = () => {
+      strips.forEach(({ strip, d }, j) => {
+        strip.style.transitionDelay = `${j * 120}ms`;
+        strip.style.transform = `translateY(${(-(20 + d) / 30) * 100}%)`;
+      });
+      odo.classList.add("rolled");
+      stat?.classList.add("in");
+    };
     const io = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) { roll(); io.disconnect(); }
     }, { threshold: 0.6 });
@@ -847,32 +866,173 @@ function initScrollAnimations(aboutWords) {
   document.fonts.ready.then(() => ScrollTrigger.refresh());
 }
 
-/* ---------- Intro (preloader → hero reveal) ---------- */
-function intro(chars) {
-  const preloader = $(".preloader");
+/* ---------- Intro: the site is "born" ----------
+   First visit of a session: particles drift in from a dark void and assemble into the
+   exact shape of the name. An iris then opens from the centre of the name; as it passes
+   each particle, that particle fades and hands over to the real letter underneath, and
+   the rest of the site settles in around it. Later visits get a short reveal instead. */
+const easeInOutQuart = (u) => (u < 0.5 ? 8 * u ** 4 : 1 - (-2 * u + 2) ** 4 / 2);
+
+function birth(overlay, chars, fitName, revealUI) {
+  return new Promise(async (resolve) => {
+    const canvas = $(".intro-canvas", overlay);
+    const ctx = canvas.getContext("2d");
+    const dpr = Math.min(devicePixelRatio, 2);
+    const W = (canvas.width = Math.floor(innerWidth * dpr));
+    const H = (canvas.height = Math.floor(innerHeight * dpr));
+
+    // Wait briefly for the name's font so the particles match the real letters exactly
+    await Promise.race([
+      Promise.all([document.fonts.load('600 100px "Fraunces"'), document.fonts.load('italic 600 100px "Fraunces"')]),
+      new Promise((r) => setTimeout(r, 1200)),
+    ]).catch(() => {});
+    fitName();
+
+    // Draw each letter off-screen at the position of the real one, then sample the shapes
+    const off = document.createElement("canvas");
+    off.width = W; off.height = H;
+    const o = off.getContext("2d", { willReadFrequently: true });
+    o.fillStyle = "#fff";
+    o.textBaseline = "middle";
+    let x0 = W, y0 = H, x1 = 0, y1 = 0, fontPx = 40;
+    chars.forEach((c) => {
+      const r = c.getBoundingClientRect();
+      const cs = getComputedStyle(c);
+      fontPx = parseFloat(cs.fontSize) * dpr;
+      o.font = `${cs.fontStyle} ${cs.fontWeight} ${fontPx}px Fraunces, Georgia, serif`;
+      o.fillText(c.textContent, r.left * dpr, (r.top + r.height / 2) * dpr);
+      x0 = Math.min(x0, r.left * dpr); x1 = Math.max(x1, r.right * dpr);
+      y0 = Math.min(y0, r.top * dpr); y1 = Math.max(y1, r.bottom * dpr);
+    });
+    x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0));
+    x1 = Math.min(W, Math.ceil(x1)); y1 = Math.min(H, Math.ceil(y1));
+    const step = Math.max(2, Math.round(fontPx / 42));
+    let pts = [];
+    if (x1 > x0 && y1 > y0) {
+      const bw = x1 - x0;
+      const img = o.getImageData(x0, y0, bw, y1 - y0).data;
+      for (let y = 0; y < y1 - y0; y += step) {
+        for (let x = 0; x < bw; x += step) if (img[(y * bw + x) * 4 + 3] > 128) pts.push(x0 + x, y0 + y);
+      }
+    }
+    if (pts.length < 80) { resolve(false); return; } // couldn't draw the name: use the simple reveal
+
+    // Keep it light: at most ~4500 particles
+    const keep = Math.min(1, 4500 / (pts.length / 2));
+    const tx = [], ty = [];
+    for (let i = 0; i < pts.length; i += 2) if (Math.random() < keep) { tx.push(pts[i]); ty.push(pts[i + 1]); }
+    const n = tx.length;
+    const px = new Float32Array(n), py = new Float32Array(n), vx = new Float32Array(n), vy = new Float32Array(n);
+    const delay = new Float32Array(n), alpha = new Float32Array(n), tone = new Uint8Array(n), gone = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      px[i] = Math.random() * W; py[i] = Math.random() * H;  // a faint field of dust across the screen
+      delay[i] = Math.random() * 450;
+      const r = Math.random();
+      tone[i] = r < 0.82 ? 0 : r < 0.94 ? 1 : 2;              // mostly off-white, a few warm sparks
+    }
+    const tones = ["rgb(238,240,244)", "rgb(226,104,58)", "rgb(240,169,74)"];
+    const size = Math.max(1.5 * dpr, step * 0.8);
+
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;            // iris opens from the centre of the name
+    const maxR = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy));
+    const T_REVEAL = 1650, T_IRIS = 1000;
+    let heroAnim = null, uiShown = false;
+    const start = performance.now();
+    setTimeout(() => overlay.classList.add("show-status"), 200);
+
+    const frame = (now) => {
+      const t = now - start;
+      const iris = t > T_REVEAL ? easeInOutQuart(Math.min(1, (t - T_REVEAL) / T_IRIS)) * maxR : -1;
+      const hold = t > 1250 && t < T_REVEAL;
+
+      if (t > T_REVEAL - 250) overlay.classList.remove("show-status");
+      if (t > T_REVEAL && !heroAnim) {
+        // The page appears: the dark void clears and the hero opens like an iris
+        overlay.classList.add("clear");
+        const c = `${cx / dpr}px ${cy / dpr}px`;
+        heroAnim = $(".hero").animate(
+          [{ clipPath: `circle(0px at ${c})` }, { clipPath: `circle(${maxR / dpr}px at ${c})` }],
+          { duration: T_IRIS, easing: "cubic-bezier(.77, 0, .175, 1)", fill: "forwards" }
+        );
+      }
+      if (t > T_REVEAL + 420 && !uiShown) { uiShown = true; revealUI(); }
+
+      ctx.clearRect(0, 0, W, H);
+      for (let k = 0; k < 3; k++) {
+        ctx.fillStyle = tones[k];
+        for (let i = 0; i < n; i++) {
+          if (tone[i] !== k || gone[i]) continue;
+          if (t > delay[i]) {
+            // Spring towards the letter, with a slight swirl while still far away
+            const dx = tx[i] - px[i], dy = ty[i] - py[i];
+            vx[i] = (vx[i] + dx * 0.07 - dy * 0.004) * 0.8;
+            vy[i] = (vy[i] + dy * 0.07 + dx * 0.004) * 0.8;
+            px[i] += vx[i]; py[i] += vy[i];
+            alpha[i] = Math.min(1, alpha[i] + 0.05);
+          } else {
+            alpha[i] = Math.min(0.25, alpha[i] + 0.01);     // dust, before it's called
+          }
+          let x = px[i], y = py[i];
+          if (hold) { x += (Math.random() - 0.5) * 0.6 * dpr; y += (Math.random() - 0.5) * 0.6 * dpr; }
+          // Once the iris passes a particle it fades out and the real letter takes over
+          if (iris > 0 && Math.hypot(x - cx, y - cy) < iris) {
+            alpha[i] -= 0.12;
+            if (alpha[i] <= 0) { gone[i] = 1; continue; }
+          }
+          ctx.globalAlpha = alpha[i];
+          ctx.fillRect(x - size / 2, y - size / 2, size, size);
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      if (t < T_REVEAL + T_IRIS + 80) { requestAnimationFrame(frame); return; }
+      document.documentElement.classList.remove("intro-active");
+      heroAnim?.cancel();
+      resolve(true);
+    };
+    requestAnimationFrame(frame);
+  });
+}
+
+function intro(chars, fitName) {
+  const overlay = $(".intro");
+  const root = document.documentElement;
   const finish = () => {
-    preloader.remove();
+    overlay.remove();
+    root.classList.remove("intro-active");
     document.body.classList.remove("loading");
-    lenis && lenis.start();
+    window.scrollTo(0, 0);
+    if (lenis) { lenis.scrollTo(0, { immediate: true, force: true }); lenis.start(); }
+    try { sessionStorage.setItem("introPlayed", "1"); } catch {}
   };
   if (!hasGSAP) { finish(); return; }
-
   lenis && lenis.stop();
-  const count = $(".preloader-count");
-  const bar = $(".preloader-bar span");
-  const n = { v: 0 };
-  gsap.timeline({ defaults: { ease: "expo.inOut" } })
-    .to(n, {
-      v: 100, duration: reduceMotion ? 0.01 : 1, ease: "power2.inOut",
-      onUpdate: () => {
-        count.textContent = Math.round(n.v);
-        bar.style.transform = `scaleX(${n.v / 100})`;
-      },
-    })
-    .to(preloader, { yPercent: -100, duration: reduceMotion ? 0.01 : 0.9 })
-    .from(chars, { yPercent: 115, duration: 1.4, stagger: 0.07, ease: "expo.out" }, "-=0.55")
-    .from(".hero-fade", { y: 24, opacity: 0, duration: 1, stagger: 0.1, ease: "power3.out" }, "-=1.1")
-    .add(finish, "-=0.8");
+
+  const revealUI = () => {
+    gsap.fromTo(".nav", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.out" });
+    gsap.fromTo(".hero-fade", { y: 20, opacity: 0, filter: "blur(6px)" }, {
+      y: 0, opacity: 1, filter: "blur(0px)", duration: 0.9, stagger: 0.08, ease: "power4.out", clearProps: "filter",
+    });
+  };
+  const quickReveal = () => gsap.timeline()
+    .to(overlay, { opacity: 0, duration: 0.45, ease: "power2.out" })
+    .from(chars, { yPercent: 60, opacity: 0, filter: "blur(8px)", duration: 1, stagger: 0.035, ease: "power4.out", clearProps: "filter" }, 0.1)
+    .add(revealUI, 0.15)
+    .add(finish, 0.6);
+
+  // Reduced motion: a simple fade, no particles or movement
+  if (reduceMotion) { gsap.to(overlay, { opacity: 0, duration: 0.3, onComplete: finish }); return; }
+
+  let played = false;
+  try { played = sessionStorage.getItem("introPlayed") === "1"; } catch {}
+  if (played) { quickReveal(); return; }
+
+  root.classList.add("intro-active");
+  birth(overlay, chars, fitName, revealUI).then((ok) => {
+    if (ok) { finish(); return; }
+    root.classList.remove("intro-active");
+    quickReveal();
+  });
 }
 
 /* ---------- Boot ---------- */
@@ -883,7 +1043,7 @@ $(".year").textContent = new Date().getFullYear();
 
 initShader();
 initScramble();
-initNameFit();
+const fitName = initNameFit();
 initNameWeight(nameChars);
 initMagnetic();
 initMarquee();
@@ -894,4 +1054,4 @@ initOdometers();
 initLangSwitch();
 initPortrait();
 if (hasGSAP) initScrollAnimations(aboutWords);
-intro(nameChars);
+intro(nameChars, fitName);

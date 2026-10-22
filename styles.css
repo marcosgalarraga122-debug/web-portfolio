@@ -99,22 +99,23 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .btn-label { display: inline-block; transition: filter 200ms ease, opacity 200ms ease; }
 .btn-label.swapping { filter: blur(3px); opacity: 0; }
 
-/* ---------- Preloader ---------- */
-.preloader {
+/* ---------- Intro ("birth" of the site) ---------- */
+.intro {
   position: fixed; inset: 0; z-index: 100;
-  background: var(--bg);
-  display: flex; flex-direction: column; justify-content: flex-end; gap: 20px;
-  padding: var(--pad);
+  background-color: var(--bg);
+  transition: background-color 350ms ease;
 }
-.preloader-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
-.preloader .mono { color: var(--muted); }
-.preloader-count {
-  font-family: var(--display); font-weight: 300;
-  font-size: clamp(3.5rem, 10vw, 8rem); line-height: .85; letter-spacing: -.04em;
-  font-variant-numeric: tabular-nums;
+.intro.clear { background-color: transparent; pointer-events: none; }
+.intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.intro-status {
+  position: absolute; left: var(--pad); bottom: var(--pad);
+  color: var(--muted); opacity: 0; filter: blur(4px);
+  transition: opacity 400ms ease, filter 400ms ease;
 }
-.preloader-bar { height: 1px; background: var(--line); }
-.preloader-bar span { display: block; height: 100%; background: var(--fg); transform: scaleX(0); transform-origin: left; }
+.intro.show-status .intro-status { opacity: 1; filter: none; }
+/* While the intro plays, the hero is hidden behind an iris that opens from the name */
+html.intro-active .hero { clip-path: circle(0px at 50% 50%); }
+html.intro-active .nav, html.intro-active .hero-fade { opacity: 0; }
 
 /* ---------- Grain + progress ---------- */
 .grain {
@@ -255,9 +256,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* ---------- Particle portrait ---------- */
 .portrait { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: var(--bg); }
-.portrait-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: pan-y; }
+/* Full-screen layer (moved to <body> by main.js) so particles can fly across every section */
+.portrait-canvas { position: fixed; inset: 0; z-index: 5; width: 100%; height: 100%; display: block; pointer-events: none; }
 .portrait-copy {
-  position: relative; z-index: 1; pointer-events: none;
+  position: relative; z-index: 6; pointer-events: none;
   height: 100%; max-width: 44%;
   display: flex; flex-direction: column; justify-content: center;
   padding: 0 var(--pad);
@@ -306,40 +308,44 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   line-height: 1.18; letter-spacing: -.025em; max-width: 1150px;
 }
 .about-text .w { display: inline-block; }
+/* Editorial stat row: hairline columns, large light serif numbers */
 .stats {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
   margin-top: clamp(64px, 9vw, 112px);
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
 }
-.stat {
-  position: relative; overflow: hidden; isolation: isolate;
-  min-height: 240px; padding: clamp(28px, 3vw, 40px);
-  display: flex; flex-direction: column; justify-content: space-between;
-  border-radius: 16px; background: var(--card); border: 1px solid var(--line);
-  transition: translate 250ms var(--ease-out), border-color 200ms ease;
-}
-/* Subtle light that follows the cursor — no colour, just a hint of depth */
-.stat::after {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, .045), transparent 65%);
-  opacity: 0; transition: opacity 200ms ease;
-}
+.stat { padding: clamp(28px, 3.5vw, 48px) clamp(20px, 3vw, 40px); }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat:first-child { padding-left: 0; }
+.stat-kicker { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); }
+.stat-kicker span:first-child { color: var(--accent); }
 .stat-num {
-  display: flex; align-items: flex-start;
-  font-family: var(--display); font-weight: 500; color: var(--fg);
-  font-size: clamp(4rem, 7vw, 6.5rem); line-height: 1; letter-spacing: -.045em;
-  font-variant-numeric: tabular-nums;
+  display: flex; align-items: flex-start; margin-top: clamp(28px, 4vw, 48px);
+  font-family: var(--name-font); font-weight: 300; font-variation-settings: "opsz" 144;
+  font-size: clamp(4.5rem, 8.5vw, 8.5rem); line-height: 1; letter-spacing: -.045em;
+  font-variant-numeric: lining-nums tabular-nums;
+  transition: font-weight 600ms var(--ease-out);
 }
-/* Odometer: each digit is a strip of 0–9 (three times) that rolls into place */
+/* Odometer: each digit is a strip of 0–9 (three times) that rolls into place and comes into focus */
 .odo { display: inline-flex; }
 .odo-digit { display: inline-block; height: 1em; overflow: hidden; }
-.odo-strip { display: block; transition: transform 1.8s cubic-bezier(.16, 1, .3, 1); will-change: transform; }
-.odo-strip span { display: block; height: 1em; }
-.stat-suffix { font-size: .4em; font-weight: 400; color: var(--accent); margin: .16em 0 0 .1em; }
-.stat-label {
-  margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line);
-  font: 500 .76rem "JetBrains Mono", monospace; letter-spacing: .06em; text-transform: uppercase;
-  color: var(--muted);
+.odo-strip {
+  display: block; filter: blur(5px); will-change: transform;
+  transition: transform 1.9s cubic-bezier(.16, 1, .3, 1), filter 1.3s ease;
 }
+.odo.rolled .odo-strip { filter: none; }
+.odo-strip span { display: block; height: 1em; }
+.stat-suffix { font-style: italic; font-weight: 300; color: var(--accent); font-size: .42em; margin: .14em 0 0 .08em; }
+/* Hairline that draws itself once the number lands */
+.stat-rule {
+  display: block; height: 1px; margin: 28px 0 22px;
+  background: linear-gradient(90deg, var(--accent), rgba(226, 104, 58, 0));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 1.4s var(--ease-out) .5s;
+}
+.stat.in .stat-rule { transform: scaleX(1); }
+.stat-label { font-family: var(--display); font-weight: 500; font-size: 1.05rem; letter-spacing: -.01em; }
+.stat-desc { color: var(--muted); font-size: .92rem; margin-top: 6px; max-width: 280px; }
 
 /* ---------- Services ---------- */
 .services { background: var(--bg-2); }
@@ -532,8 +538,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .photo:hover img { scale: 1.04; }
   .service:hover { translate: 0 -4px; border-color: var(--c); box-shadow: 0 24px 50px -30px rgba(0, 0, 0, .7); }
   .service:hover::before { opacity: 1; }
-  .stat:hover { translate: 0 -3px; border-color: rgba(255, 255, 255, .16); }
-  .stat:hover::after { opacity: 1; }
+  .stat:hover .stat-num { font-weight: 420; }
   .exp-row:hover::before { opacity: 1; }
   .exp-row:hover::after { transform: scaleX(1); }
   .faq summary:hover { color: var(--accent); }
@@ -552,7 +557,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .scroll-cue { display: none; }
   .hero-top { flex-direction: column; gap: 8px; }
   .stats { grid-template-columns: 1fr; }
-  .stat { min-height: 220px; }
+  .stat, .stat:first-child { padding-left: 0; padding-right: 0; }
+  .stat + .stat { border-left: 0; border-top: 1px solid var(--line); }
   .lang button { padding: 6px 8px; }
   .nav-cta { display: none; }
   .about-grid { grid-template-columns: 1fr; }
