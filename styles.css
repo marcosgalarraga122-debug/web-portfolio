@@ -1,29 +1,30 @@
 :root {
-  /* Dark, professional palette: deep charcoal-navy with warm accents */
-  --bg: #0b0e13;
-  --bg-2: #10141b;
-  --card: #151a23;
-  --fg: #eef0f4;
-  --muted: #8d95a3;
-  --soft: #c5cad3;
-  --line: rgba(255, 255, 255, .08);
-  --accent: #e2683a;
-  --accent-2: #f0a94a;
-  --amber: #f0a94a;
-  --amber-ink: #f0a94a;
-  --sage: #8fb88a;
-  --plum: #c987aa;
-  --accent-tint: rgba(226, 104, 58, .1);
-  --amber-tint: rgba(240, 169, 74, .09);
-  --sage-tint: rgba(143, 184, 138, .09);
-  --plum-tint: rgba(201, 135, 170, .09);
-  --on-accent: #fff6ee;
-  --nav-bg: rgba(11, 14, 19, .78);
-  --footer-bg: #07090d;
-  --footer-fg: #8d95a3;
-  --glow-1: rgba(240, 169, 74, .12);
-  --glow-2: rgba(201, 135, 170, .08);
-  --border-strong: rgba(255, 255, 255, .18);
+  /* "Ink & Brass": cool midnight ink (trust, calm, technical) with warm ivory text and a single
+     brushed-brass accent (craft, quality, timelessness). Warm-on-cool keeps it inviting, not cold. */
+  --bg: #0d1117;          /* midnight ink */
+  --bg-2: #121822;        /* raised ink, alternating sections */
+  --card: #171e2a;        /* cards and panels */
+  --fg: #ece6da;          /* warm ivory text (~15:1 on ink) */
+  --muted: #a29d93;       /* warm stone grey */
+  --soft: #cfc9bd;        /* body copy on dark */
+  --line: rgba(236, 230, 218, .09);
+  --accent: #c9a66b;      /* brushed brass (~8:1 on ink) — the only accent */
+  --accent-2: #c9a66b;
+  --amber: #c9a66b;
+  --amber-ink: #c9a66b;
+  --sage: #8fae8b;        /* reserved for "available" status */
+  --plum: #c9a66b;
+  --accent-tint: rgba(201, 166, 107, .1);
+  --amber-tint: rgba(201, 166, 107, .08);
+  --sage-tint: rgba(143, 174, 139, .09);
+  --plum-tint: rgba(201, 166, 107, .08);
+  --on-accent: #0d1117;
+  --nav-bg: rgba(13, 17, 23, .8);
+  --footer-bg: #090c11;
+  --footer-fg: #a29d93;
+  --glow-1: rgba(201, 166, 107, .1);
+  --glow-2: rgba(96, 120, 160, .08);
+  --border-strong: rgba(236, 230, 218, .2);
   color-scheme: dark;
   --name-font: "Fraunces", Georgia, serif;
   --name-w: 600;
@@ -195,7 +196,7 @@ html.intro-active .nav, html.intro-active .hero-fade { opacity: 0; }
    already in place when the camera passes through the "o" (see initPortal in main.js) */
 html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hero-canvas.fallback { background: radial-gradient(80% 60% at 70% 40%, #1c2433, var(--bg)); }
+.hero-canvas.fallback { background: radial-gradient(80% 60% at 70% 40%, #1a2230, var(--bg)); }
 .hero-content {
   position: relative; height: 100%;
   display: flex; flex-direction: column; justify-content: space-between;
@@ -205,9 +206,9 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 .status { display: inline-flex; align-items: center; gap: 10px; color: var(--soft); }
 .status i {
   width: 7px; height: 7px; border-radius: 50%; background: var(--sage);
-  box-shadow: 0 0 0 0 rgba(143, 184, 138, .5); animation: pulse 2.4s infinite;
+  box-shadow: 0 0 0 0 rgba(143, 174, 139, .5); animation: pulse 2.4s infinite;
 }
-@keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(143, 184, 138, 0); } 100% { box-shadow: 0 0 0 0 rgba(143, 184, 138, 0); } }
+@keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(143, 174, 139, 0); } 100% { box-shadow: 0 0 0 0 rgba(143, 174, 139, 0); } }
 
 /* Centred in the hero; main.js sets the exact font-size so it fits the width */
 .hero-name {
@@ -299,7 +300,7 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
   position: absolute; top: 18px; right: 18px; z-index: 2;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 14px; border-radius: 999px;
-  background: rgba(11, 14, 19, .72); backdrop-filter: blur(8px); color: var(--fg);
+  background: rgba(13, 17, 23, .72); backdrop-filter: blur(8px); color: var(--fg);
 }
 .photo-tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 .about-text {
@@ -339,7 +340,7 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 /* Hairline that draws itself once the number lands */
 .stat-rule {
   display: block; height: 1px; margin: 28px 0 22px;
-  background: linear-gradient(90deg, var(--accent), rgba(226, 104, 58, 0));
+  background: linear-gradient(90deg, var(--accent), rgba(201, 166, 107, 0));
   transform: scaleX(0); transform-origin: left;
   transition: transform 1.4s var(--ease-out) .5s;
 }
@@ -409,7 +410,7 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 .steps-line { position: absolute; left: 27px; top: 28px; bottom: 28px; width: 2px; background: var(--line); }
 .steps-line span {
   display: block; height: 100%;
-  background: linear-gradient(var(--accent), rgba(226, 104, 58, .25));
+  background: linear-gradient(var(--accent), rgba(201, 166, 107, .25));
   transform: scaleY(0); transform-origin: top;
 }
 .step {
@@ -435,7 +436,7 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 .step-card p { color: var(--muted); margin-top: 10px; }
 .process.armed .step { opacity: .35; }
 .process.armed .step.active { opacity: 1; }
-.step.active .step-num { background: var(--c); color: #fff; scale: 1.08; }
+.step.active .step-num { background: var(--c); color: var(--on-accent); scale: 1.08; }
 .step.active .step-card { box-shadow: 0 24px 50px -30px rgba(0, 0, 0, .7); }
 
 /* ---------- Experience ---------- */
@@ -540,7 +541,7 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
   transition: filter 200ms ease, opacity 200ms ease, background-color 200ms ease, color 200ms ease;
 }
 .copy-state.swapping { filter: blur(3px); opacity: 0; }
-.copy-state.done { background: var(--sage); color: #fff; }
+.copy-state.done { background: var(--sage); color: var(--bg); }
 .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--sage); margin-right: 10px; vertical-align: middle; }
 .socials { list-style: none; display: flex; gap: 32px; margin-top: 56px; color: var(--soft); }
 
@@ -552,7 +553,7 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 
 /* ---------- Hover effects: only on devices with a real pointer (no sticky taps on phones) ---------- */
 @media (hover: hover) and (pointer: fine) {
-  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .btn-ghost:hover { background: transparent; border-color: var(--fg); color: var(--fg); }
   .btn:hover .btn-arrow { translate: 3px 0; }
   .nav-cta:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }

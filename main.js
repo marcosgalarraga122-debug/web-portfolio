@@ -188,12 +188,12 @@ function initShader() {
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
-      vec3 base=vec3(.043,.055,.075);
-      vec3 col=mix(base,vec3(.09,.115,.17),clamp(f*f*1.6,0.,1.));
-      col=mix(col,vec3(.42,.2,.11),clamp(length(q)*f*.4-.2,0.,1.)*.7);
-      col=mix(col,vec3(.55,.3,.16),exp(-d*3.5)*.14);
+      vec3 base=vec3(.051,.067,.09);                                  // midnight ink
+      vec3 col=mix(base,vec3(.095,.125,.18),clamp(f*f*1.6,0.,1.));    // slate-blue clouds
+      col=mix(col,vec3(.4,.32,.19),clamp(length(q)*f*.4-.2,0.,1.)*.6); // faint brass light
+      col=mix(col,vec3(.5,.41,.26),exp(-d*3.5)*.12);                  // warm glow at the cursor
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=vec3(.05,.03,.015)*ring;
+      col+=vec3(.045,.036,.02)*ring;
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -1068,7 +1068,7 @@ function birth(overlay, chars, fitName, revealUI) {
       const r = Math.random();
       tone[i] = r < 0.82 ? 0 : r < 0.94 ? 1 : 2;              // mostly off-white, a few warm sparks
     }
-    const tones = ["rgb(238,240,244)", "rgb(226,104,58)", "rgb(240,169,74)"];
+    const tones = ["rgb(236,230,218)", "rgb(201,166,107)", "rgb(226,201,152)"]; // ivory, brass, pale brass
     const size = Math.max(1.5 * dpr, step * 0.8);
 
     const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;            // iris opens from the centre of the name
