@@ -369,7 +369,8 @@ function initPortrait() {
 
   const dpr = Math.min(devicePixelRatio, 2);
   let W = 0, H = 0, cell = 1, first = true;
-  let idle = false, lastProgress = -1, lastOffset = NaN; // simulation sleeps once particles settle
+  let idle = false, lastProgress = -1, lastOffset = NaN, lastShift = NaN; // simulation sleeps once particles settle
+  let homeCx = 0, homeCy = 0;
   const layout = () => {
     W = canvas.width = Math.floor(canvas.clientWidth * dpr);
     H = canvas.height = Math.floor(canvas.clientHeight * dpr);
@@ -377,6 +378,7 @@ function initPortrait() {
     const wide = canvas.clientWidth >= 900;
     const S = wide ? Math.min(H * 0.82, W * 0.5) : Math.min(W * 0.92, H * 0.55);
     const cx = wide ? W * 0.68 : W / 2, cy = wide ? H / 2 : H * 0.64;
+    homeCx = cx; homeCy = cy;
     cell = S / G;
     const far = Math.hypot(W, H); // scattered particles start fully off-screen
     for (let i = 0; i < N; i++) {
@@ -395,20 +397,21 @@ function initPortrait() {
   addEventListener("resize", layout);
 
   // Scroll progress: 0 = exploded, 1 = fully assembled.
-  // Measured in screen heights from when the section is 70% down the screen:
-  //   0 → 1.15  assembles (finishing a little after the section locks in place)
-  //   1.15 → 1.7  holds, so you can play with it
-  //   1.7 → 2.2  explodes as you scroll on — the reverse of coming in
+  // Measured in screen heights from when the section's top reaches the bottom of the screen
+  // (it's underneath the hero then, seen only through the "o" — see initPortal):
+  //   0 → 1    assembles while you travel through the "o", landing as the zoom ends
+  //   1 → 2    holds while the section is pinned, so you can play with it
+  //   2 → 2.5  explodes as you scroll on — the reverse of coming in
   let progress = hasGSAP && !reduceMotion ? 0 : 1;
   if (hasGSAP && !reduceMotion) {
     ScrollTrigger.create({ trigger: section, start: "top top", end: "+=100%", pin: true });
-    const span = 2.2;
+    const span = 2.5;
     ScrollTrigger.create({
-      trigger: section, start: "top 70%", end: () => `+=${innerHeight * span}`,
+      trigger: section, start: "top bottom", end: () => `+=${innerHeight * span}`,
       onUpdate: (self) => {
         const s = self.progress * span;
-        const assemble = Math.min(1, s / 1.15);
-        const explode = Math.min(1, Math.max(0, (s - 1.7) / 0.5));
+        const assemble = Math.min(1, s);
+        const explode = Math.min(1, Math.max(0, (s - 2) / 0.5));
         progress = assemble * (1 - explode);
       },
     });
@@ -440,21 +443,26 @@ function initPortrait() {
 
   const frame = () => {
     // The picture follows the section as it scrolls in and out of view
-    const offset = section.getBoundingClientRect().top * dpr;
+    const top = section.getBoundingClientRect().top;
+    const offset = (document.documentElement.classList.contains("portal-on") ? Math.min(0, top) : top) * dpr;
     // Static (reduced-motion) picture: just stop and clear once the section is far away
     if (!visible && (reduceMotion || !hasGSAP)) { running = false; gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); return; }
     // Sleep while nothing moves: the canvas keeps showing the last frame. Scrolling only
     // matters while the picture is (partly) assembled — once fully exploded every particle
     // is off-screen, so there's nothing to recompute (this was costing ~130k updates per
     // scroll frame while reading the About section and stats)
+    // While travelling through the "o" (at the centre of the screen), keep the picture centred
+    // inside it, then let it slide to its final place as the zoom completes
+    const portal = document.documentElement.classList.contains("portal-on") && portalT < 1 ? 1 - easeInOutCubic(portalT) : 0;
+    const shiftX = (W / 2 - homeCx) * portal, shiftY = (H / 2 - homeCy) * portal;
     const exploded = progress === 0 && lastProgress === 0;
-    if (progress !== lastProgress || (offset !== lastOffset && !exploded)) idle = false;
+    if (progress !== lastProgress || shiftX !== lastShift || (offset !== lastOffset && !exploded)) idle = false;
     if (idle) {
       if (!visible && exploded) { running = false; gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); return; }
       requestAnimationFrame(frame);
       return;
     }
-    lastProgress = progress; lastOffset = offset;
+    lastProgress = progress; lastOffset = offset; lastShift = shiftX;
     let energy = 0;
     const pA = progress;
     const R = 38 * dpr, R2 = R * R, push = 2.2 * dpr;
@@ -463,8 +471,8 @@ function initPortrait() {
       let l = (pA - delay[i]) / 0.5;
       l = l < 0 ? 0 : l > 1 ? 1 : l;
       const e = 1 - (1 - l) * (1 - l) * (1 - l);
-      const tx = scatter[ix] + (home[ix] - scatter[ix]) * e;
-      const ty = scatter[iy] + (home[iy] - scatter[iy]) * e + offset;
+      const tx = scatter[ix] + (home[ix] - scatter[ix]) * e + shiftX;
+      const ty = scatter[iy] + (home[iy] - scatter[iy]) * e + offset + shiftY;
       let vx = vel[ix] + (tx - pos[ix]) * 0.09;
       let vy = vel[iy] + (ty - pos[iy]) * 0.09;
       if (mouse.active) {
@@ -501,6 +509,129 @@ function initPortrait() {
     visible = e.isIntersecting;
     if (visible && !running) { running = true; idle = false; requestAnimationFrame(frame); }
   }, { rootMargin: "150% 0px 150% 0px" }).observe(section);
+}
+
+/* ---------- Portal: scrolling travels into the "o" of Marcos ----------
+   The hero is pinned for 1.6 screens of scroll. Over that distance the camera dollies into
+   the "o" (exponential scale, so the speed feels constant) while the "o" glides to the centre
+   of the screen. A soft-edged mask opens in the hero exactly where the letter's counter (its
+   hole) is, so through it you see the next section — the particle portrait — which sits
+   underneath the hero, assembling as you approach and landing just as the zoom completes.
+   Everything is driven by scroll position, so scrolling back up reverses it. */
+let portalT = 0;
+const smoothstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const easeInOutCubic = (u) => (u < 0.5 ? 4 * u ** 3 : 1 - (-2 * u + 2) ** 3 / 2);
+
+// Find the centre and radii of the hole inside a letter by drawing it and reading the pixels
+function measureCounter(ch) {
+  const r = ch.getBoundingClientRect();
+  const cs = getComputedStyle(ch);
+  const size = parseFloat(cs.fontSize);
+  const pad = Math.ceil(size * 0.5);
+  const w = Math.ceil(r.width + pad * 2), h = Math.ceil(r.height + pad * 2);
+  const canvas = document.createElement("canvas");
+  canvas.width = w; canvas.height = h;
+  const x = canvas.getContext("2d", { willReadFrequently: true });
+  x.font = `${cs.fontStyle} ${cs.fontWeight} ${size}px Fraunces, Georgia, serif`;
+  x.textBaseline = "middle";
+  x.fillText(ch.textContent, pad, pad + r.height / 2);
+  const d = x.getImageData(0, 0, w, h).data;
+  const ink = (px, py) => d[(py * w + px) * 4 + 3] > 128;
+  let x0 = w, y0 = h, x1 = 0, y1 = 0;
+  for (let py = 0; py < h; py++) for (let px = 0; px < w; px++) {
+    if (ink(px, py)) { if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py; }
+  }
+  const fallback = { cx: r.left + r.width / 2, cy: r.top + r.height * 0.6, rx: r.width * 0.2, ry: r.height * 0.15 };
+  if (x1 <= x0) return fallback;
+  const mx = Math.round((x0 + x1) / 2), my = Math.round((y0 + y1) / 2);
+  if (ink(mx, my)) return fallback;
+  let l = mx, rr = mx, t = my, b = my;
+  while (l > x0 && !ink(l, my)) l--;
+  while (rr < x1 && !ink(rr, my)) rr++;
+  while (t > y0 && !ink(mx, t)) t--;
+  while (b < y1 && !ink(mx, b)) b++;
+  return { cx: r.left + (l + rr) / 2 - pad, cy: r.top + (t + b) / 2 - pad, rx: (rr - l) / 2, ry: (b - t) / 2 };
+}
+
+function initPortal(chars) {
+  const hero = $(".hero");
+  const name = $(".hero-name");
+  const o = chars.find((c) => c.textContent.toLowerCase() === "o");
+  if (!hasGSAP || reduceMotion || !o) return; // reduced motion: the hero simply scrolls away
+  document.documentElement.classList.add("portal-on");
+
+  const heroCanvas = $(".hero-canvas");
+  const top = $(".hero-top"), bottom = $(".hero-bottom");
+  const world = () => $(".portrait-canvas");      // particle layer (moved to <body> by initPortrait)
+  const worldCopy = () => $(".portrait-copy");
+  let m = null; // measurements at scale 1, relative to the hero
+
+  const measure = () => {
+    name.style.transform = "";
+    chars.forEach((c) => { c.style.fontWeight = ""; c.style.scale = ""; c.style.color = ""; });
+    const hr = hero.getBoundingClientRect(), nr = name.getBoundingClientRect();
+    const c = measureCounter(o);
+    const W = hero.clientWidth, H = hero.clientHeight;
+    const radius = Math.min(c.rx, c.ry) * 0.9;
+    m = {
+      W, H,
+      cx: c.cx - hr.left, cy: c.cy - hr.top,           // the hole's centre, in hero coordinates
+      ox: c.cx - nr.left, oy: c.cy - nr.top,           // …and in the name's coordinates (transform origin)
+      rx: c.rx * 0.9, ry: c.ry * 0.9,
+      // Scale at which the hole covers the whole screen (with a margin for the soft edge)
+      end: (Math.hypot(W, H) / 2 / Math.max(1, radius)) * 1.35,
+    };
+    name.style.transformOrigin = `${m.ox}px ${m.oy}px`;
+    document.documentElement.style.setProperty("--hero-h", `${H}px`);
+  };
+
+  const render = (t) => {
+    if (!m) return;
+    if (t > 0 && portalT === 0) chars.forEach((c) => { c.style.fontWeight = ""; c.style.scale = ""; c.style.color = ""; });
+    portalT = t;
+    const { W, H } = m;
+    const S = Math.pow(m.end, t);                                  // camera dolly
+    const glide = easeInOutCubic(Math.min(1, t / 0.55));           // "o" moves to the centre
+    const dx = (W / 2 - m.cx) * glide, dy = (H / 2 - m.cy) * glide;
+    const open = smoothstep(0.02, 0.16, t);                        // the hole starts to open
+
+    name.style.transform = t > 0 ? `translate(${dx}px, ${dy}px) scale(${S})` : "";
+    const rx = Math.max(0.01, m.rx * S * open), ry = Math.max(0.01, m.ry * S * open);
+    const mask = t > 0 ? `radial-gradient(${rx}px ${ry}px at ${m.cx + dx}px ${m.cy + dy}px, transparent 78%, #000 100%)` : "";
+    hero.style.webkitMaskImage = mask;
+    hero.style.maskImage = mask;
+
+    // Everything else in the hero falls away like foreground passing the camera
+    const ui = smoothstep(0, 0.3, t);
+    for (const [el, dir] of [[top, -1], [bottom, 1]]) {
+      el.style.opacity = t > 0 ? 1 - ui : "";
+      el.style.transform = t > 0 ? `translateY(${dir * 70 * ui}px) scale(${1 + 0.12 * ui})` : "";
+      el.style.filter = t > 0 ? `blur(${8 * ui}px)` : "";
+    }
+    heroCanvas.style.transformOrigin = `${m.cx + dx}px ${m.cy + dy}px`;
+    heroCanvas.style.transform = t > 0 ? `scale(${1 + 0.35 * t})` : "";
+
+    // The world inside the "o" approaches: it grows towards full size as you pass through
+    const w = world();
+    if (w) {
+      w.style.transformOrigin = "50% 50%";
+      w.style.transform = t > 0 && t < 1 ? `scale(${0.78 + 0.22 * easeInOutCubic(t)})` : "";
+    }
+    const copy = worldCopy();
+    if (copy) copy.style.opacity = t > 0 && t < 1 ? smoothstep(0.8, 1, t) : "";
+
+    // Once through, the hero is gone (and can't catch clicks)
+    hero.style.visibility = t >= 1 ? "hidden" : "";
+  };
+
+  measure();
+  ScrollTrigger.create({
+    trigger: hero, start: "top top", end: () => `+=${innerHeight * 1.6}`,
+    pin: true, invalidateOnRefresh: true,
+    onUpdate: (self) => render(self.progress),
+    onRefreshInit: () => { name.style.transform = ""; hero.style.maskImage = hero.style.webkitMaskImage = ""; },
+    onRefresh: (self) => { measure(); render(self.progress); },
+  });
 }
 
 /* ---------- Text scramble for the role ---------- */
@@ -574,7 +705,7 @@ function initNameWeight(chars) {
   if (!finePointer || reduceMotion) return;
   const name = $(".hero-name");
   addEventListener("pointermove", (e) => {
-    if (scrollY > innerHeight) return;
+    if (scrollY > innerHeight || portalT > 0) return;
     const base = parseFloat(getComputedStyle(name).fontWeight);
     chars.forEach((c) => {
       const r = c.getBoundingClientRect();
@@ -808,12 +939,6 @@ function initScrollAnimations(aboutWords) {
     },
   });
 
-  // Hero drifts and fades as you scroll away
-  gsap.to(".hero-content", {
-    yPercent: 25, opacity: 0, ease: "none",
-    scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
-  });
-
   makeAboutScrub(aboutWords);
 
   // About photos: wipe in, then drift at different speeds while scrolling
@@ -1012,6 +1137,7 @@ function intro(chars, fitName) {
     document.body.classList.remove("loading");
     window.scrollTo(0, 0);
     if (lenis) { lenis.scrollTo(0, { immediate: true, force: true }); lenis.start(); }
+    if (hasGSAP) ScrollTrigger.refresh();
     try { sessionStorage.setItem("introPlayed", "1"); } catch {}
   };
   if (!hasGSAP) { finish(); return; }
@@ -1061,6 +1187,7 @@ initContactForm();
 initNavActive();
 initOdometers();
 initLangSwitch();
+initPortal(nameChars);
 initPortrait();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars, fitName);

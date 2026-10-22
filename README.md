@@ -3,6 +3,7 @@
 A one-page interactive CV that shows my skills and work. It's built to stand out:
 
 - WebGL shader background in the hero with ripples and air movement that follow the mouse
+- Scroll "portal": the camera travels into the "o" of Marcos and through it into the particle portrait
 - First-visit "birth" intro (particles form the name, an iris opens the site), split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
 - Process timeline that fills and lights up step by step as you scroll
