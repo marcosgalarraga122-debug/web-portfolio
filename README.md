@@ -6,6 +6,7 @@ A one-page interactive CV that shows my skills and work. It's built to stand out
 - Preloader, split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
 - Process timeline that fills and lights up step by step as you scroll
+- Business-mode switch (top right) that repaints the site in a corporate palette with a circular reveal
 - Magnetic buttons, a velocity-reactive marquee and film grain
 
 ## View it

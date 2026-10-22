@@ -61,6 +61,12 @@ $$('a[href^="#"]').forEach((a) =>
 );
 
 /* ---------- WebGL hero background ---------- */
+const PALETTES = {
+  creative: [[0.965, 0.961, 0.945], [0.99, 0.86, 0.74], [0.93, 0.58, 0.4], [0.98, 0.72, 0.45]],
+  business: [[0.957, 0.961, 0.969], [0.84, 0.88, 0.94], [0.35, 0.47, 0.66], [0.62, 0.72, 0.86]],
+};
+const heroPalette = { current: PALETTES.creative.map((c) => [...c]), target: PALETTES.creative };
+
 function initShader() {
   const canvas = $(".hero-canvas");
   const gl = canvas.getContext("webgl", { antialias: false });
@@ -70,6 +76,7 @@ function initShader() {
   const frag = `
     precision highp float;
     uniform vec2 r; uniform float t; uniform vec2 m; uniform float s; uniform vec2 v;
+    uniform vec3 cb, c1, c2, c3; // palette: base, clouds, highlights, cursor glow
     uniform vec3 tr[16]; // recent cursor points: x, y (pixels), time created (seconds)
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
@@ -110,12 +117,12 @@ function initShader() {
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
-      vec3 base=vec3(.965,.961,.945);
-      vec3 col=mix(base,vec3(.99,.86,.74),clamp(f*f*1.5,0.,1.));
-      col=mix(col,vec3(.93,.58,.4),clamp(length(q)*f*.4-.18,0.,1.));
-      col=mix(col,vec3(.98,.72,.45),exp(-d*3.5)*.2);
+      vec3 base=cb;
+      vec3 col=mix(base,c1,clamp(f*f*1.5,0.,1.));
+      col=mix(col,c2,clamp(length(q)*f*.4-.18,0.,1.));
+      col=mix(col,c3,exp(-d*3.5)*.2);
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=vec3(.03,.012,-.01)*ring;
+      col+=(c1-cb)*ring*.3;
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -143,6 +150,7 @@ function initShader() {
   const uS = gl.getUniformLocation(prog, "s");
   const uV = gl.getUniformLocation(prog, "v");
   const uTr = gl.getUniformLocation(prog, "tr");
+  const uPal = ["cb", "c1", "c2", "c3"].map((n) => gl.getUniformLocation(prog, n));
   const trail = new Float32Array(16 * 3).fill(-100);
   let trailIndex = 0, lastPoint = null;
 
@@ -194,6 +202,11 @@ function initShader() {
       gl.uniform2f(uV, Math.max(-0.2, Math.min(0.2, vel.x)), Math.max(-0.2, Math.min(0.2, vel.y)));
       gl.uniform1f(uS, (now - start) / 1000);
       gl.uniform3fv(uTr, trail);
+      // Ease the colours towards the active theme's palette
+      heroPalette.current.forEach((c, i) => {
+        for (let k = 0; k < 3; k++) c[k] += (heroPalette.target[i][k] - c[k]) * (reduceMotion ? 1 : 0.06);
+        gl.uniform3fv(uPal[i], c);
+      });
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     if (!reduceMotion) requestAnimationFrame(frame);
@@ -260,20 +273,23 @@ function initNameFit() {
   fit();
   document.fonts.ready.then(fit);
   addEventListener("resize", fit);
+  return fit;
 }
 
 /* ---------- Hero name: letters near the cursor get thinner and zoom in ---------- */
 function initNameWeight(chars) {
   if (!finePointer || reduceMotion) return;
+  const name = $(".hero-name");
   addEventListener("pointermove", (e) => {
     if (scrollY > innerHeight) return;
+    const base = parseFloat(getComputedStyle(name).fontWeight);
     chars.forEach((c) => {
       const r = c.getBoundingClientRect();
       const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
       const near = Math.max(0, 1 - d / 350);
-      c.style.fontWeight = Math.round(500 - 300 * near);
+      c.style.fontWeight = near > 0 ? Math.round(base - 400 * near) : "";
       c.style.scale = (1 + 0.15 * near).toFixed(3);
-      c.style.color = near > 0.6 ? "var(--amber-ink)" : "";
+      c.style.color = near > 0.6 ? "var(--accent)" : "";
     });
   });
 }
@@ -318,6 +334,56 @@ function initMarquee() {
     requestAnimationFrame(loop);
   };
   loop();
+}
+
+/* ---------- Business mode switch ---------- */
+function initThemeToggle(fitName, chars) {
+  const btn = $(".theme-toggle");
+  const label = $(".tt-label", btn);
+  const root = document.documentElement;
+
+  const apply = (business) => {
+    if (business) root.dataset.theme = "business";
+    else root.removeAttribute("data-theme");
+    btn.setAttribute("aria-pressed", business);
+    btn.setAttribute("aria-label", business ? "Switch to creative mode" : "Switch to business mode");
+    label.textContent = business ? "Creative mode" : "Business mode";
+    heroPalette.target = business ? PALETTES.business : PALETTES.creative;
+    fitName();
+    try { localStorage.setItem("theme", business ? "business" : "creative"); } catch {}
+  };
+
+  let saved = null;
+  try { saved = localStorage.getItem("theme"); } catch {}
+  if (saved === "business") {
+    apply(true);
+    heroPalette.current = PALETTES.business.map((c) => [...c]);
+  }
+
+  btn.addEventListener("click", () => {
+    const business = root.dataset.theme !== "business";
+    const r = btn.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + r.height / 2;
+
+    const popLetters = () => {
+      if (hasGSAP && scrollY < innerHeight) {
+        gsap.fromTo(chars, { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.8, stagger: 0.025, ease: "expo.out" });
+      }
+    };
+
+    if (!document.startViewTransition || reduceMotion) { apply(business); popLetters(); return; }
+
+    // A circle grows out of the button and reveals the new look
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    const transition = document.startViewTransition(() => apply(business));
+    transition.ready.then(() => {
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 900, easing: "cubic-bezier(.76, 0, .24, 1)", pseudoElement: "::view-transition-new(root)" }
+      );
+      popLetters();
+    });
+  });
 }
 
 /* ---------- Copy email ---------- */
@@ -449,8 +515,9 @@ $(".year").textContent = new Date().getFullYear();
 
 initShader();
 initScramble();
-initNameFit();
+const fitName = initNameFit();
 initNameWeight(nameChars);
+initThemeToggle(fitName, nameChars);
 initMagnetic();
 initMarquee();
 initCopyEmail();
