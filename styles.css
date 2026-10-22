@@ -273,6 +273,19 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 .portrait-title em { font-style: italic; color: var(--accent); }
 .portrait-copy p { color: var(--soft); max-width: 380px; margin-top: 24px; }
 .portrait-copy .portrait-hint { color: var(--muted); }
+/* "About me" facts beside the portrait: each row draws its hairline, then its text arrives */
+.facts { margin-top: 32px; max-width: 420px; border-top: 1px solid var(--line); }
+.fact { position: relative; display: grid; grid-template-columns: 92px 1fr; gap: 16px; align-items: baseline; padding: 12px 0; }
+.fact::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line); transform-origin: left; }
+.fact dt { color: var(--muted); }
+.fact dd { color: var(--fg); }
+.fact-note dd { color: var(--soft); font-family: var(--name-font); font-style: italic; font-weight: 300; line-height: 1.45; }
+.fact dd .dud { color: var(--accent); }
+html.facts-anim .fact::after { transform: scaleX(0); transition: transform 700ms var(--ease-out); }
+html.facts-anim .fact > * { opacity: 0; transform: translateY(8px); filter: blur(4px); transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out), filter 500ms var(--ease-out); }
+html.facts-anim .fact.on::after { transform: scaleX(1); }
+html.facts-anim .fact.on > * { opacity: 1; transform: none; filter: none; }
+html.facts-anim .fact.on dd { transition-delay: 120ms; }
 .hint-touch { display: none; }
 @media (hover: none) { .hint-fine { display: none; } .hint-touch { display: inline; } }
 
@@ -604,7 +617,10 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
   .steps-line { left: 21px; }
   .step-card { padding: 24px; }
   .exp-row { grid-template-columns: 1fr; gap: 10px; padding: 28px 8px; }
-  .portrait-copy { max-width: none; justify-content: flex-start; padding-top: 96px; }
+  .portrait-copy { max-width: none; justify-content: flex-start; padding-top: 84px; }
+  .facts { margin-top: 16px; }
+  .fact { grid-template-columns: 68px 1fr; gap: 12px; padding: 7px 0; font-size: .85rem; }
+  .fact-note { display: none; }
   .portrait-copy p:not(.portrait-hint) { display: none; }
   .socials { gap: 20px; }
 }

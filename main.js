@@ -376,8 +376,8 @@ function initPortrait() {
     H = canvas.height = Math.floor(canvas.clientHeight * dpr);
     gl.viewport(0, 0, W, H);
     const wide = canvas.clientWidth >= 900;
-    const S = wide ? Math.min(H * 0.82, W * 0.5) : Math.min(W * 0.92, H * 0.55);
-    const cx = wide ? W * 0.68 : W / 2, cy = wide ? H / 2 : H * 0.64;
+    const S = wide ? Math.min(H * 0.82, W * 0.5) : Math.min(W * 0.92, H * 0.5);
+    const cx = wide ? W * 0.68 : W / 2, cy = wide ? H / 2 : H * 0.7;
     homeCx = cx; homeCy = cy;
     cell = S / G;
     const far = Math.hypot(W, H); // scattered particles start fully off-screen
@@ -406,6 +406,7 @@ function initPortrait() {
   if (hasGSAP && !reduceMotion) {
     ScrollTrigger.create({ trigger: section, start: "top top", end: "+=100%", pin: true });
     const span = 2.5;
+    const updateFacts = initFacts();
     ScrollTrigger.create({
       trigger: section, start: "top bottom", end: () => `+=${innerHeight * span}`,
       onUpdate: (self) => {
@@ -413,6 +414,7 @@ function initPortrait() {
         const assemble = Math.min(1, s);
         const explode = Math.min(1, Math.max(0, (s - 2) / 0.5));
         progress = assemble * (1 - explode);
+        updateFacts(s);
       },
     });
   }
@@ -637,6 +639,21 @@ function initPortal(chars) {
 }
 
 /* ---------- Text scramble for the role ---------- */
+// "This is me" facts: while the portrait is pinned, each row draws its hairline and its value
+// decodes in, one after another; as the picture explodes they leave in reverse order
+function initFacts() {
+  const rows = $$(".fact");
+  if (!rows.length) return () => {};
+  document.documentElement.classList.add("facts-anim");
+  const decoders = rows.map((r) => { const v = $("[data-decode]", r); return v && new Scramble(v); });
+  return (s) => rows.forEach((row, i) => {
+    const on = s > 1.05 + i * 0.15 && s < 2.14 - i * 0.04;
+    if (on === row.classList.contains("on")) return;
+    row.classList.toggle("on", on);
+    if (on && decoders[i]) decoders[i].set(t(decoders[i].el.dataset.i18n));
+  });
+}
+
 class Scramble {
   constructor(el) {
     this.el = el;
