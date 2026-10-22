@@ -362,6 +362,102 @@ html.facts-anim .fact.on dd { transition-delay: 120ms; }
 .stat-label { font-family: var(--display); font-weight: 500; font-size: 1.05rem; letter-spacing: -.01em; }
 .stat-desc { color: var(--muted); font-size: .92rem; margin-top: 6px; max-width: 280px; }
 
+/* ---------- My story ---------- */
+/* Without JS (or with reduced motion) this is a plain list beside a finished map.
+   main.js adds html.journey-on, pins the block and plays the chapters one at a time. */
+.journey-pin {
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 80px);
+  padding: clamp(96px, 12vw, 160px) var(--pad) 0;
+}
+.journey-copy { display: flex; flex-direction: column; min-height: 0; }
+.journey-title {
+  font-family: var(--name-font); font-weight: 400; font-variation-settings: "opsz" 144;
+  font-size: clamp(2.2rem, 4.2vw, 4.2rem); line-height: 1; letter-spacing: -.03em;
+}
+.journey-title em { font-style: italic; font-weight: 300; color: var(--accent); }
+.chapters { list-style: none; display: grid; gap: 40px; margin-top: 40px; }
+.chapter-meta { display: flex; gap: 12px; color: var(--muted); }
+.chapter-meta span:first-child { color: var(--accent); }
+.chapter-name {
+  font-family: var(--name-font); font-weight: 400; font-variation-settings: "opsz" 144;
+  font-size: clamp(2rem, 3.6vw, 3.4rem); line-height: 1.05; letter-spacing: -.02em; margin-top: 12px;
+}
+.chapter-sub { font-family: var(--name-font); font-style: italic; font-weight: 300; font-size: 1.15rem; color: var(--accent); margin-top: 2px; }
+.chapter-text { color: var(--soft); max-width: 440px; margin-top: 16px; line-height: 1.6; }
+.chapter-tabs { display: none; }
+
+.journey-map {
+  position: relative; overflow: hidden; align-self: start; aspect-ratio: 1000 / 828;
+  border: 1px solid var(--line); border-radius: 20px;
+  background: radial-gradient(ellipse 70% 60% at 50% 45%, var(--bg-2), var(--bg));
+}
+.map-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.map-land, .map-country { fill: none; stroke-width: 5; stroke-linecap: round; }
+.map-land { stroke: rgba(236,230,218,.13); }
+.map-country { stroke: rgba(236,230,218,.3); transition: stroke 700ms ease; }
+.map-country.visited { stroke: var(--accent); }
+.route-base { fill: none; stroke: rgba(236,230,218,.22); stroke-width: 1.5; stroke-dasharray: 2 7; }
+.route-leg { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; }
+.traveller { opacity: 0; transition: opacity 200ms ease; }
+.traveller-halo { fill: var(--accent); opacity: .22; }
+.traveller-core { fill: var(--fg); }
+.marker-hit { fill: transparent; }
+.marker-ring { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.marker-dot { fill: var(--fg); }
+.marker-name { font: 500 22px "Inter Tight", sans-serif; fill: var(--fg); transition: fill 300ms ease; }
+.marker-coord { font: 13px "JetBrains Mono", monospace; letter-spacing: .04em; fill: var(--muted); }
+.marker.on .marker-ring { opacity: 1; animation: marker-pulse 2.4s var(--ease-out) infinite; }
+.marker.on .marker-name { fill: var(--accent); }
+@keyframes marker-pulse { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(2.2); opacity: 0; } }
+.map-hud { position: absolute; top: 18px; left: 20px; display: flex; gap: 24px; color: var(--muted); pointer-events: none; }
+.map-hud p { display: flex; flex-direction: column; gap: 4px; }
+.map-hud b { font-family: var(--name-font); font-weight: 300; font-size: 1.9rem; letter-spacing: 0; color: var(--fg); transition: filter 160ms ease, opacity 160ms ease; }
+.map-coords { position: absolute; right: 20px; bottom: 16px; color: var(--muted); pointer-events: none; transition: filter 160ms ease, opacity 160ms ease; }
+.map-hud b.swapping, .map-coords.swapping { filter: blur(3px); opacity: .3; }
+
+html.journey-on .journey-pin { height: 100vh; height: 100svh; min-height: 600px; padding: 104px var(--pad) 40px; }
+html.journey-on .journey-map { align-self: stretch; aspect-ratio: auto; }
+html.journey-on .chapters { flex: 1; align-content: center; gap: 0; margin: 24px 0; }
+html.journey-on .chapter { grid-area: 1 / 1; }
+html.journey-on .chapter > * {
+  opacity: 0; transform: translateY(14px); filter: blur(6px);
+  transition: opacity 350ms var(--ease-out), transform 350ms var(--ease-out), filter 350ms var(--ease-out);
+}
+html.journey-on .chapter.on > * { opacity: 1; transform: none; filter: none; transition-duration: 800ms; }
+html.journey-on .chapter.on > :nth-child(1) { transition-delay: 120ms; }
+html.journey-on .chapter.on > :nth-child(2) { transition-delay: 170ms; }
+html.journey-on .chapter.on > :nth-child(3) { transition-delay: 220ms; }
+html.journey-on .chapter.on > :nth-child(4) { transition-delay: 270ms; }
+html.journey-on .chapter-tabs { display: flex; }
+html.journey-on .marker { cursor: pointer; }
+.chapter-tab {
+  position: relative; flex: 1; min-width: 0; padding: 14px 8px 0 0; text-align: left;
+  color: var(--muted); border-top: 1px solid var(--line); transition: color 200ms ease, scale 160ms var(--ease-out);
+}
+.chapter-tab span:first-child { color: var(--accent); }
+.chapter-tab::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left; transition: transform 500ms var(--ease-out);
+}
+.chapter-tab[aria-current="step"] { color: var(--fg); }
+.chapter-tab[aria-current="step"]::before { transform: scaleX(1); }
+.chapter-tab:active { scale: .97; }
+
+.journey-outro { padding: clamp(96px, 12vw, 160px) var(--pad); }
+.statement { font-size: clamp(2.4rem, 6vw, 6.2rem); }
+/* A "border" drawn in map dots that spreads apart as you scroll past (see initJourney) */
+.border-dots {
+  --gap: 12px;
+  height: 6px; margin: clamp(48px, 6vw, 72px) 0;
+  background: radial-gradient(circle, var(--accent) 0 1.6px, transparent 2.2px) 0 50% / var(--gap) 6px repeat-x;
+}
+.traits { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.trait { padding-right: 28px; }
+.trait + .trait { padding-left: 28px; border-left: 1px solid var(--line); }
+.trait .mono { color: var(--accent); }
+.trait h3 { font-family: var(--name-font); font-weight: 400; font-size: 1.5rem; letter-spacing: -.01em; margin: 14px 0 10px; }
+.trait p { color: var(--soft); font-size: .95rem; line-height: 1.6; }
+
 /* ---------- Services: an editorial index ---------- */
 .services { background: var(--bg-2); }
 .service-list { list-style: none; border-top: 1px solid var(--line); }
@@ -567,6 +663,8 @@ html.facts-anim .fact.on dd { transition-delay: 120ms; }
 
 /* ---------- Hover effects: only on devices with a real pointer (no sticky taps on phones) ---------- */
 @media (hover: hover) and (pointer: fine) {
+  .chapter-tab:hover { color: var(--fg); }
+  .marker:hover .marker-name { fill: var(--accent); }
   .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .btn-ghost:hover { background: transparent; border-color: var(--fg); color: var(--fg); }
   .btn:hover .btn-arrow { translate: 3px 0; }
@@ -618,6 +716,22 @@ html.facts-anim .fact.on dd { transition-delay: 120ms; }
   .step-card { padding: 24px; }
   .exp-row { grid-template-columns: 1fr; gap: 10px; padding: 28px 8px; }
   .portrait-copy { max-width: none; justify-content: flex-start; padding-top: 84px; }
+  .journey-pin { grid-template-columns: 1fr; }
+  .traits { grid-template-columns: 1fr 1fr; row-gap: 40px; }
+  .trait:nth-child(odd) { padding-left: 0; border-left: 0; }
+  html.journey-on .journey-pin { grid-template-rows: auto minmax(0, 1fr) auto auto; gap: 14px; padding: 76px var(--pad) 20px; }
+  html.journey-on .journey-copy { display: contents; }
+  html.journey-on .journey-copy .label { margin-bottom: 0; }
+  html.journey-on .journey-title { display: none; }
+  html.journey-on .journey-map { order: 1; }
+  html.journey-on .chapters { order: 2; margin: 0; }
+  html.journey-on .chapter-tabs { order: 3; }
+  html.journey-on .chapter-name { font-size: 2rem; margin-top: 8px; }
+  html.journey-on .chapter-text { font-size: .92rem; margin-top: 10px; }
+  .chapter-tab .tab-name { display: none; }
+  .map-hud { top: 12px; left: 14px; gap: 16px; }
+  .map-hud b { font-size: 1.4rem; }
+  .map-coords { right: 14px; bottom: 10px; }
   .facts { margin-top: 16px; }
   .fact { grid-template-columns: 68px 1fr; gap: 12px; padding: 7px 0; font-size: .85rem; }
   .fact-note { display: none; }
@@ -631,4 +745,9 @@ html.facts-anim .fact.on dd { transition-delay: 120ms; }
     animation: none !important;
     transition-property: opacity, color, background-color, border-color, filter !important;
   }
+}
+
+@media (max-width: 559px) {
+  .traits { grid-template-columns: 1fr; }
+  .trait, .trait + .trait { padding: 0; border-left: 0; }
 }

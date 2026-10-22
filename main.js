@@ -639,6 +639,95 @@ function initPortal(chars) {
 }
 
 /* ---------- Text scramble for the role ---------- */
+/* ---------- My story: a route across the four countries I've lived in ----------
+   The block pins while you scroll. A camera glides over a dot map of Europe from country
+   to country, the route draws itself behind a travelling light, and each chapter's text
+   crossfades in. The chapter buttons and the map markers jump straight to a chapter.
+   Without GSAP, or with reduced motion, it stays a plain list beside the finished map. */
+const JOURNEY_CAMERA = [[177, 652, 1.9], [391, 227, 2.2], [717, 242, 1.9], [846, 458, 1.9], [500, 430, 1]]; // x, y, zoom
+const JOURNEY_YEARS = [0, 2, 5, 10, 10];
+
+function initJourney() {
+  const section = $(".journey");
+  if (!section) return;
+  const pin = $(".journey-pin", section);
+  const chapters = $$(".chapter", section);
+  const tabs = $$(".chapter-tab", section);
+  const markers = $$(".marker", section);
+  const lands = $$(".map-country", section);
+  const legs = $$(".route-leg", section);
+  const cam = $(".map-cam", section);
+  const traveller = $(".traveller", section);
+  const base = $(".route-base", section);
+  const years = $(".hud-years", section), countries = $(".hud-countries", section), coords = $(".map-coords", section);
+  const lens = legs.map((leg) => leg.getTotalLength());
+  const last = chapters.length - 1;
+  let active = -1, lastP = -1;
+
+  const setChapter = (i) => {
+    if (i === active) return;
+    active = i;
+    chapters.forEach((c, k) => c.classList.toggle("on", k === i));
+    tabs.forEach((b, k) => b.setAttribute("aria-current", k === i ? "step" : "false"));
+    markers.forEach((m, k) => m.classList.toggle("on", k === i));
+    swapText(years, String(JOURNEY_YEARS[i]).padStart(2, "0"));
+    swapText(countries, String(Math.min(i + 1, markers.length)).padStart(2, "0"));
+    swapText(coords, markers[i]?.dataset.coords ?? "");
+  };
+
+  // p runs from 0 (Spain) to `last` (the zoomed-out "today" view); whole numbers hold on a chapter
+  const render = (p) => {
+    if (p === lastP) return;
+    lastP = p;
+    const k = Math.min(last - 1, Math.floor(p));
+    const u = smoothstep(0.2, 0.85, p - k);
+    const a = JOURNEY_CAMERA[k], b = JOURNEY_CAMERA[k + 1];
+    const x = a[0] + (b[0] - a[0]) * u, y = a[1] + (b[1] - a[1]) * u;
+    // Pull back a little mid-flight, like a camera following a plane
+    const z = (a[2] + (b[2] - a[2]) * u) * (1 - 0.22 * Math.sin(Math.PI * u) * (k < last - 1));
+    cam.setAttribute("transform", `translate(500 414) scale(${z}) translate(${-x} ${-y})`);
+    // Lines and markers keep their on-screen size while the map zooms
+    legs.forEach((leg) => (leg.style.strokeWidth = 2.4 / z));
+    base.style.strokeWidth = 1.5 / z;
+    markers.forEach((m) => m.firstElementChild.setAttribute("transform", `scale(${1 / z})`));
+
+    let head = null;
+    legs.forEach((leg, i) => {
+      const drawn = i < k ? 1 : i > k ? 0 : k < legs.length ? u : 1;
+      leg.style.strokeDasharray = lens[i];
+      leg.style.strokeDashoffset = lens[i] * (1 - drawn);
+      if (drawn > 0 && drawn < 1) head = leg.getPointAtLength(lens[i] * drawn);
+    });
+    traveller.style.opacity = head ? 1 : 0;
+    if (head) traveller.setAttribute("transform", `translate(${head.x} ${head.y}) scale(${1 / z})`);
+    lands.forEach((l, i) => l.classList.toggle("visited", i === 0 || p >= i - 1 + 0.85));
+    setChapter(Math.min(last, Math.round(p)));
+  };
+
+  if (!hasGSAP || reduceMotion) { render(last); return; }
+  document.documentElement.classList.add("journey-on");
+
+  const st = ScrollTrigger.create({
+    trigger: pin, start: "top top", end: () => `+=${innerHeight * 3.2}`, pin: true,
+    onUpdate: (self) => render(self.progress * last),
+  });
+  render(0);
+
+  const goTo = (i) => {
+    const target = st.start + (st.end - st.start) * (i / last);
+    if (lenis) lenis.scrollTo(target, { duration: 1.4 });
+    else scrollTo({ top: target, behavior: "smooth" });
+  };
+  tabs.forEach((b) => b.addEventListener("click", () => goTo(+b.dataset.chapter)));
+  markers.forEach((m) => m.addEventListener("click", () => goTo(+m.dataset.chapter)));
+
+  // The "border" under the statement draws in, then its dots drift apart as you scroll on
+  const dots = $(".border-dots", section);
+  gsap.timeline({ scrollTrigger: { trigger: dots, start: "top 90%", end: "top 25%", scrub: true } })
+    .fromTo(dots, { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "none", duration: 1 })
+    .to(dots, { "--gap": "56px", opacity: 0.35, ease: "none", duration: 1.4 });
+}
+
 // "This is me" facts: while the portrait is pinned, each row draws its hairline and its value
 // decodes in, one after another; as the picture explodes they leave in reverse order
 function initFacts() {
@@ -1210,5 +1299,6 @@ initOdometers();
 initLangSwitch();
 initPortal(nameChars);
 initPortrait();
+initJourney();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars, fitName);
