@@ -6,7 +6,6 @@ A one-page interactive CV that shows my skills and work. It's built to stand out
 - Preloader, split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
 - Physics "skills playground" where visitors can grab and throw the bubbles
-- Horizontal-scrolling project gallery with 3D tilt cards
 - Custom cursor, magnetic buttons, a velocity-reactive marquee and film grain
 
 ## View it
@@ -19,9 +18,8 @@ Everything to change is marked with `EDIT` comments in `index.html`:
 
 - **About / stats:** the intro text and the numbers
 - **Skills:** the bubbles and skill lists
-- **Projects:** the 4 concept projects. Add real screenshots with `<img>` inside `.project-visual`
 - **Experience:** replace the `[brackets]`
-- **Contact:** replace `hello@example.com` and the social links
+- **Contact:** the social links
 - **Hero roles:** the `roles` list in `main.js`
 - **Colours:** the variables at the top of `styles.css`
 

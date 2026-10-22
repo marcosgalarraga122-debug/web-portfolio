@@ -189,7 +189,7 @@ function initScramble() {
   setInterval(() => { i = (i + 1) % roles.length; s.set(roles[i]); }, 3000);
 }
 
-/* ---------- Hero name: letters get thinner near the cursor ---------- */
+/* ---------- Hero name: letters near the cursor get thinner and zoom in ---------- */
 function initNameWeight(chars) {
   if (!finePointer || reduceMotion) return;
   addEventListener("pointermove", (e) => {
@@ -197,7 +197,10 @@ function initNameWeight(chars) {
     chars.forEach((c) => {
       const r = c.getBoundingClientRect();
       const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
-      c.style.fontWeight = Math.round(800 - 400 * Math.max(0, 1 - d / 350));
+      const near = Math.max(0, 1 - d / 350);
+      c.style.fontWeight = Math.round(800 - 400 * near);
+      c.style.scale = (1 + 0.18 * near).toFixed(3);
+      c.style.color = near > 0.6 ? "var(--lime)" : "";
     });
   });
 }
@@ -230,7 +233,7 @@ function initCursor() {
   });
 }
 
-/* ---------- Magnetic buttons + 3D tilt cards ---------- */
+/* ---------- Magnetic buttons ---------- */
 function initMagnetic() {
   if (!finePointer) return;
   $$(".magnetic").forEach((el) => {
@@ -241,22 +244,6 @@ function initMagnetic() {
       el.style.transform = `translate(${x * 0.35}px, ${y * 0.35}px)`;
     });
     el.addEventListener("pointerleave", () => (el.style.transform = ""));
-  });
-
-  $$(".tilt").forEach((el) => {
-    el.addEventListener("pointermove", (e) => {
-      const r = el.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width - 0.5;
-      const py = (e.clientY - r.top) / r.height - 0.5;
-      el.style.setProperty("--rx", `${-py * 8}deg`);
-      el.style.setProperty("--ry", `${px * 10}deg`);
-      el.style.setProperty("--mx", `${(px + 0.5) * 100}%`);
-      el.style.setProperty("--my", `${(py + 0.5) * 100}%`);
-    });
-    el.addEventListener("pointerleave", () => {
-      el.style.setProperty("--rx", "0deg");
-      el.style.setProperty("--ry", "0deg");
-    });
   });
 }
 
@@ -446,15 +433,6 @@ function initScrollAnimations(aboutWords) {
   gsap.from(".contact-title .line > span", {
     yPercent: 110, duration: 1.4, stagger: 0.12, ease: "expo.out",
     scrollTrigger: { trigger: ".contact-title", start: "top 80%" },
-  });
-
-  // Horizontal project gallery on desktop
-  gsap.matchMedia().add("(min-width: 900px)", () => {
-    const track = $(".work-track");
-    const distance = () => track.scrollWidth - innerWidth;
-    const st = { trigger: ".work", start: "top top", end: () => `+=${distance()}`, scrub: 1, invalidateOnRefresh: true };
-    gsap.to(track, { x: () => -distance(), ease: "none", scrollTrigger: { ...st, pin: true } });
-    gsap.to(".work-progress span", { scaleX: 1, ease: "none", scrollTrigger: st });
   });
 
   document.fonts.ready.then(() => ScrollTrigger.refresh());
