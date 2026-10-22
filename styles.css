@@ -1,9 +1,10 @@
 :root {
-  /* "Ink & Brass": cool midnight ink (trust, calm, technical) with warm ivory text and a single
-     brushed-brass accent (craft, quality, timelessness). Warm-on-cool keeps it inviting, not cold. */
-  --bg: #0d1117;          /* midnight ink */
-  --bg-2: #121822;        /* raised ink, alternating sections */
-  --card: #171e2a;        /* cards and panels */
+  /* "Bottle Green & Brass": a deep bottle-green base (calm, established, growth) with warm ivory
+     text and a single brushed-brass accent (craft, quality) — a timeless interior pairing that is
+     as professional as navy or black but far more memorable. */
+  --bg: #0e1612;          /* deep bottle green */
+  --bg-2: #121d18;        /* raised green, alternating sections */
+  --card: #172520;        /* cards and panels */
   --fg: #ece6da;          /* warm ivory text (~15:1 on ink) */
   --muted: #a29d93;       /* warm stone grey */
   --soft: #cfc9bd;        /* body copy on dark */
@@ -12,18 +13,18 @@
   --accent-2: #c9a66b;
   --amber: #c9a66b;
   --amber-ink: #c9a66b;
-  --sage: #8fae8b;        /* reserved for "available" status */
+  --sage: #9cc49a;        /* reserved for "available" status */
   --plum: #c9a66b;
   --accent-tint: rgba(201, 166, 107, .1);
   --amber-tint: rgba(201, 166, 107, .08);
   --sage-tint: rgba(143, 174, 139, .09);
   --plum-tint: rgba(201, 166, 107, .08);
-  --on-accent: #0d1117;
-  --nav-bg: rgba(13, 17, 23, .8);
-  --footer-bg: #090c11;
+  --on-accent: #0e1612;
+  --nav-bg: rgba(14, 22, 18, .8);
+  --footer-bg: #0a100d;
   --footer-fg: #a29d93;
   --glow-1: rgba(201, 166, 107, .1);
-  --glow-2: rgba(96, 120, 160, .08);
+  --glow-2: rgba(110, 150, 125, .08);
   --border-strong: rgba(236, 230, 218, .2);
   color-scheme: dark;
   --name-font: "Fraunces", Georgia, serif;
@@ -196,7 +197,7 @@ html.intro-active .nav, html.intro-active .hero-fade { opacity: 0; }
    already in place when the camera passes through the "o" (see initPortal in main.js) */
 html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hero-canvas.fallback { background: radial-gradient(80% 60% at 70% 40%, #1a2230, var(--bg)); }
+.hero-canvas.fallback { background: radial-gradient(80% 60% at 70% 40%, #1a2a22, var(--bg)); }
 .hero-content {
   position: relative; height: 100%;
   display: flex; flex-direction: column; justify-content: space-between;
@@ -206,9 +207,9 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 .status { display: inline-flex; align-items: center; gap: 10px; color: var(--soft); }
 .status i {
   width: 7px; height: 7px; border-radius: 50%; background: var(--sage);
-  box-shadow: 0 0 0 0 rgba(143, 174, 139, .5); animation: pulse 2.4s infinite;
+  box-shadow: 0 0 0 0 rgba(156, 196, 154, .5); animation: pulse 2.4s infinite;
 }
-@keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(143, 174, 139, 0); } 100% { box-shadow: 0 0 0 0 rgba(143, 174, 139, 0); } }
+@keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(156, 196, 154, 0); } 100% { box-shadow: 0 0 0 0 rgba(156, 196, 154, 0); } }
 
 /* Centred in the hero; main.js sets the exact font-size so it fits the width */
 .hero-name {
@@ -300,7 +301,7 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
   position: absolute; top: 18px; right: 18px; z-index: 2;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 14px; border-radius: 999px;
-  background: rgba(13, 17, 23, .72); backdrop-filter: blur(8px); color: var(--fg);
+  background: rgba(14, 22, 18, .72); backdrop-filter: blur(8px); color: var(--fg);
 }
 .photo-tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 .about-text {

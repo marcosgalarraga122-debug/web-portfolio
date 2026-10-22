@@ -188,8 +188,8 @@ function initShader() {
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
-      vec3 base=vec3(.051,.067,.09);                                  // midnight ink
-      vec3 col=mix(base,vec3(.095,.125,.18),clamp(f*f*1.6,0.,1.));    // slate-blue clouds
+      vec3 base=vec3(.055,.086,.071);                                 // deep bottle green
+      vec3 col=mix(base,vec3(.09,.145,.118),clamp(f*f*1.6,0.,1.));    // green-slate clouds
       col=mix(col,vec3(.4,.32,.19),clamp(length(q)*f*.4-.2,0.,1.)*.6); // faint brass light
       col=mix(col,vec3(.5,.41,.26),exp(-d*3.5)*.12);                  // warm glow at the cursor
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
