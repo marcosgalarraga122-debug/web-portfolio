@@ -23,12 +23,14 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="loading">
-  <a class="skip-link" href="#main">Skip to content</a>
+  <!-- Text is translated by main.js using i18n.js (data-i18n = text, data-i18n-html = text with markup,
+       data-i18n-attr = attributes). The English here is the fallback. -->
+  <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
 
   <!-- Loading screen -->
   <div class="preloader" aria-hidden="true">
     <div class="preloader-row">
-      <span class="mono">Marcos Cañellas — Web Developer & Designer</span>
+      <span class="mono" data-i18n="preloader">Marcos Cañellas — Web Developer & Designer</span>
       <span class="preloader-count">0</span>
     </div>
     <div class="preloader-bar"><span></span></div>
@@ -41,14 +43,20 @@
   <header class="nav">
     <a href="#top" class="nav-logo magnetic">Marcos<span>.</span></a>
     <nav class="nav-links" aria-label="Main">
-      <a href="#about" class="roll"><span data-text="About">About</span></a>
-      <a href="#services" class="roll"><span data-text="Services">Services</span></a>
-      <a href="#process" class="roll"><span data-text="Process">Process</span></a>
-      <a href="#experience" class="roll"><span data-text="Experience">Experience</span></a>
-      <a href="#faq" class="roll"><span data-text="FAQ">FAQ</span></a>
+      <a href="#about" class="roll"><span data-text="About" data-i18n="nav.about">About</span></a>
+      <a href="#services" class="roll"><span data-text="Services" data-i18n="nav.services">Services</span></a>
+      <a href="#process" class="roll"><span data-text="Process" data-i18n="nav.process">Process</span></a>
+      <a href="#experience" class="roll"><span data-text="Experience" data-i18n="nav.experience">Experience</span></a>
+      <a href="#faq" class="roll"><span data-text="FAQ" data-i18n="nav.faq">FAQ</span></a>
     </nav>
     <div class="nav-right">
-      <a href="#contact" class="nav-cta magnetic">Start a project</a>
+      <div class="lang" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.label">
+        <span class="lang-pill" aria-hidden="true"></span>
+        <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+        <button type="button" data-lang="es" aria-pressed="false" lang="es">ES</button>
+        <button type="button" data-lang="fr" aria-pressed="false" lang="fr">FR</button>
+      </div>
+      <a href="#contact" class="nav-cta magnetic" data-i18n="nav.cta">Start a project</a>
     </div>
   </header>
 
@@ -58,8 +66,8 @@
       <canvas class="hero-canvas" aria-hidden="true"></canvas>
       <div class="hero-content">
         <div class="hero-top hero-fade">
-          <span class="mono">Web Design & Development</span>
-          <span class="mono status"><i></i>Available for new projects</span>
+          <span class="mono" data-i18n="hero.tag">Web Design & Development</span>
+          <span class="mono status"><i></i><span data-i18n="hero.status">Available for new projects</span></span>
         </div>
 
         <h1 class="hero-name" aria-label="Marcos Cañellas">
@@ -68,101 +76,109 @@
         </h1>
         <div class="hero-bottom">
           <p class="hero-role hero-fade">
-            <span class="mono">Professional</span>
+            <span class="mono" data-i18n="hero.rolePrefix">Professional</span>
             <span class="scramble">Web Developer</span>
           </p>
           <div class="hero-intro hero-fade">
-            <p>I design and build high-quality websites that strengthen your brand, earn your customers' trust and grow your business.</p>
+            <p data-i18n="hero.intro">I design and build high-quality websites that strengthen your brand, earn your customers' trust and grow your business.</p>
             <div class="hero-actions">
-              <a href="#contact" class="btn magnetic"><span class="btn-label">Start a project</span><span class="btn-arrow" aria-hidden="true">→</span></a>
-              <a href="#services" class="btn btn-ghost">View services</a>
+              <a href="#contact" class="btn magnetic"><span class="btn-label" data-i18n="hero.cta">Start a project</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+              <a href="#services" class="btn btn-ghost" data-i18n="hero.services">View services</a>
             </div>
           </div>
-          <a href="#about" class="scroll-cue mono hero-fade">Scroll <span>↓</span></a>
+          <a href="#about" class="scroll-cue mono hero-fade"><span data-i18n="hero.scroll">Scroll</span> <span class="scroll-arrow">↓</span></a>
         </div>
       </div>
     </section>
 
-    <!-- ============ MARQUEE ============ -->
+    <!-- ============ MARQUEE (items come from i18n.js) ============ -->
     <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>Web Design</span><b>/</b><span>Web Development</span><b>/</b><span>UI / UX</span><b>/</b><span>Responsive Websites</span><b>/</b><span>SEO</span><b>/</b><span>Performance</span><b>/</b>
-      </div>
+      <div class="marquee-track"></div>
     </div>
 
     <!-- ============ PARTICLE PORTRAIT ============ -->
     <!-- The photo is rebuilt from the pixel colours in portrait-data.js -->
-    <section class="portrait" id="portrait" aria-label="Interactive particle portrait of Marcos">
+    <section class="portrait" id="portrait" aria-label="Interactive particle portrait of Marcos" data-i18n-attr="aria-label:portrait.aria">
       <canvas class="portrait-canvas" aria-hidden="true"></canvas>
       <div class="portrait-copy">
-        <span class="mono label reveal-up">Interactive portrait</span>
-        <h2 class="portrait-title reveal-up">This is<br><em>me.</em></h2>
-        <p class="reveal-up">Almost 29,000 particles — each one a pixel of my photo — rebuilt live in your browser.</p>
-        <p class="mono portrait-hint reveal-up"><span class="hint-fine">Move through the picture · Click for a shockwave</span><span class="hint-touch">Tap the picture for a shockwave</span></p>
+        <span class="mono label reveal-up" data-i18n="portrait.label">Interactive portrait</span>
+        <h2 class="portrait-title reveal-up" data-i18n-html="portrait.title">This is<br><em>me.</em></h2>
+        <p class="reveal-up" data-i18n="portrait.text">Almost 58,000 particles — each one a pixel of my photo — rebuilt live in your browser.</p>
+        <p class="mono portrait-hint reveal-up"><span class="hint-fine" data-i18n="portrait.hintFine">Move through the picture · Click for a shockwave</span><span class="hint-touch" data-i18n="portrait.hintTouch">Tap the picture for a shockwave</span></p>
       </div>
     </section>
 
     <!-- ============ ABOUT ============ -->
     <section class="section about" id="about">
-      <span class="mono label"><span class="lnum">(01) </span>About</span>
+      <span class="mono label"><span class="lnum">(01) </span><span data-i18n="about.label">About</span></span>
       <div class="about-grid">
-        <p class="about-text">I'm Marcos, a web developer and designer who helps businesses stand out online. I combine clear design, smooth interaction and clean, reliable code to deliver fast websites that represent your brand professionally and turn visitors into clients.</p>
+        <p class="about-text" data-i18n="about.text">I'm Marcos, a web developer and designer who helps businesses stand out online. I combine clear design, smooth interaction and clean, reliable code to deliver fast websites that represent your brand professionally and turn visitors into clients.</p>
         <div class="about-photos">
-          <figure class="photo photo-main"><img src="images/marcos-4644.jpg" alt="Portrait of Marcos" loading="lazy"></figure>
-          <figure class="photo photo-second"><img src="images/marcos-4640.jpg" alt="Marcos looking out over the river" loading="lazy"></figure>
-          <span class="photo-tag mono"><i></i>Marcos — Web Developer</span>
+          <figure class="photo photo-main"><img src="images/marcos-4644.jpg" alt="Portrait of Marcos" data-i18n-attr="alt:about.alt1" loading="lazy"></figure>
+          <figure class="photo photo-second"><img src="images/marcos-4640.jpg" alt="Marcos looking out over the river" data-i18n-attr="alt:about.alt2" loading="lazy"></figure>
+          <span class="photo-tag mono"><i></i><span data-i18n="about.tag">Marcos — Web Developer</span></span>
         </div>
       </div>
 
+      <!-- Numbers roll in like a slot machine (see initOdometers in main.js) -->
       <div class="stats">
-        <div class="stat reveal-up"><p class="stat-num"><span data-count="100">0</span>%</p><p class="mono">Custom design — no templates</p></div>
-        <div class="stat reveal-up"><p class="stat-num"><span data-count="1">0</span></p><p class="mono">Direct point of contact</p></div>
-        <div class="stat reveal-up"><p class="stat-num"><span data-count="24">0</span>h</p><p class="mono">Response time</p></div>
+        <div class="stat spot reveal-up" style="--g1: #ffb347; --g2: #ff4f6d">
+          <p class="stat-num"><span class="odo" data-value="100">100</span><span class="stat-suffix">%</span></p>
+          <p class="stat-label" data-i18n="stat.1">Custom design — no templates</p>
+        </div>
+        <div class="stat spot reveal-up" style="--g1: #a88bff; --g2: #35c8ff">
+          <p class="stat-num"><span class="odo" data-value="1">1</span></p>
+          <p class="stat-label" data-i18n="stat.2">Direct point of contact</p>
+        </div>
+        <div class="stat spot reveal-up" style="--g1: #5cf2b5; --g2: #d4ff4f">
+          <p class="stat-num"><span class="odo" data-value="24">24</span><span class="stat-suffix">h</span></p>
+          <p class="stat-label" data-i18n="stat.3">Response time</p>
+        </div>
       </div>
     </section>
 
     <!-- ============ SERVICES ============ -->
     <section class="section services" id="services">
       <div class="section-head">
-        <span class="mono label"><span class="lnum">(02) </span>Services</span>
-        <h2 class="title">How I can help<br>your business</h2>
+        <span class="mono label"><span class="lnum">(02) </span><span data-i18n="services.label">Services</span></span>
+        <h2 class="title" data-i18n-html="services.title">How I can help<br>your business</h2>
       </div>
       <div class="service-grid">
         <article class="service spot reveal-up" style="--c: var(--accent); --t: var(--accent-tint)">
           <span class="mono service-num">01</span>
-          <h3>Website design</h3>
-          <p>Custom, on-brand designs that build trust and guide visitors towards getting in touch or buying.</p>
+          <h3 data-i18n="s1.t">Website design</h3>
+          <p data-i18n="s1.d">Custom, on-brand designs that build trust and guide visitors towards getting in touch or buying.</p>
         </article>
         <article class="service spot reveal-up" style="--c: var(--amber-ink); --t: var(--amber-tint)">
           <span class="mono service-num">02</span>
-          <h3>Website development</h3>
-          <p>Fast, responsive and search-engine-ready websites built with clean, modern code.</p>
+          <h3 data-i18n="s2.t">Website development</h3>
+          <p data-i18n="s2.d">Fast, responsive and search-engine-ready websites built with clean, modern code.</p>
         </article>
         <article class="service spot reveal-up" style="--c: var(--sage); --t: var(--sage-tint)">
           <span class="mono service-num">03</span>
-          <h3>Redesign & optimisation</h3>
-          <p>Turn an outdated website into a modern one that loads faster and converts better.</p>
+          <h3 data-i18n="s3.t">Redesign & optimisation</h3>
+          <p data-i18n="s3.d">Turn an outdated website into a modern one that loads faster and converts better.</p>
         </article>
         <article class="service spot reveal-up" style="--c: var(--plum); --t: var(--plum-tint)">
           <span class="mono service-num">04</span>
-          <h3>Care & support</h3>
-          <p>Updates, improvements and reliable support after launch, so your site keeps performing.</p>
+          <h3 data-i18n="s4.t">Care & support</h3>
+          <p data-i18n="s4.d">Updates, improvements and reliable support after launch, so your site keeps performing.</p>
         </article>
       </div>
     </section>
 
     <!-- ============ WHY ME ============ -->
-    <!-- EDIT: make sure these promises match how you work -->
+    <!-- EDIT: make sure these promises match how you work (text lives in i18n.js) -->
     <section class="section why" id="why">
       <div class="section-head">
-        <span class="mono label"><span class="lnum">(03) </span>Why work with me</span>
-        <h2 class="title">A reliable partner<br>for your website</h2>
+        <span class="mono label"><span class="lnum">(03) </span><span data-i18n="why.label">Why work with me</span></span>
+        <h2 class="title" data-i18n-html="why.title">A reliable partner<br>for your website</h2>
       </div>
       <div class="why-grid">
-        <div class="why-item"><span class="mono">01</span><h3>Clear quotes</h3><p>A written quote before any work starts, so you know exactly what you're getting and what it costs.</p></div>
-        <div class="why-item"><span class="mono">02</span><h3>Agreed timelines</h3><p>A schedule we agree on together, with regular updates so you always know where the project stands.</p></div>
-        <div class="why-item"><span class="mono">03</span><h3>Built to perform</h3><p>Fast, secure, mobile-first websites, set up from the start to be found on search engines.</p></div>
-        <div class="why-item"><span class="mono">04</span><h3>Direct communication</h3><p>You work directly with me — from the first call to launch and beyond. No middlemen.</p></div>
+        <div class="why-item reveal-up"><span class="mono">01</span><h3 data-i18n="w1.t">Clear quotes</h3><p data-i18n="w1.d">A written quote before any work starts, so you know exactly what you're getting and what it costs.</p></div>
+        <div class="why-item reveal-up"><span class="mono">02</span><h3 data-i18n="w2.t">Agreed timelines</h3><p data-i18n="w2.d">A schedule we agree on together, with regular updates so you always know where the project stands.</p></div>
+        <div class="why-item reveal-up"><span class="mono">03</span><h3 data-i18n="w3.t">Built to perform</h3><p data-i18n="w3.d">Fast, secure, mobile-first websites, set up from the start to be found on search engines.</p></div>
+        <div class="why-item reveal-up"><span class="mono">04</span><h3 data-i18n="w4.t">Direct communication</h3><p data-i18n="w4.d">You work directly with me — from the first call to launch and beyond. No middlemen.</p></div>
       </div>
     </section>
 
@@ -170,125 +186,105 @@
     <section class="section process" id="process">
       <div class="process-layout">
         <div class="process-intro">
-          <span class="mono label"><span class="lnum">(04) </span>Process</span>
-          <h2 class="title">How we'll<br>work together</h2>
-          <p class="reveal-up">A clear, simple process so you always know what's happening, what comes next and when your website will be ready.</p>
-          <a href="#contact" class="btn reveal-up"><span class="btn-label">Book a free call</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+          <span class="mono label"><span class="lnum">(04) </span><span data-i18n="process.label">Process</span></span>
+          <h2 class="title" data-i18n-html="process.title">How we'll<br>work together</h2>
+          <p class="reveal-up" data-i18n="process.text">A clear, simple process so you always know what's happening, what comes next and when your website will be ready.</p>
+          <a href="#contact" class="btn reveal-up"><span class="btn-label" data-i18n="process.cta">Book a free call</span><span class="btn-arrow" aria-hidden="true">→</span></a>
         </div>
 
         <ol class="steps">
           <li class="steps-line" aria-hidden="true"><span></span></li>
           <li class="step" style="--c: var(--accent)">
             <span class="step-num">01</span>
-            <div class="step-card">
-              <h3>Discovery call</h3>
-              <p>We talk about your business, your customers and your goals, so the website is built around what really matters to you.</p>
-            </div>
+            <div class="step-card"><h3 data-i18n="p1.t">Discovery call</h3><p data-i18n="p1.d">We talk about your business, your customers and your goals, so the website is built around what really matters to you.</p></div>
           </li>
           <li class="step" style="--c: var(--amber-ink)">
             <span class="step-num">02</span>
-            <div class="step-card">
-              <h3>Strategy & design</h3>
-              <p>I plan the structure and design the look and feel. You review it and give feedback before any code is written.</p>
-            </div>
+            <div class="step-card"><h3 data-i18n="p2.t">Strategy & design</h3><p data-i18n="p2.d">I plan the structure and design the look and feel. You review it and give feedback before any code is written.</p></div>
           </li>
           <li class="step" style="--c: var(--sage)">
             <span class="step-num">03</span>
-            <div class="step-card">
-              <h3>Development</h3>
-              <p>I build a fast, responsive website with smooth interactions, sharing progress with you along the way.</p>
-            </div>
+            <div class="step-card"><h3 data-i18n="p3.t">Development</h3><p data-i18n="p3.d">I build a fast, responsive website with smooth interactions, sharing progress with you along the way.</p></div>
           </li>
           <li class="step" style="--c: var(--plum)">
             <span class="step-num">04</span>
-            <div class="step-card">
-              <h3>Launch & support</h3>
-              <p>Your site goes live, I show you how to manage it, and I'm there for updates and improvements afterwards.</p>
-            </div>
+            <div class="step-card"><h3 data-i18n="p4.t">Launch & support</h3><p data-i18n="p4.d">Your site goes live, I show you how to manage it, and I'm there for updates and improvements afterwards.</p></div>
           </li>
         </ol>
       </div>
     </section>
 
     <!-- ============ EXPERIENCE ============ -->
-    <!-- EDIT: fill in the [brackets] in the commented-out rows below, then remove the comment markers to show them -->
+    <!-- EDIT: to add rows, copy the <li> below and add matching keys (exp2.year, exp2.t, …) to i18n.js -->
     <section class="section experience" id="experience">
       <div class="section-head">
-        <span class="mono label"><span class="lnum">(05) </span>Experience</span>
-        <h2 class="title">Experience &<br>education</h2>
+        <span class="mono label"><span class="lnum">(05) </span><span data-i18n="exp.label">Experience</span></span>
+        <h2 class="title" data-i18n-html="exp.title">Experience &<br>education</h2>
       </div>
       <ol class="exp-list">
         <li class="exp-row reveal-up">
-          <span class="mono exp-year">2025 — Present</span>
-          <div><h3>Freelance Web Developer</h3><p class="exp-place">Self-employed</p></div>
-          <p class="exp-desc">Designing and building custom websites for small businesses, professionals and brands — from first idea to launch.</p>
+          <span class="mono exp-year" data-i18n="exp1.year">2025 — Present</span>
+          <div><h3 data-i18n="exp1.t">Freelance Web Developer</h3><p class="exp-place" data-i18n="exp1.place">Self-employed</p></div>
+          <p class="exp-desc" data-i18n="exp1.d">Designing and building custom websites for small businesses, professionals and brands — from first idea to launch.</p>
         </li>
-        <!--
-        <li class="exp-row reveal-up">
-          <span class="mono exp-year">[Year — Year]</span>
-          <div><h3>[Job title]</h3><p class="exp-place">[Company]</p></div>
-          <p class="exp-desc">[What you did there and what you achieved.]</p>
-        </li>
-        <li class="exp-row reveal-up">
-          <span class="mono exp-year">[Year — Year]</span>
-          <div><h3>[Course or degree]</h3><p class="exp-place">[School / university]</p></div>
-          <p class="exp-desc">[What you studied and any highlights.]</p>
-        </li>
-        -->
       </ol>
     </section>
 
     <!-- ============ FAQ ============ -->
-    <!-- EDIT: adjust the answers to match how you work -->
+    <!-- EDIT: adjust the answers in i18n.js to match how you work -->
     <section class="section faq" id="faq">
       <div class="faq-layout">
         <div class="section-head">
-          <span class="mono label"><span class="lnum">(06) </span>FAQ</span>
-          <h2 class="title">Frequently asked questions</h2>
+          <span class="mono label"><span class="lnum">(06) </span><span data-i18n="faq.label">FAQ</span></span>
+          <h2 class="title" data-i18n-html="faq.title">Frequently asked questions</h2>
         </div>
         <div class="faq-list">
-          <details><summary>How long does a website take?</summary><p>It depends on the size of the project — a one-page site is quicker than a multi-page site or an online shop. You'll get a clear timeline together with your quote.</p></details>
-          <details><summary>What do you need from me?</summary><p>Your logo, any text and photos you already have, and a few examples of websites you like. I'll guide you through everything else.</p></details>
-          <details><summary>Will I be able to update the website myself?</summary><p>Yes. If you need to change content regularly, I'll set the site up so you can edit it easily and show you how.</p></details>
-          <details><summary>Do you offer support after launch?</summary><p>Yes. Care &amp; support covers updates, improvements and fixes so your website keeps performing.</p></details>
-          <details><summary>How do we get started?</summary><p>Send me an email with a short description of your business and what you need. I'll reply within 24 hours to arrange a call.</p></details>
+          <details><summary data-i18n="q1">How long does a website take?</summary><p data-i18n="a1">It depends on the size of the project — a one-page site is quicker than a multi-page site or an online shop. You'll get a clear timeline together with your quote.</p></details>
+          <details><summary data-i18n="q2">What do you need from me?</summary><p data-i18n="a2">Your logo, any text and photos you already have, and a few examples of websites you like. I'll guide you through everything else.</p></details>
+          <details><summary data-i18n="q3">Will I be able to update the website myself?</summary><p data-i18n="a3">Yes. If you need to change content regularly, I'll set the site up so you can edit it easily and show you how.</p></details>
+          <details><summary data-i18n="q4">Do you offer support after launch?</summary><p data-i18n="a4">Yes. Care &amp; support covers updates, improvements and fixes so your website keeps performing.</p></details>
+          <details><summary data-i18n="q5">How do we get started?</summary><p data-i18n="a5">Send me an email with a short description of your business and what you need. I'll reply within 24 hours to arrange a call.</p></details>
         </div>
       </div>
     </section>
 
     <!-- ============ CONTACT ============ -->
     <section class="section contact" id="contact">
-      <span class="mono label"><span class="lnum">(07) </span>Contact</span>
+      <span class="mono label"><span class="lnum">(07) </span><span data-i18n="contact.label">Contact</span></span>
       <h2 class="contact-title">
-        <span class="line"><span>Let's work</span></span>
-        <span class="line"><span><em>together.</em></span></span>
+        <span class="line"><span data-i18n="contact.l1">Let's work</span></span>
+        <span class="line"><span><em data-i18n="contact.l2">together.</em></span></span>
       </h2>
-      <p class="contact-lead">Tell me about your business and your goals. I'll reply within 24 hours with ideas and a clear quote.</p>
+      <p class="contact-lead" data-i18n="contact.lead">Tell me about your business and your goals. I'll reply within 24 hours with ideas and a clear quote.</p>
       <div class="contact-grid">
         <!-- Sending opens the visitor's email app with the enquiry filled in -->
         <form class="contact-form" data-email="Marcos.galarraga122@outlook.com">
-          <div class="field"><label for="cf-name">Name</label><input id="cf-name" name="name" required autocomplete="name"></div>
-          <div class="field"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" required autocomplete="email"></div>
-          <div class="field"><label for="cf-company">Company <span>(optional)</span></label><input id="cf-company" name="company" autocomplete="organization"></div>
+          <div class="field"><label for="cf-name" data-i18n="form.name">Name</label><input id="cf-name" name="name" required autocomplete="name"></div>
+          <div class="field"><label for="cf-email" data-i18n="form.email">Email</label><input id="cf-email" name="email" type="email" required autocomplete="email"></div>
+          <div class="field"><label for="cf-company" data-i18n-html="form.company">Company <span>(optional)</span></label><input id="cf-company" name="company" autocomplete="organization"></div>
           <div class="field">
-            <label for="cf-type">Project type</label>
+            <label for="cf-type" data-i18n="form.type">Project type</label>
             <select id="cf-type" name="type">
-              <option>New website</option><option>Website redesign</option><option>Online shop</option><option>Care &amp; support</option><option>Something else</option>
+              <option data-i18n="form.opt1">New website</option>
+              <option data-i18n="form.opt2">Website redesign</option>
+              <option data-i18n="form.opt3">Online shop</option>
+              <option data-i18n="form.opt4">Care &amp; support</option>
+              <option data-i18n="form.opt5">Something else</option>
             </select>
           </div>
-          <div class="field full"><label for="cf-msg">About your project</label><textarea id="cf-msg" name="message" rows="5" required placeholder="What does your business do, and what should the website achieve?"></textarea></div>
+          <div class="field full"><label for="cf-msg" data-i18n="form.msg">About your project</label><textarea id="cf-msg" name="message" rows="5" required placeholder="What does your business do, and what should the website achieve?" data-i18n-attr="placeholder:form.placeholder"></textarea></div>
           <div class="form-foot full">
-            <button class="btn" type="submit"><span class="btn-label">Send enquiry</span><span class="btn-arrow" aria-hidden="true">→</span></button>
-            <p class="form-note">Opens your email app with your message ready to send.</p>
+            <button class="btn" type="submit"><span class="btn-label" data-i18n="form.send">Send enquiry</span><span class="btn-arrow" aria-hidden="true">→</span></button>
+            <p class="form-note" data-i18n="form.note">Opens your email app with your message ready to send.</p>
           </div>
         </form>
 
         <aside class="contact-side">
-          <div><p class="mono">Email</p>
-            <button class="copy-email" type="button" data-email="Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com <span class="copy-state mono">Copy</span></button>
+          <div><p class="mono" data-i18n="side.email">Email</p>
+            <button class="copy-email" type="button" data-email="Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com <span class="copy-state mono" data-i18n="copy">Copy</span></button>
           </div>
-          <div><p class="mono">Response time</p><p>Within 24 hours</p></div>
-          <div><p class="mono">Availability</p><p><span class="status-dot"></span>Taking on new projects</p></div>
+          <div><p class="mono" data-i18n="side.response">Response time</p><p data-i18n="side.responseVal">Within 24 hours</p></div>
+          <div><p class="mono" data-i18n="side.availability">Availability</p><p><span class="status-dot"></span><span data-i18n="side.availabilityVal">Taking on new projects</span></p></div>
         </aside>
       </div>
       <!-- EDIT: add your social profiles here when ready, e.g.
@@ -300,14 +296,15 @@
   </main>
 
   <footer class="footer mono">
-    <span>© <span class="year">2026</span> Marcos Cañellas. All rights reserved.</span>
+    <span>© <span class="year">2026</span> Marcos Cañellas. <span data-i18n="footer.rights">All rights reserved.</span></span>
     <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>
-    <a href="#top">Back to top ↑</a>
+    <a href="#top" data-i18n="footer.top">Back to top ↑</a>
   </footer>
 
   <script defer src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script defer src="i18n.js"></script>
   <script defer src="portrait-data.js"></script>
   <script defer src="main.js"></script>
 </body>

@@ -67,6 +67,43 @@ function swapText(el, text, onSwap) {
   }, 160);
 }
 
+/* ---------- Translations (all text lives in i18n.js) ---------- */
+const LANGS = ["en", "es", "fr"];
+let lang = (() => {
+  let saved = null;
+  try { saved = localStorage.getItem("lang"); } catch {}
+  if (LANGS.includes(saved)) return saved;
+  const browser = (navigator.language || "en").slice(0, 2);
+  return LANGS.includes(browser) ? browser : "en";
+})();
+const t = (key) => window.I18N?.[lang]?.[key] ?? window.I18N?.en?.[key];
+
+function applyTranslations() {
+  if (!window.I18N) return; // keep the English in the HTML if i18n.js didn't load
+  document.documentElement.lang = lang;
+  $$("[data-i18n]").forEach((el) => {
+    const text = t(el.dataset.i18n);
+    if (text == null) return;
+    el.textContent = text;
+    if (el.hasAttribute("data-text")) el.dataset.text = text;
+  });
+  $$("[data-i18n-html]").forEach((el) => {
+    const html = t(el.dataset.i18nHtml);
+    if (html != null) el.innerHTML = html;
+  });
+  $$("[data-i18n-attr]").forEach((el) =>
+    el.dataset.i18nAttr.split(";").forEach((pair) => {
+      const [attr, key] = pair.split(":");
+      const value = t(key);
+      if (value != null) el.setAttribute(attr, value);
+    })
+  );
+  document.title = t("meta.title");
+  $('meta[name="description"]').setAttribute("content", t("meta.desc"));
+}
+
+const roles = () => t("roles") || ["Web Developer", "Web Designer", "UI / UX Designer", "Digital Partner"];
+
 /* ---------- Smooth scrolling (Lenis) ---------- */
 let lenis = null;
 if (window.Lenis && !reduceMotion) {
@@ -265,7 +302,11 @@ function initPortrait() {
     void main(){
       float r=length(gl_PointCoord-.5);
       if(r>.5) discard;
-      gl_FragColor=vec4(v_col,smoothstep(.5,.3,r)*u_alpha);
+      vec3 c=v_col;
+      float l=dot(c,vec3(.299,.587,.114));
+      c=mix(vec3(l),c,1.5);   // saturation boost
+      c=(c-.5)*1.08+.5;       // a touch more contrast
+      gl_FragColor=vec4(clamp(c,0.,1.),smoothstep(.5,.3,r)*u_alpha);
     }`;
   const compile = (type, src) => {
     const s = gl.createShader(type);
@@ -446,12 +487,16 @@ class Scramble {
   };
 }
 
+// The words that cycle in the hero are the "roles" lists in i18n.js
+let scramble = null, roleIndex = 0;
 function initScramble() {
-  // EDIT: the words that cycle in the hero
-  const roles = ["Web Developer", "Web Designer", "UI / UX Designer", "Digital Partner"];
-  const s = new Scramble($(".scramble"));
-  let i = 0;
-  setInterval(() => { i = (i + 1) % roles.length; s.set(roles[i]); }, 3000);
+  const el = $(".scramble");
+  el.textContent = roles()[0];
+  scramble = new Scramble(el);
+  setInterval(() => {
+    roleIndex = (roleIndex + 1) % roles().length;
+    scramble.set(roles()[roleIndex]);
+  }, 3000);
 }
 
 /* ---------- Hero name: scale it to exactly fill the available width ---------- */
@@ -527,10 +572,14 @@ function initMagnetic() {
 }
 
 /* ---------- Marquee that speeds up with scroll ---------- */
+function renderMarquee() {
+  const items = t("marquee") || ["Web Design", "Web Development", "UI / UX", "Responsive Websites", "SEO", "Performance"];
+  $(".marquee-track").innerHTML = items.map((w) => `<span>${w}</span><b>/</b>`).join("").repeat(4);
+}
+
 function initMarquee() {
   const track = $(".marquee-track");
-  const original = track.innerHTML;
-  track.innerHTML = original.repeat(4);
+  renderMarquee();
   if (reduceMotion) return;
   let x = 0, speed = 0;
   const loop = () => {
@@ -553,16 +602,16 @@ function initContactForm() {
     e.preventDefault();
     if (!form.reportValidity()) return;
     const d = Object.fromEntries(new FormData(form));
-    const subject = `Website enquiry — ${d.type}${d.company ? ` (${d.company})` : ""}`;
-    const lines = [`Name: ${d.name}`, `Email: ${d.email}`];
-    if (d.company) lines.push(`Company: ${d.company}`);
-    lines.push(`Project type: ${d.type}`, "", d.message);
+    const subject = `${t("mail.subject")} — ${d.type}${d.company ? ` (${d.company})` : ""}`;
+    const lines = [`${t("mail.name")}: ${d.name}`, `${t("mail.email")}: ${d.email}`];
+    if (d.company) lines.push(`${t("mail.company")}: ${d.company}`);
+    lines.push(`${t("mail.type")}: ${d.type}`, "", d.message);
     const body = lines.join("\n");
     location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     const label = $(".btn-label", form);
-    swapText(label, "Opening your email…");
-    swapText(note, "Your email app should open now — just press send.");
-    setTimeout(() => swapText(label, "Send enquiry"), 3000);
+    swapText(label, t("form.opening"));
+    swapText(note, t("form.opened"));
+    setTimeout(() => swapText(label, t("form.send")), 3000);
   });
 }
 
@@ -586,13 +635,104 @@ function initCopyEmail() {
   btn.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(btn.dataset.email);
-      swapText(state, "Copied ✓", () => state.classList.add("done"));
+      swapText(state, t("copied"), () => state.classList.add("done"));
       clearTimeout(state.timer);
-      state.timer = setTimeout(() => swapText(state, "Copy", () => state.classList.remove("done")), 2000);
+      state.timer = setTimeout(() => swapText(state, t("copy"), () => state.classList.remove("done")), 2000);
     } catch {
       location.href = `mailto:${btn.dataset.email}`;
     }
   });
+}
+
+/* ---------- About text lights up word by word as you scroll ---------- */
+let aboutTween = null;
+function makeAboutScrub(words) {
+  if (aboutTween) { aboutTween.scrollTrigger?.kill(); aboutTween.kill(); }
+  aboutTween = gsap.fromTo(words, { opacity: 0.12 }, {
+    opacity: 1, stagger: 0.1, ease: "none",
+    scrollTrigger: { trigger: ".about-text", start: "top 80%", end: "bottom 45%", scrub: true },
+  });
+}
+
+/* ---------- Stat numbers roll into place like an odometer ---------- */
+function initOdometers() {
+  $$(".odo").forEach((odo) => {
+    const value = odo.dataset.value;
+    odo.textContent = "";
+    const label = document.createElement("span");
+    label.className = "sr-only";
+    label.textContent = value;
+    odo.append(label);
+    const strips = [...value].map((ch) => {
+      const digit = document.createElement("span");
+      digit.className = "odo-digit";
+      digit.setAttribute("aria-hidden", "true");
+      const strip = document.createElement("span");
+      strip.className = "odo-strip";
+      for (let k = 0; k < 30; k++) {
+        const n = document.createElement("span");
+        n.textContent = k % 10;
+        strip.append(n);
+      }
+      digit.append(strip);
+      odo.append(digit);
+      return { strip, d: +ch };
+    });
+    if (reduceMotion) {
+      strips.forEach(({ strip, d }) => { strip.style.transition = "none"; strip.style.transform = `translateY(${(-d / 30) * 100}%)`; });
+      return;
+    }
+    // Spin through two full turns and land on the digit, left digits first
+    const roll = () => strips.forEach(({ strip, d }, j) => {
+      strip.style.transitionDelay = `${j * 120}ms`;
+      strip.style.transform = `translateY(${(-(20 + d) / 30) * 100}%)`;
+    });
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { roll(); io.disconnect(); }
+    }, { threshold: 0.6 });
+    io.observe(odo);
+  });
+}
+
+/* ---------- Language switcher: pill slides, text blurs out, swaps and blurs back in ---------- */
+function rebuildAfterLanguageChange() {
+  const words = splitWords($(".about-text"));
+  if (hasGSAP) makeAboutScrub(words);
+  renderMarquee();
+  if (scramble) {
+    cancelAnimationFrame(scramble.raf);
+    $(".scramble").textContent = roles()[roleIndex % roles().length];
+  }
+  if (hasGSAP) ScrollTrigger.refresh();
+}
+
+function initLangSwitch() {
+  const box = $(".lang");
+  const pill = $(".lang-pill", box);
+  const buttons = $$("button", box);
+  const place = (instant) => {
+    const active = buttons.find((b) => b.dataset.lang === lang) || buttons[0];
+    if (instant) pill.style.transition = "none";
+    pill.style.width = `${active.offsetWidth}px`;
+    pill.style.translate = `${active.offsetLeft}px 0`;
+    buttons.forEach((b) => b.setAttribute("aria-pressed", b === active));
+    if (instant) { void pill.offsetWidth; pill.style.transition = ""; }
+  };
+  place(true);
+  document.fonts.ready.then(() => place(true));
+
+  buttons.forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.lang === lang) return;
+    lang = b.dataset.lang;
+    try { localStorage.setItem("lang", lang); } catch {}
+    place(false);
+    document.body.classList.add("lang-swapping");
+    setTimeout(() => {
+      applyTranslations();
+      rebuildAfterLanguageChange();
+      document.body.classList.remove("lang-swapping");
+    }, 180);
+  }));
 }
 
 /* ---------- Scroll animations (GSAP) ---------- */
@@ -614,11 +754,7 @@ function initScrollAnimations(aboutWords) {
     scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
   });
 
-  // About text lights up word by word
-  gsap.fromTo(aboutWords, { opacity: 0.12 }, {
-    opacity: 1, stagger: 0.1, ease: "none",
-    scrollTrigger: { trigger: ".about-text", start: "top 80%", end: "bottom 45%", scrub: true },
-  });
+  makeAboutScrub(aboutWords);
 
   // About photos: wipe in, then drift at different speeds while scrolling
   $$(".photo").forEach((fig, i) => {
@@ -656,15 +792,6 @@ function initScrollAnimations(aboutWords) {
       }),
     });
   }
-
-  $$("[data-count]").forEach((el) => {
-    const n = { v: 0 };
-    gsap.to(n, {
-      v: +el.dataset.count, duration: 2, ease: "power3.out",
-      onUpdate: () => (el.textContent = Math.round(n.v)),
-      scrollTrigger: { trigger: el, start: "top 90%" },
-    });
-  });
 
   // Process timeline: line fills and steps light up as you scroll
   $(".process").classList.add("armed");
@@ -717,6 +844,7 @@ function intro(chars) {
 }
 
 /* ---------- Boot ---------- */
+applyTranslations(); // before any text is split into letters/words
 const nameChars = $$(".name-line").flatMap(splitChars);
 const aboutWords = splitWords($(".about-text"));
 $(".year").textContent = new Date().getFullYear();
@@ -730,6 +858,8 @@ initMarquee();
 initCopyEmail();
 initContactForm();
 initNavActive();
+initOdometers();
+initLangSwitch();
 initPortrait();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars);
