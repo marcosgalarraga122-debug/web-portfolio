@@ -61,12 +61,6 @@ $$('a[href^="#"]').forEach((a) =>
 );
 
 /* ---------- WebGL hero background ---------- */
-const PALETTES = {
-  creative: [[0.965, 0.961, 0.945], [0.99, 0.86, 0.74], [0.93, 0.58, 0.4], [0.98, 0.72, 0.45]],
-  business: [[0.043, 0.071, 0.125], [0.07, 0.105, 0.18], [0.16, 0.22, 0.34], [0.14, 0.19, 0.3]],
-};
-const heroPalette = { current: PALETTES.creative.map((c) => [...c]), target: PALETTES.creative, fx: 1, fxTarget: 1 };
-
 function initShader() {
   const canvas = $(".hero-canvas");
   const gl = canvas.getContext("webgl", { antialias: false });
@@ -76,8 +70,6 @@ function initShader() {
   const frag = `
     precision highp float;
     uniform vec2 r; uniform float t; uniform vec2 m; uniform float s; uniform vec2 v;
-    uniform float fx; // cursor effect strength (0 in business mode)
-    uniform vec3 cb, c1, c2, c3; // palette: base, clouds, highlights, cursor glow
     uniform vec3 tr[16]; // recent cursor points: x, y (pixels), time created (seconds)
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
@@ -113,17 +105,17 @@ function initShader() {
       float cs=cos(ang),sn=sin(ang);
       p=mm+mat2(cs,-sn,sn,cs)*(p-mm);
       disp-=v*exp(-d*5.)*.8;
-      p+=disp*fx;
+      p+=disp;
 
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
-      vec3 base=cb;
-      vec3 col=mix(base,c1,clamp(f*f*1.5,0.,1.));
-      col=mix(col,c2,clamp(length(q)*f*.4-.18,0.,1.));
-      col=mix(col,c3,exp(-d*3.5)*.2);
+      vec3 base=vec3(.965,.961,.945);
+      vec3 col=mix(base,vec3(.99,.86,.74),clamp(f*f*1.5,0.,1.));
+      col=mix(col,vec3(.93,.58,.4),clamp(length(q)*f*.4-.18,0.,1.));
+      col=mix(col,vec3(.98,.72,.45),exp(-d*3.5)*.2);
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=(c1-cb)*ring*.3*fx;
+      col+=vec3(.008,-.03,-.06)*ring;
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -151,8 +143,6 @@ function initShader() {
   const uS = gl.getUniformLocation(prog, "s");
   const uV = gl.getUniformLocation(prog, "v");
   const uTr = gl.getUniformLocation(prog, "tr");
-  const uPal = ["cb", "c1", "c2", "c3"].map((n) => gl.getUniformLocation(prog, n));
-  const uFx = gl.getUniformLocation(prog, "fx");
   const trail = new Float32Array(16 * 3).fill(-100);
   let trailIndex = 0, lastPoint = null;
 
@@ -204,13 +194,6 @@ function initShader() {
       gl.uniform2f(uV, Math.max(-0.2, Math.min(0.2, vel.x)), Math.max(-0.2, Math.min(0.2, vel.y)));
       gl.uniform1f(uS, (now - start) / 1000);
       gl.uniform3fv(uTr, trail);
-      // Ease the colours towards the active theme's palette
-      heroPalette.current.forEach((c, i) => {
-        for (let k = 0; k < 3; k++) c[k] += (heroPalette.target[i][k] - c[k]) * (reduceMotion ? 1 : 0.06);
-        gl.uniform3fv(uPal[i], c);
-      });
-      heroPalette.fx += (heroPalette.fxTarget - heroPalette.fx) * 0.06;
-      gl.uniform1f(uFx, heroPalette.fx);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     if (!reduceMotion) requestAnimationFrame(frame);
@@ -261,13 +244,10 @@ function initScramble() {
   setInterval(() => { i = (i + 1) % roles.length; s.set(roles[i]); }, 3000);
 }
 
-const isBusiness = () => document.documentElement.dataset.theme === "business";
-
 /* ---------- Hero name: scale it to exactly fill the available width ---------- */
 function initNameFit() {
   const name = $(".hero-name");
   const fit = () => {
-    if (isBusiness()) { name.style.fontSize = ""; return; }
     const box = name.parentElement;
     const cs = getComputedStyle(box);
     const available = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
@@ -280,7 +260,6 @@ function initNameFit() {
   fit();
   document.fonts.ready.then(fit);
   addEventListener("resize", fit);
-  return fit;
 }
 
 /* ---------- Hero name: letters near the cursor get thinner and zoom in ---------- */
@@ -288,7 +267,7 @@ function initNameWeight(chars) {
   if (!finePointer || reduceMotion) return;
   const name = $(".hero-name");
   addEventListener("pointermove", (e) => {
-    if (scrollY > innerHeight || isBusiness()) return;
+    if (scrollY > innerHeight) return;
     const base = parseFloat(getComputedStyle(name).fontWeight);
     chars.forEach((c) => {
       const r = c.getBoundingClientRect();
@@ -343,57 +322,21 @@ function initMarquee() {
   loop();
 }
 
-/* ---------- Business mode switch ---------- */
-function initThemeToggle(fitName, chars) {
-  const btn = $(".theme-toggle");
-  const label = $(".tt-label", btn);
-  const root = document.documentElement;
-
-  const apply = (business) => {
-    if (business) root.dataset.theme = "business";
-    else root.removeAttribute("data-theme");
-    btn.setAttribute("aria-pressed", business);
-    btn.setAttribute("aria-label", business ? "Switch to creative mode" : "Switch to business mode");
-    label.textContent = business ? "Creative mode" : "Business mode";
-    heroPalette.target = business ? PALETTES.business : PALETTES.creative;
-    heroPalette.fxTarget = business ? 0 : 1;
-    chars.forEach((c) => { c.style.fontWeight = ""; c.style.scale = ""; c.style.color = ""; });
-    fitName();
-    if (hasGSAP) requestAnimationFrame(() => ScrollTrigger.refresh());
-    try { localStorage.setItem("theme", business ? "business" : "creative"); } catch {}
-  };
-
-  let saved = null;
-  try { saved = localStorage.getItem("theme"); } catch {}
-  if (saved === "business") {
-    apply(true);
-    heroPalette.current = PALETTES.business.map((c) => [...c]);
-    heroPalette.fx = 0;
-  }
-
-  btn.addEventListener("click", () => {
-    const business = root.dataset.theme !== "business";
-    const r = btn.getBoundingClientRect();
-    const x = r.left + r.width / 2, y = r.top + r.height / 2;
-
-    const popLetters = () => {
-      if (hasGSAP && scrollY < innerHeight) {
-        gsap.fromTo(chars, { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.8, stagger: 0.025, ease: "expo.out" });
-      }
-    };
-
-    if (!document.startViewTransition || reduceMotion) { apply(business); popLetters(); return; }
-
-    // A circle grows out of the button and reveals the new look
-    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-    const transition = document.startViewTransition(() => apply(business));
-    transition.ready.then(() => {
-      root.animate(
-        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-        { duration: 900, easing: "cubic-bezier(.76, 0, .24, 1)", pseudoElement: "::view-transition-new(root)" }
-      );
-      popLetters();
-    });
+/* ---------- Enquiry form: opens the visitor's email app with the message filled in ---------- */
+function initContactForm() {
+  const form = $(".contact-form");
+  const note = $(".form-note", form);
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const d = Object.fromEntries(new FormData(form));
+    const subject = `Website enquiry — ${d.type}${d.company ? ` (${d.company})` : ""}`;
+    const lines = [`Name: ${d.name}`, `Email: ${d.email}`];
+    if (d.company) lines.push(`Company: ${d.company}`);
+    lines.push(`Project type: ${d.type}`, "", d.message);
+    const body = lines.join("\n");
+    location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    note.textContent = "Your email app should open now — just press send.";
   });
 }
 
@@ -507,13 +450,13 @@ function intro(chars) {
   const n = { v: 0 };
   gsap.timeline({ defaults: { ease: "expo.inOut" } })
     .to(n, {
-      v: 100, duration: reduceMotion ? 0.01 : 1.6, ease: "power2.inOut",
+      v: 100, duration: reduceMotion ? 0.01 : 1, ease: "power2.inOut",
       onUpdate: () => {
         count.textContent = Math.round(n.v);
         bar.style.transform = `scaleX(${n.v / 100})`;
       },
     })
-    .to(preloader, { yPercent: -100, duration: reduceMotion ? 0.01 : 1.1 })
+    .to(preloader, { yPercent: -100, duration: reduceMotion ? 0.01 : 0.9 })
     .from(chars, { yPercent: 115, duration: 1.4, stagger: 0.07, ease: "expo.out" }, "-=0.55")
     .from(".hero-fade", { y: 24, opacity: 0, duration: 1, stagger: 0.1, ease: "power3.out" }, "-=1.1")
     .add(finish, "-=0.8");
@@ -526,11 +469,11 @@ $(".year").textContent = new Date().getFullYear();
 
 initShader();
 initScramble();
-const fitName = initNameFit();
+initNameFit();
 initNameWeight(nameChars);
-initThemeToggle(fitName, nameChars);
 initMagnetic();
 initMarquee();
 initCopyEmail();
+initContactForm();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars);

@@ -6,7 +6,7 @@ A one-page interactive CV that shows my skills and work. It's built to stand out
 - Preloader, split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
 - Process timeline that fills and lights up step by step as you scroll
-- Business-mode switch (top right): a darker, more serious layout with extra sections (Why me, Packages, FAQ), revealed with a circular transition
+- Enquiry form that opens the visitor's email app with their message filled in
 - Magnetic buttons, a velocity-reactive marquee and film grain
 
 ## View it
@@ -20,8 +20,9 @@ Everything to change is marked with `EDIT` comments in `index.html`:
 - **About / stats:** the intro text, the numbers and the photos in `images/`
 - **Services:** the four service cards
 - **Process:** the four steps
-- **Experience:** replace the `[brackets]`
-- **Contact:** the social links
+- **Experience:** fill in the commented-out rows
+- **Why me / FAQ:** check the promises and answers match how you work
+- **Contact:** add your social profiles (commented out in the Contact section)
 - **Hero roles:** the `roles` list in `main.js`
 - **Colours:** the variables at the top of `styles.css`
 

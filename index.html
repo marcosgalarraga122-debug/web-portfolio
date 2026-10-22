@@ -9,9 +9,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..800;1,9..144,200..800&family=Inter+Tight:wght@300..800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121317'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='40' fill='%23f6f5f1'%3EM%3C/text%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Marcos Cañellas — Web Developer & Designer">
+  <meta property="og:description" content="High-quality, high-performance websites for businesses.">
+  <meta property="og:image" content="images/marcos-4644.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "Person", "name": "Marcos Cañellas",
+    "jobTitle": "Web Developer & Designer", "email": "mailto:Marcos.galarraga122@outlook.com",
+    "knowsAbout": ["Web design", "Web development", "UI/UX design", "SEO"]}
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="loading">
+  <a class="skip-link" href="#main">Skip to content</a>
 
   <!-- Loading screen -->
   <div class="preloader" aria-hidden="true">
@@ -32,20 +44,15 @@
       <a href="#about" class="roll"><span data-text="About">About</span></a>
       <a href="#services" class="roll"><span data-text="Services">Services</span></a>
       <a href="#process" class="roll"><span data-text="Process">Process</span></a>
-      <a href="#packages" class="roll biz-only"><span data-text="Packages">Packages</span></a>
       <a href="#experience" class="roll"><span data-text="Experience">Experience</span></a>
-      <a href="#faq" class="roll biz-only"><span data-text="FAQ">FAQ</span></a>
+      <a href="#faq" class="roll"><span data-text="FAQ">FAQ</span></a>
     </nav>
     <div class="nav-right">
       <a href="#contact" class="nav-cta magnetic">Start a project</a>
-      <button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to business mode">
-        <span class="tt-track"><span class="tt-knob"></span></span>
-        <span class="tt-label">Business mode</span>
-      </button>
     </div>
   </header>
 
-  <main>
+  <main id="main">
     <!-- ============ HERO ============ -->
     <section class="hero" id="top">
       <canvas class="hero-canvas" aria-hidden="true"></canvas>
@@ -59,25 +66,10 @@
           <span class="name-line">Marcos</span>
           <span class="name-line">Cañellas</span>
         </h1>
-        <p class="biz-lead biz-only">Professional websites for businesses that want to look credible, be found online and turn visitors into clients.</p>
-
-        <!-- Business mode only: key facts next to the name -->
-        <aside class="biz-panel biz-only" aria-label="At a glance">
-          <p class="mono">At a glance</p>
-          <dl>
-            <div><dt>Focus</dt><dd>Websites for small &amp; medium businesses</dd></div>
-            <div><dt>Services</dt><dd>Design · Development · Redesign · Support</dd></div>
-            <div><dt>Response time</dt><dd>Within 24 hours</dd></div>
-            <div><dt>Availability</dt><dd>Taking on new projects</dd></div>
-            <div><dt>Email</dt><dd><a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a></dd></div>
-          </dl>
-        </aside>
-
         <div class="hero-bottom">
           <p class="hero-role hero-fade">
             <span class="mono">Professional</span>
-            <span class="scramble fun-only">Web Developer</span>
-            <span class="role-static biz-only">Web Developer &amp; Designer</span>
+            <span class="scramble">Web Developer</span>
           </p>
           <div class="hero-intro hero-fade">
             <p>I design and build high-quality websites that strengthen your brand, earn your customers' trust and grow your business.</p>
@@ -92,7 +84,7 @@
     </section>
 
     <!-- ============ MARQUEE ============ -->
-    <div class="marquee fun-only" aria-hidden="true">
+    <div class="marquee" aria-hidden="true">
       <div class="marquee-track">
         <span>Web Design</span><b>/</b><span>Web Development</span><b>/</b><span>UI / UX</span><b>/</b><span>Responsive Websites</span><b>/</b><span>SEO</span><b>/</b><span>Performance</span><b>/</b>
       </div>
@@ -110,10 +102,9 @@
         </div>
       </div>
 
-      <!-- EDIT: change these numbers to your real ones -->
       <div class="stats">
-        <div class="stat reveal-up"><p class="stat-num"><span data-count="10">0</span>+</p><p class="mono">Websites delivered</p></div>
-        <div class="stat reveal-up"><p class="stat-num"><span data-count="100">0</span>%</p><p class="mono">Responsive & mobile-first</p></div>
+        <div class="stat reveal-up"><p class="stat-num"><span data-count="100">0</span>%</p><p class="mono">Custom design — no templates</p></div>
+        <div class="stat reveal-up"><p class="stat-num"><span data-count="1">0</span></p><p class="mono">Direct point of contact</p></div>
         <div class="stat reveal-up"><p class="stat-num"><span data-count="24">0</span>h</p><p class="mono">Response time</p></div>
       </div>
     </section>
@@ -148,12 +139,12 @@
       </div>
     </section>
 
-    <!-- ============ WHY ME (business mode only) ============ -->
+    <!-- ============ WHY ME ============ -->
     <!-- EDIT: make sure these promises match how you work -->
-    <section class="section why biz-only" id="why">
+    <section class="section why" id="why">
       <div class="section-head">
-        <span class="mono label">Why work with me</span>
-        <h2 class="title">A reliable partner<br>for your website</h2>
+        <span class="mono label"><span class="lnum">(03) </span>Why work with me</span>
+        <h2 class="title reveal-up">A reliable partner<br>for your website</h2>
       </div>
       <div class="why-grid">
         <div class="why-item"><span class="mono">01</span><h3>Clear quotes</h3><p>A written quote before any work starts, so you know exactly what you're getting and what it costs.</p></div>
@@ -163,45 +154,11 @@
       </div>
     </section>
 
-    <!-- ============ PACKAGES (business mode only) ============ -->
-    <section class="section packages biz-only" id="packages">
-      <div class="section-head">
-        <span class="mono label">Packages</span>
-        <h2 class="title">Engagement options</h2>
-      </div>
-      <div class="package-grid">
-        <article class="package">
-          <p class="mono">Essential</p>
-          <h3>One-page website</h3>
-          <p class="package-desc">A clear, professional presence for a new or small business.</p>
-          <ul><li>Custom one-page design</li><li>Mobile-first &amp; fast</li><li>Contact form</li><li>Basic SEO setup</li></ul>
-          <p class="package-price">Price on request</p>
-          <a class="btn btn-ghost" href="mailto:Marcos.galarraga122@outlook.com?subject=Quote%20request%20-%20Essential">Request a quote</a>
-        </article>
-        <article class="package featured">
-          <p class="mono">Professional</p>
-          <h3>Business website</h3>
-          <p class="package-desc">A complete multi-page website that presents your business and generates enquiries.</p>
-          <ul><li>Up to 5 pages</li><li>Custom design</li><li>SEO &amp; analytics setup</li><li>Guidance on content</li></ul>
-          <p class="package-price">Price on request</p>
-          <a class="btn" href="mailto:Marcos.galarraga122@outlook.com?subject=Quote%20request%20-%20Professional">Request a quote</a>
-        </article>
-        <article class="package">
-          <p class="mono">Custom</p>
-          <h3>Shop or bespoke project</h3>
-          <p class="package-desc">For online shops, bookings or features tailored to your business.</p>
-          <ul><li>E-commerce or booking</li><li>Integrations</li><li>Advanced interactions</li><li>Ongoing support plan</li></ul>
-          <p class="package-price">Price on request</p>
-          <a class="btn btn-ghost" href="mailto:Marcos.galarraga122@outlook.com?subject=Quote%20request%20-%20Custom">Request a quote</a>
-        </article>
-      </div>
-    </section>
-
     <!-- ============ PROCESS ============ -->
     <section class="section process" id="process">
       <div class="process-layout">
         <div class="process-intro">
-          <span class="mono label"><span class="lnum">(03) </span>Process</span>
+          <span class="mono label"><span class="lnum">(04) </span>Process</span>
           <h2 class="title reveal-up">How we'll<br>work together</h2>
           <p class="reveal-up">A clear, simple process so you always know what's happening, what comes next and when your website will be ready.</p>
           <a href="#contact" class="btn reveal-up">Book a free call</a>
@@ -242,10 +199,10 @@
     </section>
 
     <!-- ============ EXPERIENCE ============ -->
-    <!-- EDIT: replace the [brackets] with your real experience and education -->
+    <!-- EDIT: fill in the [brackets] in the commented-out rows below, then remove the comment markers to show them -->
     <section class="section experience" id="experience">
       <div class="section-head">
-        <span class="mono label"><span class="lnum">(04) </span>Experience</span>
+        <span class="mono label"><span class="lnum">(05) </span>Experience</span>
         <h2 class="title reveal-up">Experience &<br>education</h2>
       </div>
       <ol class="exp-list">
@@ -254,6 +211,7 @@
           <div><h3>Freelance Web Developer</h3><p class="exp-place">Self-employed</p></div>
           <p class="exp-desc">Designing and building custom websites for small businesses, professionals and brands — from first idea to launch.</p>
         </li>
+        <!--
         <li class="exp-row reveal-up">
           <span class="mono exp-year">[Year — Year]</span>
           <div><h3>[Job title]</h3><p class="exp-place">[Company]</p></div>
@@ -264,16 +222,17 @@
           <div><h3>[Course or degree]</h3><p class="exp-place">[School / university]</p></div>
           <p class="exp-desc">[What you studied and any highlights.]</p>
         </li>
+        -->
       </ol>
     </section>
 
-    <!-- ============ FAQ (business mode only) ============ -->
+    <!-- ============ FAQ ============ -->
     <!-- EDIT: adjust the answers to match how you work -->
-    <section class="section faq biz-only" id="faq">
+    <section class="section faq" id="faq">
       <div class="faq-layout">
         <div class="section-head">
-          <span class="mono label">FAQ</span>
-          <h2 class="title">Frequently asked questions</h2>
+          <span class="mono label"><span class="lnum">(06) </span>FAQ</span>
+          <h2 class="title reveal-up">Frequently asked questions</h2>
         </div>
         <div class="faq-list">
           <details><summary>How long does a website take?</summary><p>It depends on the size of the project — a one-page site is quicker than a multi-page site or an online shop. You'll get a clear timeline together with your quote.</p></details>
@@ -286,31 +245,51 @@
     </section>
 
     <!-- ============ CONTACT ============ -->
-    <!-- EDIT: replace the social links with your own -->
     <section class="section contact" id="contact">
-      <span class="mono label"><span class="lnum">(05) </span>Contact</span>
+      <span class="mono label"><span class="lnum">(07) </span>Contact</span>
       <h2 class="contact-title">
         <span class="line"><span>Let's work</span></span>
         <span class="line"><span><em>together.</em></span></span>
       </h2>
       <p class="contact-lead">Tell me about your business and your goals. I'll reply within 24 hours with ideas and a clear quote.</p>
-      <div class="contact-row">
-        <a href="mailto:Marcos.galarraga122@outlook.com" class="contact-btn magnetic"><span>Get in touch</span></a>
-        <button class="copy-email mono" type="button" data-email="Marcos.galarraga122@outlook.com">
-          Marcos.galarraga122@outlook.com <span class="copy-state">Copy</span>
-        </button>
+      <div class="contact-grid">
+        <!-- Sending opens the visitor's email app with the enquiry filled in -->
+        <form class="contact-form" data-email="Marcos.galarraga122@outlook.com">
+          <div class="field"><label for="cf-name">Name</label><input id="cf-name" name="name" required autocomplete="name"></div>
+          <div class="field"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" required autocomplete="email"></div>
+          <div class="field"><label for="cf-company">Company <span>(optional)</span></label><input id="cf-company" name="company" autocomplete="organization"></div>
+          <div class="field">
+            <label for="cf-type">Project type</label>
+            <select id="cf-type" name="type">
+              <option>New website</option><option>Website redesign</option><option>Online shop</option><option>Care &amp; support</option><option>Something else</option>
+            </select>
+          </div>
+          <div class="field full"><label for="cf-msg">About your project</label><textarea id="cf-msg" name="message" rows="5" required placeholder="What does your business do, and what should the website achieve?"></textarea></div>
+          <div class="form-foot full">
+            <button class="btn" type="submit">Send enquiry</button>
+            <p class="form-note">Opens your email app with your message ready to send.</p>
+          </div>
+        </form>
+
+        <aside class="contact-side">
+          <div><p class="mono">Email</p>
+            <button class="copy-email" type="button" data-email="Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com <span class="copy-state mono">Copy</span></button>
+          </div>
+          <div><p class="mono">Response time</p><p>Within 24 hours</p></div>
+          <div><p class="mono">Availability</p><p><span class="status-dot"></span>Taking on new projects</p></div>
+        </aside>
       </div>
+      <!-- EDIT: add your social profiles here when ready, e.g.
       <ul class="socials">
-        <li><a href="#" class="roll"><span data-text="LinkedIn">LinkedIn</span></a></li>
-        <li><a href="#" class="roll"><span data-text="GitHub">GitHub</span></a></li>
-        <li><a href="#" class="roll"><span data-text="Instagram">Instagram</span></a></li>
+        <li><a href="https://www.linkedin.com/in/your-profile" class="roll"><span data-text="LinkedIn">LinkedIn</span></a></li>
       </ul>
+      -->
     </section>
   </main>
 
   <footer class="footer mono">
     <span>© <span class="year">2026</span> Marcos Cañellas. All rights reserved.</span>
-    <span>Web Design & Development</span>
+    <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>
     <a href="#top">Back to top ↑</a>
   </footer>
 
