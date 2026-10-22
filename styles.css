@@ -145,16 +145,17 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 @keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(232, 162, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(232, 162, 60, 0); } }
 
-.hero-main { display: flex; flex-direction: column; gap: clamp(28px, 5vh, 56px); }
-/* One line along the bottom; main.js sets the exact font-size so it fills the width */
+/* Centred in the hero; main.js sets the exact font-size so it fits the width */
 .hero-name {
-  font-family: var(--display); font-weight: 700;
+  font-family: "Fraunces", Georgia, serif; font-weight: 500;
+  font-variation-settings: "opsz" 144;
   font-size: 9vw;
-  line-height: .95; letter-spacing: -.045em;
-  display: flex; gap: .24em;
-  width: max-content; margin-bottom: -.06em;
+  line-height: 1; letter-spacing: -.03em;
+  display: flex; align-items: baseline; justify-content: center; gap: .22em;
+  width: max-content; margin: 0 auto;
   user-select: none;
 }
+.name-line:last-child { font-style: italic; color: var(--accent); }
 .name-line { display: block; white-space: nowrap; padding-top: .14em; margin-top: -.14em; }
 /* Clip letters only while they rise in during the intro */
 .loading .name-line { overflow: hidden; }
@@ -166,7 +167,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .hero-bottom {
   display: grid; grid-template-columns: 1fr 1.3fr auto; align-items: end; gap: 40px;
-  padding-bottom: clamp(24px, 4vh, 40px); border-bottom: 1px solid var(--line);
+  padding-top: clamp(20px, 3vh, 32px); border-top: 1px solid var(--line);
 }
 .hero-role { display: flex; flex-direction: column; gap: 6px; }
 .hero-role .mono { color: var(--muted); }
@@ -360,7 +361,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (max-width: 899px) {
   .nav-links { display: none; }
   .hero-bottom { grid-template-columns: 1fr; gap: 24px; }
-  .hero-name { flex-direction: column; gap: 0; }
+  .hero-name { flex-direction: column; align-items: center; gap: 0; }
   .scroll-cue { display: none; }
   .hero-top { flex-direction: column; gap: 8px; }
   .stats { grid-template-columns: 1fr; }

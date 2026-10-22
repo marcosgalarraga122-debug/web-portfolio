@@ -96,15 +96,15 @@ function initShader() {
           float x=dist-age*.45;
           float wave=sin(x*55.)*exp(-x*x*45.)*exp(-age*3.2);
           vec2 n=dv/(length(dv)+.001);
-          disp+=n*wave*.026+vec2(-n.y,n.x)*wave*.018;
+          disp+=n*wave*.015+vec2(-n.y,n.x)*wave*.01;
           ring+=wave;
         }
       }
       // Air: swirl and push around the cursor depending on how fast it moves
-      float ang=length(v)*exp(-d*4.)*4.5;
+      float ang=length(v)*exp(-d*4.)*2.5;
       float cs=cos(ang),sn=sin(ang);
       p=mm+mat2(cs,-sn,sn,cs)*(p-mm);
-      disp-=v*exp(-d*5.)*1.5;
+      disp-=v*exp(-d*5.)*.8;
       p+=disp;
 
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
@@ -115,7 +115,7 @@ function initShader() {
       col=mix(col,vec3(.93,.58,.4),clamp(length(q)*f*.4-.18,0.,1.));
       col=mix(col,vec3(.98,.72,.45),exp(-d*3.5)*.2);
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=vec3(.05,.02,-.016)*ring;
+      col+=vec3(.03,.012,-.01)*ring;
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -171,9 +171,9 @@ function initShader() {
     }
     prevX = e.clientX; prevY = e.clientY;
 
-    // Drop a new ripple every ~25px of movement
+    // Drop a new ripple every ~35px of movement
     if (mouse.y < 0 || mouse.y > 1) return;
-    if (!lastPoint || Math.hypot(e.clientX - lastPoint.x, e.clientY - lastPoint.y) > 25) {
+    if (!lastPoint || Math.hypot(e.clientX - lastPoint.x, e.clientY - lastPoint.y) > 35) {
       lastPoint = { x: e.clientX, y: e.clientY };
       trail.set([mouse.x * w, mouse.y * h, (performance.now() - start) / 1000], trailIndex * 3);
       trailIndex = (trailIndex + 1) % 16;
@@ -249,9 +249,11 @@ function initNameFit() {
   const name = $(".hero-name");
   const fit = () => {
     const box = name.parentElement;
+    const cs = getComputedStyle(box);
+    const available = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     name.style.fontSize = "100px";
     const natural = name.offsetWidth;
-    const size = (100 * box.clientWidth) / natural;
+    const size = (100 * available * 0.88) / natural;
     // Keep it within the screen height on short, wide screens
     name.style.fontSize = `${Math.min(size, innerHeight * 0.2)}px`;
   };
@@ -269,9 +271,9 @@ function initNameWeight(chars) {
       const r = c.getBoundingClientRect();
       const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
       const near = Math.max(0, 1 - d / 350);
-      c.style.fontWeight = Math.round(700 - 400 * near);
+      c.style.fontWeight = Math.round(500 - 300 * near);
       c.style.scale = (1 + 0.15 * near).toFixed(3);
-      c.style.color = near > 0.6 ? "var(--accent)" : "";
+      c.style.color = near > 0.6 ? "var(--amber-ink)" : "";
     });
   });
 }
