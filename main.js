@@ -1325,130 +1325,203 @@ function initScrollAnimations(aboutWords) {
   document.fonts.ready.then(() => ScrollTrigger.refresh());
 }
 
-/* ---------- Intro: the site is "born" ----------
-   First visit of a session: particles drift in from a dark void and assemble into the
-   exact shape of the name. An iris then opens from the centre of the name; as it passes
-   each particle, that particle fades and hands over to the real letter underneath, and
-   the rest of the site settles in around it. Later visits get a short reveal instead. */
+/* ---------- Intro: a drop creates the site ----------
+   First visit only. The screen opens as a calm, empty surface in the site's own colour.
+   A single drop falls, accelerating, and touches the surface at the centre of the name.
+   The impact sends rings of light across the screen; the leading wave dissolves the
+   surface, and each element of the real page (every letter, the menu, the buttons)
+   rises out of the water, pushed outward, at the moment the wave reaches it. A small
+   rebound droplet falls back for a second, softer ripple, then the rings fade away.
+   Return visits get a short reveal; reduced motion gets a plain fade. */
 const easeInOutQuart = (u) => (u < 0.5 ? 8 * u ** 4 : 1 - (-2 * u + 2) ** 4 / 2);
+const rgbOf = (hex) => { const n = parseInt(hex.trim().slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 
-function birth(overlay, chars, fitName, revealUI) {
+function splash(overlay, chars, fitName) {
   return new Promise(async (resolve) => {
     const canvas = $(".intro-canvas", overlay);
     const ctx = canvas.getContext("2d");
-    const dpr = Math.min(devicePixelRatio, 2);
-    const W = (canvas.width = Math.floor(innerWidth * dpr));
-    const H = (canvas.height = Math.floor(innerHeight * dpr));
+    if (!ctx) { resolve(false); return; }
 
-    // Wait briefly for the name's font so the particles match the real letters exactly
+    // Lay the page out with its real fonts first, so nothing shifts once it's revealed
     await Promise.race([
       Promise.all([document.fonts.load('600 100px "Fraunces"'), document.fonts.load('italic 600 100px "Fraunces"')]),
       new Promise((r) => setTimeout(r, 1200)),
     ]).catch(() => {});
     fitName();
 
-    // Draw each letter off-screen at the position of the real one, then sample the shapes
-    const off = document.createElement("canvas");
-    off.width = W; off.height = H;
-    const o = off.getContext("2d", { willReadFrequently: true });
-    o.fillStyle = "#fff";
-    o.textBaseline = "middle";
-    let x0 = W, y0 = H, x1 = 0, y1 = 0, fontPx = 40;
-    chars.forEach((c) => {
-      const r = c.getBoundingClientRect();
-      const cs = getComputedStyle(c);
-      fontPx = parseFloat(cs.fontSize) * dpr;
-      o.font = `${cs.fontStyle} ${cs.fontWeight} ${fontPx}px Fraunces, Georgia, serif`;
-      o.fillText(c.textContent, r.left * dpr, (r.top + r.height / 2) * dpr);
-      x0 = Math.min(x0, r.left * dpr); x1 = Math.max(x1, r.right * dpr);
-      y0 = Math.min(y0, r.top * dpr); y1 = Math.max(y1, r.bottom * dpr);
+    const dpr = Math.min(devicePixelRatio, 2);
+    const W = (canvas.width = Math.floor(innerWidth * dpr));
+    const H = (canvas.height = Math.floor(innerHeight * dpr));
+    const css = getComputedStyle(document.documentElement);
+    const light = document.documentElement.dataset.theme === "light";
+    const [br, bgG, bb] = rgbOf(css.getPropertyValue("--bg"));
+    const crest = light ? "255, 252, 244" : "236, 230, 218";   // the lit side of a wave
+    const brass = rgbOf(css.getPropertyValue("--accent")).join(", ");
+    const trough = light ? "92, 70, 38" : "0, 0, 0";            // the shadowed side
+    const surface = `rgb(${br}, ${bgG}, ${bb})`;
+
+    // The drop lands at the centre of the name
+    const nr = $(".hero-name").getBoundingClientRect();
+    const cx = (nr.left + nr.width / 2) * dpr, cy = (nr.top + nr.height / 2) * dpr;
+    const reach = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy));
+    const unit = Math.min(W, H) / 900;                            // scale everything with the screen
+
+    // Timeline (ms)
+    const T_FALL = 260, T_HIT = T_FALL + 640, T_WAVE = 1750, T_END = T_HIT + T_WAVE + 420;
+    // The leading wave: quick at first, then easing out as it spreads past the edges
+    const Rend = reach * 1.08 + 80 * unit * dpr + 8 * dpr;       // far enough that the soft edge clears every corner
+    const front = (tau) => (tau <= 0 ? 0 : Rend * (1 - Math.pow(1 - Math.min(1, tau / T_WAVE), 2.6)));
+    const whenReached = (d) => T_WAVE * (1 - Math.pow(Math.max(0, 1 - d / Rend), 1 / 2.6)); // inverse of front()
+
+    // Each page element rises out of the water as the wave reaches it, pushed outward
+    const targets = [...$$(".nav-logo, .nav-links a, .theme-toggle, .lang, .nav-cta, .hero-top > *, .hero-role, .hero-intro > *, .scroll-cue"), ...chars];
+    const emerge = () => targets.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width && !r.height) return;
+      const ex = (r.left + r.width / 2) * dpr - cx, ey = (r.top + r.height / 2) * dpr - cy;
+      const d = Math.hypot(ex, ey) || 1, ux = ex / d, uy = ey / d;
+      el.animate([
+        { opacity: 0, translate: `${-ux * 16}px ${-uy * 16 + 10}px`, scale: 0.96, filter: "blur(8px)" },
+        { opacity: 1, translate: `${ux * 3}px ${uy * 3 - 2}px`, scale: 1.01, filter: "blur(0px)", offset: 0.55 },
+        { opacity: 1, translate: "0px 0px", scale: 1, filter: "blur(0px)" },
+      ], { duration: 1000, delay: whenReached(d) + 40, easing: "cubic-bezier(.23, 1, .32, 1)", fill: "backwards" });
     });
-    x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0));
-    x1 = Math.min(W, Math.ceil(x1)); y1 = Math.min(H, Math.ceil(y1));
-    const step = Math.max(2, Math.round(fontPx / 42));
-    let pts = [];
-    if (x1 > x0 && y1 > y0) {
-      const bw = x1 - x0;
-      const img = o.getImageData(x0, y0, bw, y1 - y0).data;
-      for (let y = 0; y < y1 - y0; y += step) {
-        for (let x = 0; x < bw; x += step) if (img[(y * bw + x) * 4 + 3] > 128) pts.push(x0 + x, y0 + y);
+    // Hide them until then (the surface covers them anyway; this keeps them hidden as it opens)
+    targets.forEach((el) => el.animate([{ opacity: 0 }, { opacity: 0 }], { duration: T_HIT + 60, fill: "none" }));
+
+    // A few fine droplets thrown out by the impact
+    const spray = Array.from({ length: 7 }, (_, i) => {
+      const a = (i / 7) * Math.PI * 2 + Math.random() * 0.5;
+      return { a, v: (0.18 + Math.random() * 0.12) * unit * dpr, r: (1.2 + Math.random() * 1.1) * unit * dpr };
+    });
+
+    // Wavy, organic outline (a perfect circle reads as a wipe, not water)
+    const blob = (r, tau, path = new Path2D()) => {
+      const n = 120;
+      for (let i = 0; i <= n; i++) {
+        const th = (i / n) * Math.PI * 2;
+        const k = 1 + 0.012 * Math.sin(5 * th + tau * 0.004) + 0.008 * Math.sin(9 * th - tau * 0.006) + 0.005 * Math.sin(14 * th + tau * 0.009);
+        const x = cx + Math.cos(th) * r * k, y = cy + Math.sin(th) * r * k;
+        i ? path.lineTo(x, y) : path.moveTo(x, y);
       }
-    }
-    if (pts.length < 80) { resolve(false); return; } // couldn't draw the name: use the simple reveal
+      path.closePath();
+      return path;
+    };
+    // One ring of the wave: a bright crest with a soft glow, and a shadowed trough just inside
+    const ring = (r, tau, a, w) => {
+      if (r <= 0 || a <= 0.004) return;
+      const p = blob(r, tau);
+      ctx.lineWidth = w * 7; ctx.strokeStyle = `rgba(${brass}, ${a * 0.12})`; ctx.stroke(p);
+      ctx.lineWidth = w * 1.4; ctx.strokeStyle = `rgba(${crest}, ${a * 0.85})`; ctx.stroke(p);
+      if (r > w * 4) { ctx.lineWidth = w * 3; ctx.strokeStyle = `rgba(${trough}, ${a * 0.22})`; ctx.stroke(blob(r - w * 3, tau)); }
+    };
 
-    // Keep it light: at most ~4500 particles
-    const keep = Math.min(1, 4500 / (pts.length / 2));
-    const tx = [], ty = [];
-    for (let i = 0; i < pts.length; i += 2) if (Math.random() < keep) { tx.push(pts[i]); ty.push(pts[i + 1]); }
-    const n = tx.length;
-    const px = new Float32Array(n), py = new Float32Array(n), vx = new Float32Array(n), vy = new Float32Array(n);
-    const delay = new Float32Array(n), alpha = new Float32Array(n), tone = new Uint8Array(n), gone = new Uint8Array(n);
-    for (let i = 0; i < n; i++) {
-      px[i] = Math.random() * W; py[i] = Math.random() * H;  // a faint field of dust across the screen
-      delay[i] = Math.random() * 450;
-      const r = Math.random();
-      tone[i] = r < 0.82 ? 0 : r < 0.94 ? 1 : 2;              // mostly off-white, a few warm sparks
-    }
-    const tones = document.documentElement.dataset.theme === "light"
-      ? ["rgb(28,42,35)", "rgb(134,99,42)", "rgb(176,138,74)"]     // green ink, brass, light brass
-      : ["rgb(236,230,218)", "rgb(201,166,107)", "rgb(226,201,152)"]; // ivory, brass, pale brass
-    const size = Math.max(1.5 * dpr, step * 0.8);
-
-    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;            // iris opens from the centre of the name
-    const maxR = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy));
-    const T_REVEAL = 1650, T_IRIS = 1000;
-    let heroAnim = null, uiShown = false;
     const start = performance.now();
-    setTimeout(() => overlay.classList.add("show-status"), 200);
+    let emerged = false, glowCanvas = null;
+    setTimeout(() => overlay.classList.add("show-status"), 150);
 
     const frame = (now) => {
-      const t = now - start;
-      const iris = t > T_REVEAL ? easeInOutQuart(Math.min(1, (t - T_REVEAL) / T_IRIS)) * maxR : -1;
-      const hold = t > 1250 && t < T_REVEAL;
-
-      if (t > T_REVEAL - 250) overlay.classList.remove("show-status");
-      if (t > T_REVEAL && !heroAnim) {
-        // The page appears: the dark void clears and the hero opens like an iris
-        overlay.classList.add("clear");
-        const c = `${cx / dpr}px ${cy / dpr}px`;
-        heroAnim = $(".hero").animate(
-          [{ clipPath: `circle(0px at ${c})` }, { clipPath: `circle(${maxR / dpr}px at ${c})` }],
-          { duration: T_IRIS, easing: "cubic-bezier(.77, 0, .175, 1)", fill: "forwards" }
-        );
-      }
-      if (t > T_REVEAL + 420 && !uiShown) { uiShown = true; revealUI(); }
-
+      const t = now - start, tau = t - T_HIT;
       ctx.clearRect(0, 0, W, H);
-      for (let k = 0; k < 3; k++) {
-        ctx.fillStyle = tones[k];
-        for (let i = 0; i < n; i++) {
-          if (tone[i] !== k || gone[i]) continue;
-          if (t > delay[i]) {
-            // Spring towards the letter, with a slight swirl while still far away
-            const dx = tx[i] - px[i], dy = ty[i] - py[i];
-            vx[i] = (vx[i] + dx * 0.07 - dy * 0.004) * 0.8;
-            vy[i] = (vy[i] + dy * 0.07 + dx * 0.004) * 0.8;
-            px[i] += vx[i]; py[i] += vy[i];
-            alpha[i] = Math.min(1, alpha[i] + 0.05);
-          } else {
-            alpha[i] = Math.min(0.25, alpha[i] + 0.01);     // dust, before it's called
+
+      // The surface, with the wave's opening cut out of it
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = surface;
+      ctx.fillRect(0, 0, W, H);
+      const R = front(tau);
+      if (R > 0) {
+        ctx.globalCompositeOperation = "destination-out";
+        const feather = 46 * unit * dpr;
+        for (let k = 0; k < 6; k++) {                              // soft edge in six thin steps
+          ctx.globalAlpha = 1 / 6 + (k === 5 ? 0.02 : 0);
+          ctx.fill(blob(Math.max(0, R - feather * (k / 5) - 6 * dpr), tau));
+        }
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+      }
+
+      // Before the impact: a faint glint on the surface where the drop will land
+      if (tau < 0) {
+        const u = Math.max(0, (t - T_FALL) / (T_HIT - T_FALL));
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 70 * unit * dpr);
+        g.addColorStop(0, `rgba(${brass}, ${0.05 + u * u * 0.2})`);
+        g.addColorStop(1, `rgba(${brass}, 0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.ellipse(cx, cy, 70 * unit * dpr, 22 * unit * dpr, 0, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // The drop: falls under gravity and stretches with its speed
+      if (t > T_FALL && tau < 0) {
+        const u = (t - T_FALL) / (T_HIT - T_FALL);
+        const y = -60 * dpr + (cy + 60 * dpr) * u * u;
+        const r = 9 * unit * dpr, stretch = 1 + u * 0.9;
+        ctx.save();
+        ctx.translate(cx, y);
+        const trail = ctx.createLinearGradient(0, -r * 9 * stretch, 0, 0);
+        trail.addColorStop(0, `rgba(${crest}, 0)`); trail.addColorStop(1, `rgba(${crest}, ${0.12 * u})`);
+        ctx.fillStyle = trail; ctx.fillRect(-r * 0.25, -r * 9 * stretch, r * 0.5, r * 9 * stretch);
+        const drop = new Path2D();
+        drop.moveTo(0, -r * 2.4 * stretch);
+        drop.bezierCurveTo(r * 0.35, -r * 1.3 * stretch, r, -r * 0.4, r, r * 0.15);
+        drop.arc(0, r * 0.15, r, 0, Math.PI);
+        drop.bezierCurveTo(-r, -r * 0.4, -r * 0.35, -r * 1.3 * stretch, 0, -r * 2.4 * stretch);
+        const body = ctx.createRadialGradient(-r * 0.3, -r * 0.2, r * 0.1, 0, 0, r * 1.6);
+        body.addColorStop(0, `rgba(${crest}, .35)`); body.addColorStop(0.6, `rgba(${crest}, .08)`); body.addColorStop(1, `rgba(${brass}, .45)`);
+        ctx.fillStyle = body; ctx.fill(drop);
+        ctx.lineWidth = 1.1 * dpr; ctx.strokeStyle = `rgba(${brass}, .75)`; ctx.stroke(drop);
+        ctx.fillStyle = `rgba(255, 255, 255, .85)`;
+        ctx.beginPath(); ctx.ellipse(-r * 0.38, -r * 0.1, r * 0.16, r * 0.3, -0.4, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+
+      if (tau >= 0) {
+        if (!emerged) {
+          emerged = true;
+          emerge();
+          overlay.classList.remove("show-status");
+          // The background settles as the surface calms
+          $(".hero-canvas").animate([{ scale: 1.08 }, { scale: 1 }], { duration: T_WAVE + 300, easing: "cubic-bezier(.23, 1, .32, 1)" });
+        }
+        const fade = 1 - Math.max(0, (t - (T_END - 520)) / 520);   // the water calms at the end
+        const w = 1.6 * unit * dpr;
+        // A short flash at the point of contact
+        if (tau < 260) {
+          const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60 * unit * dpr);
+          g.addColorStop(0, `rgba(${crest}, ${0.5 * (1 - tau / 260)})`); g.addColorStop(1, `rgba(${crest}, 0)`);
+          ctx.fillStyle = g; ctx.fillRect(cx - 60 * unit * dpr, cy - 60 * unit * dpr, 120 * unit * dpr, 120 * unit * dpr);
+        }
+        // The wave train: the leading crest and three followers, each weaker
+        for (let k = 0; k < 4; k++) {
+          const lag = tau - k * 140;
+          const life = Math.min(1, lag / T_WAVE);
+          ring(front(lag), lag, (k ? 0.55 * Math.pow(0.62, k - 1) : 1) * (1 - life * 0.7) * fade, w * (k ? 0.8 : 1));
+        }
+        // Spray: fine droplets fly out and fall back within a moment
+        if (tau < 520) {
+          const u = tau / 520;
+          ctx.fillStyle = `rgba(${crest}, ${0.8 * (1 - u)})`;
+          spray.forEach((s) => {
+            const d = s.v * tau * (1 - u * 0.45);
+            ctx.beginPath(); ctx.arc(cx + Math.cos(s.a) * d, cy + Math.sin(s.a) * d * 0.9, s.r * (1 - u * 0.5), 0, Math.PI * 2); ctx.fill();
+          });
+        }
+        // The rebound: a droplet rises from the centre and falls back, sending a second ripple
+        const T_UP = 560;
+        if (tau < T_UP) {
+          const u = tau / T_UP, h = 4 * u * (1 - u) * 70 * unit * dpr;
+          ctx.fillStyle = `rgba(${crest}, ${0.9 * (1 - u * 0.3)})`;
+          ctx.beginPath(); ctx.ellipse(cx, cy - h, 3.2 * unit * dpr, 4 * unit * dpr, 0, 0, Math.PI * 2); ctx.fill();
+        } else {
+          const lag = tau - T_UP;
+          for (let k = 0; k < 2; k++) {
+            const l2 = lag - k * 120;
+            ring(front(l2) * 0.42, l2, 0.45 * Math.pow(0.6, k) * (1 - Math.min(1, l2 / 1200)) * fade, w * 0.7);
           }
-          let x = px[i], y = py[i];
-          if (hold) { x += (Math.random() - 0.5) * 0.6 * dpr; y += (Math.random() - 0.5) * 0.6 * dpr; }
-          // Once the iris passes a particle it fades out and the real letter takes over
-          if (iris > 0 && Math.hypot(x - cx, y - cy) < iris) {
-            alpha[i] -= 0.12;
-            if (alpha[i] <= 0) { gone[i] = 1; continue; }
-          }
-          ctx.globalAlpha = alpha[i];
-          ctx.fillRect(x - size / 2, y - size / 2, size, size);
         }
       }
-      ctx.globalAlpha = 1;
 
-      if (t < T_REVEAL + T_IRIS + 80) { requestAnimationFrame(frame); return; }
-      document.documentElement.classList.remove("intro-active");
-      heroAnim?.cancel();
+      if (!overlay.classList.contains("live")) overlay.classList.add("live"); // the canvas now paints the surface
+      if (t < T_END) { requestAnimationFrame(frame); return; }
       resolve(true);
     };
     requestAnimationFrame(frame);
@@ -1465,7 +1538,7 @@ function intro(chars, fitName) {
     window.scrollTo(0, 0);
     if (lenis) { lenis.scrollTo(0, { immediate: true, force: true }); lenis.start(); }
     if (hasGSAP) ScrollTrigger.refresh();
-    try { sessionStorage.setItem("introPlayed", "1"); } catch {}
+    try { localStorage.setItem("introPlayed", "1"); } catch {}
   };
   if (!hasGSAP) { finish(); return; }
   lenis && lenis.stop();
@@ -1482,19 +1555,17 @@ function intro(chars, fitName) {
     .add(revealUI, 0.15)
     .add(finish, 0.6);
 
-  // Reduced motion: a simple fade, no particles or movement
+  // Reduced motion: a simple fade, no drop or movement
   if (reduceMotion) { gsap.to(overlay, { opacity: 0, duration: 0.3, onComplete: finish }); return; }
 
+  // The drop plays once per visitor; later visits get the short reveal (add ?intro to the address to see it again)
   let played = false;
-  try { played = sessionStorage.getItem("introPlayed") === "1"; } catch {}
+  try { played = localStorage.getItem("introPlayed") === "1"; } catch {}
+  if (new URLSearchParams(location.search).has("intro")) played = false;
   if (played) { quickReveal(); return; }
 
   root.classList.add("intro-active");
-  birth(overlay, chars, fitName, revealUI).then((ok) => {
-    if (ok) { finish(); return; }
-    root.classList.remove("intro-active");
-    quickReveal();
-  });
+  splash(overlay, chars, fitName).then((ok) => (ok ? finish() : (root.classList.remove("intro-active"), quickReveal())));
 }
 
 /* ---------- Boot ---------- */
