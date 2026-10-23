@@ -136,6 +136,9 @@ window.I18N = {
     "cv.natH": "Nationality",
     "cv.natv": "Spanish",
     "cv.refs": "References available upon request.",
+    "theme.toLight": "Switch to light theme",
+    "theme.toDark": "Switch to dark theme",
+    "cv.download": "Download CV (PDF)",
 
     "about.label": "About",
     "about.text": "I'm Marcos, a web developer and designer who helps businesses stand out online. I combine clear design, smooth interaction and clean, reliable code to deliver fast websites that represent your brand professionally and turn visitors into clients.",
@@ -393,6 +396,9 @@ window.I18N = {
     "cv.natH": "Nacionalidad",
     "cv.natv": "Española",
     "cv.refs": "Referencias disponibles a petición.",
+    "theme.toLight": "Cambiar a tema claro",
+    "theme.toDark": "Cambiar a tema oscuro",
+    "cv.download": "Descargar CV (PDF)",
 
     "about.label": "Sobre mí",
     "about.text": "Soy Marcos, desarrollador y diseñador web. Ayudo a empresas a destacar en internet combinando un diseño claro, interacciones fluidas y un código limpio y fiable para crear webs rápidas que representan tu marca con profesionalidad y convierten visitas en clientes.",
@@ -650,6 +656,9 @@ window.I18N = {
     "cv.natH": "Nationalité",
     "cv.natv": "Espagnole",
     "cv.refs": "Références disponibles sur demande.",
+    "theme.toLight": "Passer au thème clair",
+    "theme.toDark": "Passer au thème sombre",
+    "cv.download": "Télécharger le CV (PDF)",
 
     "about.label": "À propos",
     "about.text": "Je suis Marcos, développeur et designer web. J'aide les entreprises à se démarquer en ligne en associant un design clair, des interactions fluides et un code propre et fiable pour créer des sites rapides qui représentent votre marque avec professionnalisme et transforment les visiteurs en clients.",

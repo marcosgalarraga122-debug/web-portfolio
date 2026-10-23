@@ -8,6 +8,8 @@
   <meta name="theme-color" content="#0e1612">
   <!-- Always start at the top: set before anything loads so the browser doesn't restore an old position -->
   <script>if ("scrollRestoration" in history) history.scrollRestoration = "manual";</script>
+  <!-- Theme: apply a saved choice before the first paint so the page never flashes the other one -->
+  <script>try { var th = localStorage.getItem("theme"); if (th === "light" || th === "dark") document.documentElement.dataset.theme = th; } catch (e) {}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..800;1,9..144,200..800&family=Inter+Tight:wght@300..800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -52,6 +54,13 @@
       <a href="#faq" class="roll"><span data-text="FAQ" data-i18n="nav.faq">FAQ</span></a>
     </nav>
     <div class="nav-right">
+      <button class="theme-toggle" type="button" aria-label="Switch to light theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <mask id="theme-moon"><rect x="-6" y="-6" width="36" height="36" fill="#fff"/><circle class="theme-cut" cx="16" cy="8" r="5" fill="#000"/></mask>
+          <circle class="theme-core" cx="12" cy="12" r="5" mask="url(#theme-moon)"/>
+          <path class="theme-rays" d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M4.8 19.2l1.7-1.7M17.5 6.5l1.7-1.7"/>
+        </svg>
+      </button>
       <div class="lang" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.label">
         <span class="lang-pill" aria-hidden="true"></span>
         <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
@@ -407,15 +416,17 @@
 
     <!-- ============ CV ============ -->
     <!-- The CV as a sheet of paper that settles onto the page (initCV in main.js); text lives in i18n.js.
-         EDIT: when the final PDF is ready (no placeholders), add it as files/Marcos-Canellas-CV.pdf and
-         uncomment the download link at the bottom of the sheet -->
+         EDIT: to update the downloadable PDF, replace files/Marcos-Canellas-CV.pdf -->
     <section class="section cv" id="cv">
       <div class="cv-head">
         <div>
           <span class="mono label"><span class="lnum">(07) </span><span data-i18n="cv.label">CV</span></span>
           <h2 class="title" data-i18n-html="cv.title">The full<br><em>picture.</em></h2>
         </div>
-        <p class="cv-intro reveal-up" data-i18n="cv.intro">Web design is what I offer you. Hospitality is what I study and where I've worked, and it's where I learned that every detail of an experience counts.</p>
+        <div class="cv-aside reveal-up">
+          <p class="cv-intro" data-i18n="cv.intro">Web design is what I offer you. Hospitality is what I study and where I've worked, and it's where I learned that every detail of an experience counts.</p>
+          <a class="btn btn-ghost" href="files/Marcos-Canellas-CV.pdf" download><span class="btn-label" data-i18n="cv.download">Download CV (PDF)</span><span class="btn-arrow" aria-hidden="true">↓</span></a>
+        </div>
       </div>
       <div class="cv-desk">
         <article class="cv-sheet" aria-label="Curriculum vitae" data-i18n-attr="aria-label:cv.aria">
@@ -516,7 +527,6 @@
           </div>
           <footer class="cv-foot">
             <p data-i18n="cv.refs">References available upon request.</p>
-            <!-- <a class="cv-download mono" href="files/Marcos-Canellas-CV.pdf" download>Download PDF ↓</a> -->
           </footer>
         </article>
       </div>

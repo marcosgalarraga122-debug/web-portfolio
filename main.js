@@ -149,6 +149,7 @@ function initShader() {
     precision highp float;
     uniform vec2 r; uniform float t; uniform vec2 m; uniform float s; uniform vec2 v;
     uniform vec3 tr[16]; // recent cursor points: x, y (pixels), time created (seconds)
+    uniform float lt;    // 0 = dark theme, 1 = light theme
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
       return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}
@@ -188,12 +189,13 @@ function initShader() {
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
       float f=fbm(p*1.4+4.*w+.6*exp(-d*3.));
-      vec3 base=vec3(.055,.086,.071);                                 // deep bottle green
-      vec3 col=mix(base,vec3(.09,.145,.118),clamp(f*f*1.6,0.,1.));    // green-slate clouds
-      col=mix(col,vec3(.4,.32,.19),clamp(length(q)*f*.4-.2,0.,1.)*.6); // faint brass light
-      col=mix(col,vec3(.5,.41,.26),exp(-d*3.5)*.12);                  // warm glow at the cursor
+      // Dark: bottle green with green-slate clouds. Light: warm parchment with sand-coloured clouds
+      vec3 base=mix(vec3(.055,.086,.071),vec3(.957,.933,.89),lt);
+      vec3 col=mix(base,mix(vec3(.09,.145,.118),vec3(.905,.86,.78),lt),clamp(f*f*1.6,0.,1.)); // clouds
+      col=mix(col,mix(vec3(.4,.32,.19),vec3(.87,.72,.5),lt),clamp(length(q)*f*.4-.2,0.,1.)*.6); // faint brass light
+      col=mix(col,mix(vec3(.5,.41,.26),vec3(.82,.64,.4),lt),exp(-d*3.5)*.12);                 // warm glow at the cursor
       col=mix(base,col,smoothstep(1.25,.15,length(uv-vec2(.6,.55))*1.5));
-      col+=vec3(.045,.036,.02)*ring;
+      col+=mix(vec3(.045,.036,.02),vec3(-.04,-.034,-.026),lt)*ring;                            // ripples: lighter on dark, darker on light
       gl_FragColor=vec4(col,1.);
     }`;
 
@@ -221,6 +223,9 @@ function initShader() {
   const uS = gl.getUniformLocation(prog, "s");
   const uV = gl.getUniformLocation(prog, "v");
   const uTr = gl.getUniformLocation(prog, "tr");
+  const uLt = gl.getUniformLocation(prog, "lt");
+  const setTheme = () => gl.uniform1f(uLt, document.documentElement.dataset.theme === "light" ? 1 : 0);
+  setTheme();
   const trail = new Float32Array(16 * 3).fill(-100);
   let trailIndex = 0, lastPoint = null;
 
@@ -277,6 +282,8 @@ function initShader() {
     if (!reduceMotion) requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
+  // Switch palettes with the theme (with reduced motion the single still frame is redrawn)
+  document.addEventListener("themechange", () => { setTheme(); if (reduceMotion) frame(performance.now()); });
 }
 
 /* ---------- Particle portrait ----------
@@ -832,6 +839,41 @@ function initContactCurtain() {
   });
 }
 
+/* ---------- Theme: dark (default) or a lighter, warmer version ----------
+   The choice is remembered. Where the browser supports view transitions, the new theme
+   opens as a circle from the button; otherwise (or with reduced motion) it switches at once. */
+let refreshThemeLabel = () => {};
+function initThemeToggle() {
+  const btn = $(".theme-toggle");
+  const root = document.documentElement;
+  const meta = $('meta[name="theme-color"]');
+  const current = () => (root.dataset.theme === "light" ? "light" : "dark");
+  refreshThemeLabel = () => btn.setAttribute("aria-label", t(current() === "light" ? "theme.toDark" : "theme.toLight"));
+  const apply = (theme) => {
+    root.dataset.theme = theme;
+    meta.setAttribute("content", theme === "light" ? "#f4eee3" : "#0e1612");
+    try { localStorage.setItem("theme", theme); } catch {}
+    refreshThemeLabel();
+    document.dispatchEvent(new Event("themechange"));
+  };
+  meta.setAttribute("content", current() === "light" ? "#f4eee3" : "#0e1612");
+  refreshThemeLabel();
+
+  btn.addEventListener("click", () => {
+    const next = current() === "light" ? "dark" : "light";
+    if (!document.startViewTransition || reduceMotion) { apply(next); return; }
+    const r = btn.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + r.height / 2;
+    const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(() => apply(next)).ready.then(() => {
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
+        { duration: 700, easing: "cubic-bezier(.77, 0, .175, 1)", pseudoElement: "::view-transition-new(root)" }
+      );
+    });
+  });
+}
+
 /* ---------- CV: a sheet of paper that settles onto the page ----------
    It slides up and straightens as it scrolls in, a soft light follows the cursor across the
    paper, and brass highlighter strokes sweep over the key points as they come into view. */
@@ -1172,6 +1214,7 @@ function rebuildAfterLanguageChange() {
   renderMarquee();
   refreshWhere();
   refreshCV();
+  refreshThemeLabel();
   if (scramble) {
     cancelAnimationFrame(scramble.raf);
     $(".scramble").textContent = roles()[roleIndex % roles().length];
@@ -1346,7 +1389,9 @@ function birth(overlay, chars, fitName, revealUI) {
       const r = Math.random();
       tone[i] = r < 0.82 ? 0 : r < 0.94 ? 1 : 2;              // mostly off-white, a few warm sparks
     }
-    const tones = ["rgb(236,230,218)", "rgb(201,166,107)", "rgb(226,201,152)"]; // ivory, brass, pale brass
+    const tones = document.documentElement.dataset.theme === "light"
+      ? ["rgb(28,42,35)", "rgb(134,99,42)", "rgb(176,138,74)"]     // green ink, brass, light brass
+      : ["rgb(236,230,218)", "rgb(201,166,107)", "rgb(226,201,152)"]; // ivory, brass, pale brass
     const size = Math.max(1.5 * dpr, step * 0.8);
 
     const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;            // iris opens from the centre of the name
@@ -1469,6 +1514,7 @@ initContactForm();
 initNavActive();
 initOdometers();
 initLangSwitch();
+initThemeToggle();
 initPortal(nameChars);
 initPortrait();
 initJourney();
