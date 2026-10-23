@@ -229,8 +229,8 @@ function initShader() {
   const uV = gl.getUniformLocation(prog, "v");
   const uTr = gl.getUniformLocation(prog, "tr");
   const uLt = gl.getUniformLocation(prog, "lt");
-  const uW = ["uDisp", "uSpec", "uSrc", "dp", "wc", "wk"].map((n) => gl.getUniformLocation(prog, n));
-  let rippling = false;
+  const uW = ["uProf", "uProfS", "uProfA", "dp", "wc", "wk"].map((n) => gl.getUniformLocation(prog, n));
+  let profTex = null; // the intro's wave profile, uploaded each frame while it plays
   const setTheme = () => gl.uniform1f(uLt, document.documentElement.dataset.theme === "light" ? 1 : 0);
   setTheme();
   const trail = new Float32Array(16 * 3).fill(-100);
@@ -286,10 +286,21 @@ function initShader() {
       gl.uniform3fv(uTr, trail);
       const R = typeof waterRipple === "undefined" ? null : waterRipple;
       if (R) {
-        gl.uniform4fv(uW[0], R.disp); gl.uniform4fv(uW[1], R.spec); gl.uniform4fv(uW[2], R.src);
+        if (!profTex) {
+          profTex = gl.createTexture();
+          gl.bindTexture(gl.TEXTURE_2D, profTex);
+          [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach((p) => gl.texParameteri(gl.TEXTURE_2D, p, gl.NEAREST));
+          [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach((p) => gl.texParameteri(gl.TEXTURE_2D, p, gl.CLAMP_TO_EDGE));
+          gl.uniform1i(uW[0], 0);
+        }
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, R.profS[3] || 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, R.profS[3] ? R.prof : new Uint8Array(4));
+        gl.uniform4fv(uW[1], R.profS); gl.uniform4fv(uW[2], R.profA);
         gl.uniform1f(uW[3], scale); gl.uniform2f(uW[4], R.C.x, R.C.y); gl.uniform1f(uW[5], R.k);
+      } else if (profTex) {
+        gl.deleteTexture(profTex);
+        profTex = null;
+        gl.uniform4f(uW[1], 1, 0, 0, 0);
       }
-      if (R || rippling) { rippling = !!R; if (!R) gl.uniform4fv(uW[2], new Float32Array(8)); }
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     if (!reduceMotion) requestAnimationFrame(frame);

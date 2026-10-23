@@ -4,7 +4,7 @@ A one-page interactive CV that shows my skills and work. It's built to stand out
 
 - WebGL shader background in the hero with ripples and air movement that follow the mouse
 - Scroll "portal": the camera travels into the "o" of Marcos and through it into the particle portrait
-- First-visit intro (`intro.js`): a ray-traced drop of water falls, the camera cranes overhead, and the wave from its splash reveals the real page beneath the water, in focus behind the crest and refracted by the ripples. It plays once per browser; add `?intro` to the address to see it again. Any key, click or scroll skips it
+- First-visit intro (`intro.js`): a ray-traced drop of water falls in slow motion, the camera cranes overhead, and the waves from its impact (solved as real water: gravity, surface tension and viscosity) reveal the real page beneath, in focus behind the crests and refracted by the same waves. It plays once per browser; add `?intro` to the address to see it again. Any key, click or scroll skips it
 - Split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
 - Process timeline that fills and lights up step by step as you scroll
