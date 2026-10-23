@@ -653,8 +653,10 @@ function initPortal(chars) {
    to country, the route draws itself behind a travelling light, and each chapter's text
    crossfades in. The chapter buttons and the map markers jump straight to a chapter.
    Without GSAP, or with reduced motion, it stays a plain list beside the finished map. */
-const JOURNEY_CAMERA = [[177, 652, 1.9], [391, 227, 2.2], [717, 242, 1.9], [846, 458, 1.9], [500, 430, 1]]; // x, y, zoom
-const JOURNEY_YEARS = [0, 2, 5, 10, 10];
+// One entry per chapter: Spain → Netherlands → Poland → Romania → back to the Netherlands → Madrid
+const JOURNEY_STOPS = [0, 1, 2, 3, 1, 0];                 // which map marker each chapter is at
+const JOURNEY_CAMERA = [[177, 652, 1.9], [391, 227, 2.2], [717, 242, 1.9], [846, 458, 1.9], [391, 227, 2.2], [500, 430, 1]]; // x, y, zoom
+const JOURNEY_COUNTRIES = [1, 2, 3, 4, 4, 4];
 
 function initJourney() {
   const section = $(".journey");
@@ -668,7 +670,7 @@ function initJourney() {
   const cam = $(".map-cam", section);
   const traveller = $(".traveller", section);
   const base = $(".route-base", section);
-  const years = $(".hud-years", section), countries = $(".hud-countries", section), coords = $(".map-coords", section);
+  const moves = $(".hud-moves", section), countries = $(".hud-countries", section), coords = $(".map-coords", section);
   const lens = legs.map((leg) => leg.getTotalLength());
   const last = chapters.length - 1;
   let active = -1, lastP = -1;
@@ -678,10 +680,10 @@ function initJourney() {
     active = i;
     chapters.forEach((c, k) => c.classList.toggle("on", k === i));
     tabs.forEach((b, k) => b.setAttribute("aria-current", k === i ? "step" : "false"));
-    markers.forEach((m, k) => m.classList.toggle("on", k === i));
-    swapText(years, String(JOURNEY_YEARS[i]).padStart(2, "0"));
-    swapText(countries, String(Math.min(i + 1, markers.length)).padStart(2, "0"));
-    swapText(coords, markers[i]?.dataset.coords ?? "");
+    markers.forEach((m, k) => m.classList.toggle("on", k === JOURNEY_STOPS[i]));
+    swapText(moves, String(i).padStart(2, "0"));
+    swapText(countries, String(JOURNEY_COUNTRIES[i]).padStart(2, "0"));
+    swapText(coords, markers[JOURNEY_STOPS[i]].dataset.coords);
   };
 
   // p runs from 0 (Spain) to `last` (the zoomed-out "today" view); whole numbers hold on a chapter
@@ -709,7 +711,8 @@ function initJourney() {
     });
     traveller.style.opacity = head ? 1 : 0;
     if (head) traveller.setAttribute("transform", `translate(${head.x} ${head.y}) scale(${1 / z})`);
-    lands.forEach((l, i) => l.classList.toggle("visited", i === 0 || p >= i - 1 + 0.85));
+    // A country lights up once the light first arrives there
+    lands.forEach((l, c) => l.classList.toggle("visited", JOURNEY_STOPS.some((stop, j) => stop === c && (j === 0 || p >= j - 1 + 0.85))));
     setChapter(Math.min(last, Math.round(p)));
   };
 
@@ -717,7 +720,7 @@ function initJourney() {
   document.documentElement.classList.add("journey-on");
 
   const st = ScrollTrigger.create({
-    trigger: pin, start: "top top", end: () => `+=${innerHeight * 3.2}`, pin: true,
+    trigger: pin, start: "top top", end: () => `+=${innerHeight * 4.2}`, pin: true,
     onUpdate: (self) => render(self.progress * last),
   });
   render(0);
@@ -828,6 +831,43 @@ function initContactCurtain() {
     });
   });
 }
+
+/* ---------- CV: a sheet of paper that settles onto the page ----------
+   It slides up and straightens as it scrolls in, a soft light follows the cursor across the
+   paper, and brass highlighter strokes sweep over the key points as they come into view. */
+function initCV() {
+  const sheet = $(".cv-sheet");
+  if (!sheet) return;
+  const marks = () => $$(".cv-sheet mark");
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add("in");
+    io.unobserve(e.target);
+  }), { rootMargin: "0px 0px -18% 0px", threshold: 1 });
+  marks().forEach((m) => io.observe(m));
+  // After a language change the marks are new elements: ones already read appear at once,
+  // the rest still wait for their sweep
+  refreshCV = () => marks().forEach((m) => (m.getBoundingClientRect().bottom < innerHeight * 0.82 ? m.classList.add("in") : io.observe(m)));
+
+  if (finePointer) {
+    const glare = $(".cv-glare", sheet);
+    sheet.addEventListener("pointermove", (e) => {
+      const r = sheet.getBoundingClientRect();
+      glare.style.background = `radial-gradient(600px circle at ${e.clientX - r.left}px ${e.clientY - r.top}px, rgba(255, 255, 255, .5), transparent 60%)`;
+      glare.style.opacity = 1;
+    });
+    sheet.addEventListener("pointerleave", () => (glare.style.opacity = 0));
+  }
+
+  if (!hasGSAP) return;
+  gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
+    gsap.fromTo(sheet, { y: 120, rotation: -2.5, rotationX: 14 }, {
+      y: 0, rotation: 0, rotationX: 0, ease: "none",
+      scrollTrigger: { trigger: ".cv-desk", start: "top bottom", end: "top 30%", scrub: true },
+    });
+  });
+}
+let refreshCV = () => {};
 
 /* ---------- "You are here": the current section's number and name, bottom left ---------- */
 let refreshWhere = () => {};
@@ -1131,6 +1171,7 @@ function rebuildAfterLanguageChange() {
   if (hasGSAP) makeAboutScrub(words);
   renderMarquee();
   refreshWhere();
+  refreshCV();
   if (scramble) {
     cancelAnimationFrame(scramble.raf);
     $(".scramble").textContent = roles()[roleIndex % roles().length];
@@ -1436,5 +1477,6 @@ initWorkStage();
 initWhyStack();
 initContactCurtain();
 initSectionIndex();
+initCV();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars, fitName);

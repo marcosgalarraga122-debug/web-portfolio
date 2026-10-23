@@ -626,26 +626,52 @@ html.no-track .services-meta, html.no-track .services-progress { display: none; 
 .step.active .step-num { background: var(--c); color: var(--on-accent); scale: 1.08; }
 .step.active .step-card { box-shadow: 0 24px 50px -30px rgba(0, 0, 0, .7); }
 
-/* ---------- Experience ---------- */
-.experience { isolation: isolate; }
-.exp-list { list-style: none; border-top: 1px solid var(--line); }
-.exp-row {
-  position: relative;
-  display: grid; grid-template-columns: 200px 1fr 1.2fr; gap: 32px; align-items: center;
-  padding: 36px 16px; border-bottom: 1px solid var(--line);
+/* ---------- CV: a sheet of paper on the desk ---------- */
+.cv-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: end; margin-bottom: clamp(48px, 6vw, 88px); }
+.cv-intro { color: var(--soft); font-size: 1.1rem; max-width: 460px; }
+.cv-desk { position: relative; max-width: 1080px; margin: 0 auto; perspective: 1600px; }
+/* A second sheet peeking out underneath gives the paper some depth */
+.cv-desk::before {
+  content: ""; position: absolute; inset: 18px -10px -14px 14px; border-radius: 6px;
+  background: #d9d2c4; rotate: 1.6deg; opacity: .55;
 }
-.exp-row::before {
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  background: var(--amber-tint); opacity: 0; transition: opacity 200ms ease;
+.cv-sheet {
+  --ink: #15211b; --ink-soft: #4d5a53; --ink-line: rgba(21, 33, 27, .14); --brass: #8c6a2f;
+  position: relative; overflow: hidden; transform-origin: 50% 0;
+  padding: clamp(28px, 5vw, 64px); border-radius: 6px;
+  background: linear-gradient(180deg, #f5f1e8, #efe9dd); color: var(--ink);
+  box-shadow: 0 50px 90px -40px rgba(0, 0, 0, .85), 0 2px 0 rgba(255, 255, 255, .6) inset;
 }
-.exp-row::after {
-  content: ""; position: absolute; left: 0; bottom: -1px; height: 1px; width: 100%;
-  background: var(--accent); transform: scaleX(0); transform-origin: left;
-  transition: transform 400ms var(--ease-out);
+.cv-glare { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: soft-light; transition: opacity 400ms ease; }
+.cv-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding-bottom: 28px; border-bottom: 1px solid var(--ink); }
+.cv-name { font-family: var(--name-font); font-weight: 500; font-variation-settings: "opsz" 144; font-size: clamp(2rem, 4.4vw, 3.6rem); line-height: .98; letter-spacing: -.03em; }
+.cv-role { color: var(--brass); margin-top: 14px; }
+.cv-contact { color: var(--ink-soft); text-align: right; line-height: 1.8; word-break: break-all; }
+.cv-body { display: grid; grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 56px); padding-top: 32px; }
+.cv-sheet h4 { color: var(--brass); margin-bottom: 14px; }
+.cv-block + .cv-block { margin-top: 36px; }
+.cv-profile { font-family: var(--name-font); font-weight: 300; font-size: 1.15rem; line-height: 1.55; }
+.cv-list { list-style: none; }
+.cv-item { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; padding: 18px 0; border-top: 1px solid var(--ink-line); }
+.cv-when { color: var(--ink-soft); padding-top: 3px; }
+.cv-item h5 { font-size: 1.05rem; font-weight: 600; letter-spacing: -.01em; }
+.cv-where { color: var(--ink-soft); font-style: italic; margin-top: 2px; }
+.cv-item ul { margin: 10px 0 0 18px; color: var(--ink); }
+.cv-item ul li { margin-top: 6px; line-height: 1.55; font-size: .95rem; }
+.cv-item ul li::marker { color: var(--brass); }
+.cv-side { padding-left: clamp(20px, 3vw, 36px); border-left: 1px solid var(--ink-line); display: grid; gap: 30px; align-content: start; }
+.cv-side ul { list-style: none; display: grid; gap: 8px; font-size: .95rem; }
+.cv-langs li { display: flex; flex-direction: column; }
+.cv-langs span { color: var(--ink-soft); font-size: .88rem; }
+.cv-foot { display: flex; justify-content: space-between; gap: 16px; margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--ink-line); color: var(--ink-soft); font-style: italic; font-size: .9rem; }
+/* Highlighter strokes: sweep in from the left when the phrase scrolls into view */
+.cv-sheet mark {
+  color: inherit; padding: 0 .12em; margin: 0 -.12em; border-radius: .2em;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  background: linear-gradient(104deg, rgba(201, 166, 107, .15), rgba(201, 166, 107, .55) 8%, rgba(201, 166, 107, .4) 92%, rgba(201, 166, 107, .1)) no-repeat 0 85% / 0% 62%;
+  transition: background-size 900ms var(--ease-out);
 }
-.exp-row h3 { font-family: var(--display); font-weight: 600; font-size: clamp(1.3rem, 2.2vw, 1.9rem); letter-spacing: -.025em; line-height: 1.15; }
-.exp-place, .exp-year { color: var(--muted); }
-.exp-desc { color: var(--soft); }
+.cv-sheet mark.in { background-size: 100% 62%; }
 
 /* ---------- FAQ ---------- */
 .faq { background: var(--bg-2); }
@@ -767,8 +793,6 @@ html.no-track .services-meta, html.no-track .services-progress { display: none; 
   .service:hover .service-index { color: rgba(201, 166, 107, .08); }
   .work-highlights li:hover { color: var(--soft); }
   .stat:hover .stat-num { font-weight: 420; }
-  .exp-row:hover::before { opacity: 1; }
-  .exp-row:hover::after { transform: scaleX(1); }
   .faq summary:hover { color: var(--accent); }
   .copy-email:hover { border-color: var(--accent); }
   .footer a:hover { color: var(--fg); }
@@ -809,7 +833,13 @@ html.no-track .services-meta, html.no-track .services-progress { display: none; 
   .step-num { width: 44px; height: 44px; font-size: .75rem; }
   .steps-line { left: 21px; }
   .step-card { padding: 24px; }
-  .exp-row { grid-template-columns: 1fr; gap: 10px; padding: 28px 8px; }
+  .cv-head { grid-template-columns: 1fr; gap: 20px; }
+  .cv-top { flex-direction: column; align-items: flex-start; }
+  .cv-contact { text-align: left; }
+  .cv-body { grid-template-columns: 1fr; }
+  .cv-side { padding: 28px 0 0; border-left: 0; border-top: 1px solid var(--ink-line); grid-template-columns: 1fr 1fr; }
+  .cv-item { grid-template-columns: 1fr; gap: 6px; }
+  .cv-desk::before { display: none; }
   .portrait-copy { max-width: none; justify-content: flex-start; padding-top: 84px; }
   .journey-pin { grid-template-columns: 1fr; }
   .traits { grid-template-columns: 1fr 1fr; row-gap: 40px; }
@@ -843,6 +873,7 @@ html.no-track .services-meta, html.no-track .services-progress { display: none; 
 }
 
 @media (max-width: 559px) {
+  .cv-side { grid-template-columns: 1fr; }
   .traits { grid-template-columns: 1fr; }
   .trait, .trait + .trait { padding: 0; border-left: 0; }
 }
