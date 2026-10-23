@@ -150,6 +150,8 @@ function initShader() {
     uniform vec2 r; uniform float t; uniform vec2 m; uniform float s; uniform vec2 v;
     uniform vec3 tr[16]; // recent cursor points: x, y (pixels), time created (seconds)
     uniform float lt;    // 0 = dark theme, 1 = light theme
+    uniform float dp; uniform vec2 wc; uniform float wk; // intro ripples: pixels per CSS px, impact point, refraction
+    ${typeof WATER_RIPPLE === "string" ? WATER_RIPPLE : "vec4 wave(vec2 p){return vec4(0.);}"}
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
       return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}
@@ -185,6 +187,9 @@ function initShader() {
       p=mm+mat2(cs,-sn,sn,cs)*(p-mm);
       disp-=v*exp(-d*5.)*.8;
       p+=disp;
+      // While the intro plays, its ripples refract the background too (see intro.js)
+      vec4 iw=wave(vec2(gl_FragCoord.x,r.y-gl_FragCoord.y)/dp-wc);
+      p+=vec2(iw.y,-iw.z)*wk*dp/r.y;
 
       vec2 q=vec2(fbm(p*1.4+t*.05),fbm(p*1.4+vec2(5.2,1.3)-t*.04));
       vec2 w=vec2(fbm(p*1.4+4.*q+vec2(1.7,9.2)+t*.07),fbm(p*1.4+4.*q+vec2(8.3,2.8)+t*.05));
@@ -224,6 +229,8 @@ function initShader() {
   const uV = gl.getUniformLocation(prog, "v");
   const uTr = gl.getUniformLocation(prog, "tr");
   const uLt = gl.getUniformLocation(prog, "lt");
+  const uW = ["uDisp", "uSpec", "uSrc", "dp", "wc", "wk"].map((n) => gl.getUniformLocation(prog, n));
+  let rippling = false;
   const setTheme = () => gl.uniform1f(uLt, document.documentElement.dataset.theme === "light" ? 1 : 0);
   setTheme();
   const trail = new Float32Array(16 * 3).fill(-100);
@@ -277,6 +284,12 @@ function initShader() {
       gl.uniform2f(uV, Math.max(-0.2, Math.min(0.2, vel.x)), Math.max(-0.2, Math.min(0.2, vel.y)));
       gl.uniform1f(uS, (now - start) / 1000);
       gl.uniform3fv(uTr, trail);
+      const R = typeof waterRipple === "undefined" ? null : waterRipple;
+      if (R) {
+        gl.uniform4fv(uW[0], R.disp); gl.uniform4fv(uW[1], R.spec); gl.uniform4fv(uW[2], R.src);
+        gl.uniform1f(uW[3], scale); gl.uniform2f(uW[4], R.C.x, R.C.y); gl.uniform1f(uW[5], R.k);
+      }
+      if (R || rippling) { rippling = !!R; if (!R) gl.uniform4fv(uW[2], new Float32Array(8)); }
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     if (!reduceMotion) requestAnimationFrame(frame);
