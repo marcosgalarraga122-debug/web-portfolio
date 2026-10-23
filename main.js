@@ -465,7 +465,7 @@ function initPortrait() {
       return;
     }
     lastProgress = progress; lastOffset = offset; lastShift = shiftX;
-    let energy = 0;
+    let maxV2 = 0, maxE2 = 0;
     const pA = progress;
     const R = 38 * dpr, R2 = R * R, push = 2.2 * dpr;
     for (let i = 0; i < N; i++) {
@@ -473,10 +473,14 @@ function initPortrait() {
       let l = (pA - delay[i]) / 0.5;
       l = l < 0 ? 0 : l > 1 ? 1 : l;
       const e = 1 - (1 - l) * (1 - l) * (1 - l);
-      const tx = scatter[ix] + (home[ix] - scatter[ix]) * e + shiftX;
-      const ty = scatter[iy] + (home[iy] - scatter[iy]) * e + offset + shiftY;
-      let vx = vel[ix] + (tx - pos[ix]) * 0.09;
-      let vy = vel[iy] + (ty - pos[iy]) * 0.09;
+      // Blend from the scattered spot to the picture's current place. The scroll offset only
+      // applies as much as the particle is assembled: a scattered target that followed the page
+      // would drag off-screen particles back through the viewport as you keep scrolling
+      const tx = scatter[ix] + (home[ix] + shiftX - scatter[ix]) * e;
+      const ty = scatter[iy] + (home[iy] + offset + shiftY - scatter[iy]) * e;
+      const ex = tx - pos[ix], ey = ty - pos[iy];
+      let vx = vel[ix] + ex * 0.09;
+      let vy = vel[iy] + ey * 0.09;
       if (mouse.active) {
         const dx = pos[ix] - mouse.x, dy = pos[iy] - mouse.y;
         const d2 = dx * dx + dy * dy;
@@ -487,7 +491,9 @@ function initPortrait() {
         }
       }
       vx *= 0.8; vy *= 0.8;
-      energy += vx * vx + vy * vy;
+      const v2 = vx * vx + vy * vy, e2 = ex * ex + ey * ey;
+      if (v2 > maxV2) maxV2 = v2;
+      if (e2 > maxE2) maxE2 = e2;
       vel[ix] = vx; vel[iy] = vy;
       pos[ix] += vx; pos[iy] += vy;
     }
@@ -499,7 +505,10 @@ function initPortrait() {
     gl.uniform1f(uSize, Math.max(1.5, cell * 1.02));
     gl.uniform1f(uAlpha, 1);
     gl.drawArrays(gl.POINTS, 0, N);
-    if (energy / N < 1e-4) idle = true;
+    // Sleep only once *every* particle has stopped and reached its target. (An average over
+    // all particles let the loop sleep while a few thousand were still in flight, freezing
+    // them mid-screen for seconds after the explosion.)
+    if (maxV2 < 0.01 && maxE2 < 0.25) idle = true;
     requestAnimationFrame(frame);
   };
 
