@@ -822,26 +822,6 @@ function initServicesTrack() {
   });
 }
 
-/* ---------- Work: the browser window illustrates the highlight in view ---------- */
-function initWorkStage() {
-  const items = $$(".work-highlights li"), screens = $$(".screen");
-  const count = $(".stage-count b");
-  if (!items.length) return;
-  let current = 0;
-  items[0].classList.add("on");
-  const show = (i) => {
-    if (i === current) return;
-    current = i;
-    screens.forEach((s, k) => s.classList.toggle("on", k === i));
-    items.forEach((li, k) => li.classList.toggle("on", k === i));
-    swapText(count, String(i + 1).padStart(2, "0"));
-  };
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => e.isIntersecting && show(+e.target.dataset.screen));
-  }, { rootMargin: "-45% 0px -45% 0px" });
-  items.forEach((li) => io.observe(li));
-}
-
 /* ---------- Why me: covered cards ease back as the next one slides over ---------- */
 function initWhyStack() {
   if (!hasGSAP) return;
@@ -1422,7 +1402,6 @@ initPortal(nameChars);
 initPortrait();
 initJourney();
 initServicesTrack();
-initWorkStage();
 initWhyStack();
 initContactCurtain();
 initSectionIndex();

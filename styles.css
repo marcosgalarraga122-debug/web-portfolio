@@ -548,74 +548,6 @@ html.track-on .service { flex-basis: clamp(360px, 36vw, 540px); }
 html.no-track .service-track { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); overflow: visible; margin: 0; padding: 0; }
 html.no-track .services-meta, html.no-track .services-progress { display: none; }
 
-/* ---------- Work: case study as an exhibit ---------- */
-/* The browser window stays put (sticky) while the highlights scroll past it;
-   its "screen" changes to illustrate whichever highlight is in view. */
-.work-intro {
-  font-family: var(--name-font); font-weight: 300; font-variation-settings: "opsz" 144;
-  font-size: clamp(1.5rem, 2.6vw, 2.3rem); line-height: 1.25; letter-spacing: -.015em; max-width: 760px;
-}
-.work-exhibit { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); margin-top: clamp(48px, 6vw, 88px); align-items: start; }
-.work-stage { position: sticky; top: max(96px, calc(50vh - 240px)); }
-.browser { border: 1px solid var(--border-strong); border-radius: 16px; overflow: hidden; background: var(--bg); box-shadow: 0 40px 80px -50px var(--shadow); }
-.browser-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card); }
-.browser-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--border-strong); }
-.browser-bar span { margin-left: 12px; color: var(--muted); font-size: .66rem; }
-.browser-screen { position: relative; aspect-ratio: 16 / 11; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--fg) 7%, var(--bg)), var(--bg) 75%); }
-.screen { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; scale: 1.04; filter: blur(8px); transition: opacity 500ms var(--ease-out), scale 700ms var(--ease-out), filter 500ms var(--ease-out); }
-.screen.on { opacity: 1; scale: 1; filter: none; }
-.screen:not(.on), .screen:not(.on) * { animation-play-state: paused; }
-.stage-count { margin-top: 16px; color: var(--muted); }
-.stage-count b { font-weight: 400; color: var(--accent); }
-/* 01 — cursor ripples */
-.screen-wave .ring { position: absolute; width: 46%; aspect-ratio: 1; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); animation: ripple 3.6s var(--ease-out) infinite; }
-.screen-wave .ring:nth-child(2) { animation-delay: 1.2s; }
-.screen-wave .ring:nth-child(3) { animation-delay: 2.4s; }
-.screen-wave .cursor { width: 10px; height: 10px; border-radius: 50%; background: var(--fg); box-shadow: 0 0 24px 6px color-mix(in srgb, var(--accent) 35%, transparent); }
-@keyframes ripple { from { scale: .1; opacity: 1; } to { scale: 1.6; opacity: 0; } }
-/* 02 — particles */
-.screen-dots .dots {
-  width: 58%; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle, var(--soft) 0 1.4px, transparent 1.9px) 0 0 / 9px 9px;
-  -webkit-mask: radial-gradient(circle, #000 40%, transparent 70%); mask: radial-gradient(circle, #000 40%, transparent 70%);
-  animation: breathe 5s ease-in-out infinite;
-}
-.screen-dots .dots::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 60% 35%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 60%); mix-blend-mode: overlay; }
-@keyframes breathe { 50% { scale: 1.06; } }
-/* 03 — three languages */
-.screen-lang span { grid-area: 1 / 1; font-family: var(--name-font); font-style: italic; font-weight: 300; font-size: clamp(2.4rem, 5vw, 4.4rem); color: var(--fg); opacity: 0; animation: lang-cycle 6s var(--ease-out) infinite; }
-.screen-lang span:nth-child(2) { animation-delay: 2s; color: var(--accent); }
-.screen-lang span:nth-child(3) { animation-delay: 4s; }
-@keyframes lang-cycle { 0% { opacity: 0; translate: 0 12px; filter: blur(6px); } 8%, 28% { opacity: 1; translate: 0 0; filter: none; } 36%, 100% { opacity: 0; translate: 0 -12px; filter: blur(6px); } }
-/* 04 — keyboard */
-.screen-keys { grid-auto-flow: column; gap: 14px; align-content: center; justify-content: center; }
-.screen-keys .key { padding: 10px 14px; border: 1px solid var(--border-strong); border-bottom-width: 3px; border-radius: 8px; color: var(--soft); }
-.screen-keys .focus-btn { margin-left: 18px; padding: 12px 20px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: .85rem; font-weight: 500; outline: 2px solid var(--accent); outline-offset: 5px; animation: focus-pulse 2.2s ease-in-out infinite; }
-@keyframes focus-pulse { 50% { outline-offset: 9px; outline-color: color-mix(in srgb, var(--accent) 30%, transparent); } }
-/* 05 — responsive */
-.screen-devices .device { display: flex; flex-direction: column; gap: 8%; justify-content: center; padding: 0 5%; height: 66%; width: 80%; border: 1px solid var(--border-strong); border-radius: 12px; animation: device 7s var(--ease-in-out) infinite; }
-.screen-devices .device i { display: block; height: 7%; border-radius: 4px; background: var(--line); }
-.screen-devices .device i:first-child { width: 70%; background: color-mix(in srgb, var(--accent) 50%, transparent); }
-@keyframes device { 0%, 22% { width: 80%; height: 66%; } 33%, 55% { width: 46%; height: 72%; } 66%, 88% { width: 22%; height: 76%; } 100% { width: 80%; height: 66%; } }
-
-.work-hl-label { color: var(--muted); margin-bottom: 8px; }
-.work-highlights { list-style: none; border-top: 1px solid var(--line); }
-.work-highlights li {
-  display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: baseline;
-  min-height: 34vh; padding: 28px 0; border-bottom: 1px solid var(--line);
-  font-family: var(--name-font); font-weight: 300; font-variation-settings: "opsz" 144;
-  font-size: clamp(1.4rem, 2.2vw, 2rem); line-height: 1.2; letter-spacing: -.015em; color: var(--muted);
-  transition: color 400ms ease;
-}
-.work-highlights li.on { color: var(--fg); }
-.work-highlights .mono { color: var(--accent); }
-.work-spec { margin-top: 56px; padding: clamp(28px, 3vw, 40px); border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
-.work-spec dl div { padding: 14px 0; border-bottom: 1px solid var(--line); }
-.work-spec dl div:first-child { padding-top: 0; }
-.work-spec dt { color: var(--muted); margin-bottom: 4px; }
-.work-spec dd { font-size: 1rem; }
-.work-cta-text { font-family: var(--name-font); font-style: italic; font-size: 1.35rem; line-height: 1.3; margin: 28px 0 20px; }
-
 /* ---------- Why me: cards that stack ---------- */
 /* Each card sticks a little lower than the last, so they pile up as you scroll;
    main.js eases the covered cards back (scale + dim) on larger, motion-friendly screens. */
@@ -838,7 +770,6 @@ html.no-track .services-meta, html.no-track .services-progress { display: none; 
   .service:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
   .service:hover .service-arrow { color: var(--accent); rotate: 45deg; }
   .service:hover .service-index { color: color-mix(in srgb, var(--accent) 8%, transparent); }
-  .work-highlights li:hover { color: var(--soft); }
   .stat:hover .stat-num { font-weight: 420; }
   .faq summary:hover { color: var(--accent); }
   .copy-email:hover { border-color: var(--accent); }
@@ -867,11 +798,6 @@ html.no-track .services-meta, html.no-track .services-progress { display: none; 
   .nav-cta { padding: 8px 14px; font-size: .82rem; }
   .cta-long { display: none; }
   .cta-short { display: inline; }
-  .work-exhibit { grid-template-columns: 1fr; gap: 24px; }
-  .work-stage { top: 64px; z-index: 2; padding: 8px 0 12px; background: var(--bg); }
-  .browser-screen { aspect-ratio: 16 / 8; }
-  .stage-count { display: none; }
-  .work-highlights li { min-height: 26vh; font-size: 1.3rem; }
   .about-grid { grid-template-columns: 1fr; }
   .about-photos { justify-self: center; max-width: 420px; }
   .process-layout { grid-template-columns: 1fr; gap: 48px; }
