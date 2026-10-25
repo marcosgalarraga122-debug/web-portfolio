@@ -615,7 +615,8 @@ html.no-track .services-meta, html.no-track .services-progress { display: none; 
 .cv-modal::backdrop { background: transparent; }
 .cv-modal-bar {
   position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  max-width: 1080px; margin: 0 auto 8px; padding: 16px 0;
+  /* the fade spans the whole window; the buttons stay lined up with the sheet */
+  margin: 0 calc(-1 * var(--pad)) 8px; padding: 16px max(var(--pad), calc((100% - 1080px) / 2 + var(--pad)));
   background: linear-gradient(var(--bg) 75%, transparent);
 }
 .cv-modal-bar h2 { font-size: .8rem; font-weight: 400; color: var(--muted); }
