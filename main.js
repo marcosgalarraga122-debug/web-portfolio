@@ -929,8 +929,12 @@ function initCV() {
   }
 
   if (!hasGSAP) return;
-  gsap.matchMedia().add("(prefers-reduced-motion: no-preference)", () => {
-    gsap.fromTo(sheet, { y: 120, rotation: -2.5, rotationX: 14 }, {
+  // On narrow screens the sheet is several screens tall, and any tilt swings its far end
+  // out past the sides of the page, so there it only slides up
+  gsap.matchMedia().add({ wide: "(min-width: 900px)", motion: "(prefers-reduced-motion: no-preference)" }, (ctx) => {
+    if (!ctx.conditions.motion) return;
+    const tilt = ctx.conditions.wide;
+    gsap.fromTo(sheet, { y: 120, rotation: tilt ? -2.5 : 0, rotationX: tilt ? 14 : 0 }, {
       y: 0, rotation: 0, rotationX: 0, ease: "none",
       scrollTrigger: { trigger: ".cv-desk", start: "top bottom", end: "top 30%", scrub: true },
     });
