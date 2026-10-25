@@ -142,8 +142,8 @@ window.I18N = {
 
     "about.label": "About",
     "about.text": "I'm Marcos, a web developer and designer who helps businesses stand out online. I combine clear design, smooth interaction and clean, reliable code to deliver fast websites that represent your brand professionally and turn visitors into clients.",
-    "about.alt1": "Portrait of Marcos",
-    "about.alt2": "Marcos looking out over the river",
+    "about.alt1": "Marcos in a navy suit and green tie",
+    "about.alt2": "Marcos standing in front of an ivy-covered wall",
     "about.tag": "Marcos — Web Developer",
     "stat.1": "Custom design — no templates",
     "stat.2": "Direct point of contact",
@@ -386,8 +386,8 @@ window.I18N = {
 
     "about.label": "Sobre mí",
     "about.text": "Soy Marcos, desarrollador y diseñador web. Ayudo a empresas a destacar en internet combinando un diseño claro, interacciones fluidas y un código limpio y fiable para crear webs rápidas que representan tu marca con profesionalidad y convierten visitas en clientes.",
-    "about.alt1": "Retrato de Marcos",
-    "about.alt2": "Marcos mirando el río",
+    "about.alt1": "Marcos con traje azul marino y corbata verde",
+    "about.alt2": "Marcos de pie frente a una pared cubierta de hiedra",
     "about.tag": "Marcos — Desarrollador web",
     "stat.1": "Diseño a medida — sin plantillas",
     "stat.2": "Un único punto de contacto",
@@ -630,8 +630,8 @@ window.I18N = {
 
     "about.label": "À propos",
     "about.text": "Je suis Marcos, développeur et designer web. J'aide les entreprises à se démarquer en ligne en associant un design clair, des interactions fluides et un code propre et fiable pour créer des sites rapides qui représentent votre marque avec professionnalisme et transforment les visiteurs en clients.",
-    "about.alt1": "Portrait de Marcos",
-    "about.alt2": "Marcos regardant la rivière",
+    "about.alt1": "Marcos en costume bleu marine et cravate verte",
+    "about.alt2": "Marcos debout devant un mur couvert de lierre",
     "about.tag": "Marcos — Développeur web",
     "stat.1": "Design sur mesure — aucun modèle",
     "stat.2": "Interlocuteur unique",

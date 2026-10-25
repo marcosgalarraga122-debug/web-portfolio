@@ -349,12 +349,12 @@ html.facts-anim .fact.on dd { transition-delay: 120ms; }
   transition: scale 700ms var(--ease-out);
 }
 .photo-main { top: 0; right: 0; width: 82%; height: 88%; }
-.photo-main img { object-position: 50% 62%; }
+.photo-main img { object-position: 50% 30%; }
 .photo-second {
   left: 0; bottom: 0; width: 46%; aspect-ratio: 3 / 4;
   border: 6px solid var(--bg); border-radius: 22px;
 }
-.photo-second img { object-position: 46% 62%; }
+.photo-second img { object-position: 50% 24%; }
 .photo-tag {
   position: absolute; top: 18px; right: 18px; z-index: 2;
   display: inline-flex; align-items: center; gap: 8px;
