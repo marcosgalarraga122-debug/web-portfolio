@@ -131,7 +131,7 @@ $$('a[href^="#"]').forEach((a) =>
   a.addEventListener("click", (e) => {
     const id = a.getAttribute("href");
     const target = id.length > 1 && $(id);
-    if (!target) return;
+    if (!target || a.hasAttribute("data-cv-open")) return;
     e.preventDefault();
     if (lenis) lenis.scrollTo(target, { duration: 1.6 });
     else target.scrollIntoView({ behavior: "smooth" });
@@ -881,12 +881,39 @@ function initThemeToggle() {
   });
 }
 
-/* ---------- CV: a sheet of paper that settles onto the page ----------
-   It slides up and straightens as it scrolls in, a soft light follows the cursor across the
-   paper, and brass highlighter strokes sweep over the key points as they come into view. */
+/* ---------- CV: a sheet of paper that opens over the page ----------
+   The hero's "View my CV" button (and the nav's CV link) open it in a dialog; it settles into
+   place, a soft light follows the cursor across the paper, and brass highlighter strokes sweep
+   over the key points as they come into view. */
 function initCV() {
   const sheet = $(".cv-sheet");
-  if (!sheet) return;
+  const modal = $(".cv-modal");
+  if (!sheet || !modal) return;
+  const root = document.documentElement;
+  const open = (e) => {
+    e.preventDefault();
+    if (modal.open) return;
+    modal.classList.remove("closing");
+    modal.scrollTop = 0;
+    root.classList.add("cv-open");
+    lenis && lenis.stop();
+    modal.showModal();
+  };
+  // Esc, the close button and a click beside the sheet all close it, with a short fade
+  const close = () => {
+    if (!modal.open || modal.classList.contains("closing")) return;
+    modal.classList.add("closing");
+    setTimeout(() => modal.close(), reduceMotion ? 0 : 180);
+  };
+  $$("[data-cv-open]").forEach((a) => a.addEventListener("click", open));
+  $("[data-cv-close]", modal).addEventListener("click", close);
+  modal.addEventListener("cancel", (e) => { e.preventDefault(); close(); });
+  modal.addEventListener("click", (e) => e.target === modal && close());
+  modal.addEventListener("close", () => {
+    modal.classList.remove("closing");
+    root.classList.remove("cv-open");
+    lenis && lenis.start();
+  });
   const marks = () => $$(".cv-sheet mark");
   const io = new IntersectionObserver((entries) => entries.forEach((e) => {
     if (!e.isIntersecting) return;
@@ -896,7 +923,7 @@ function initCV() {
   marks().forEach((m) => io.observe(m));
   // After a language change the marks are new elements: ones already read appear at once,
   // the rest still wait for their sweep
-  refreshCV = () => marks().forEach((m) => (m.getBoundingClientRect().bottom < innerHeight * 0.82 ? m.classList.add("in") : io.observe(m)));
+  refreshCV = () => marks().forEach((m) => (modal.open && m.getBoundingClientRect().bottom < innerHeight * 0.82 ? m.classList.add("in") : io.observe(m)));
 
   if (finePointer) {
     const glare = $(".cv-glare", sheet);
@@ -907,18 +934,6 @@ function initCV() {
     });
     sheet.addEventListener("pointerleave", () => (glare.style.opacity = 0));
   }
-
-  if (!hasGSAP) return;
-  // On narrow screens the sheet is several screens tall, and any tilt swings its far end
-  // out past the sides of the page, so there it only slides up
-  gsap.matchMedia().add({ wide: "(min-width: 900px)", motion: "(prefers-reduced-motion: no-preference)" }, (ctx) => {
-    if (!ctx.conditions.motion) return;
-    const tilt = ctx.conditions.wide;
-    gsap.fromTo(sheet, { y: 120, rotation: tilt ? -2.5 : 0, rotationX: tilt ? 14 : 0 }, {
-      y: 0, rotation: 0, rotationX: 0, ease: "none",
-      scrollTrigger: { trigger: ".cv-desk", start: "top bottom", end: "top 30%", scrub: true },
-    });
-  });
 }
 let refreshCV = () => {};
 

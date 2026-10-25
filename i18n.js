@@ -21,6 +21,7 @@ window.I18N = {
     "roles": ["Web Developer", "Web Designer", "UI / UX Designer", "Digital Partner"],
     "hero.intro": "I design and build high-quality websites that strengthen your brand, earn your customers' trust and grow your business.",
     "hero.cta": "Start a project",
+    "hero.cv": "View my CV",
     "hero.services": "View services",
     "hero.scroll": "Scroll",
 
@@ -88,9 +89,7 @@ window.I18N = {
     "side.location": "Based in",
     "side.locationVal": "Madrid",
     "cv.label": "CV",
-    "cv.title": "The full<br><em>picture.</em>",
     "cv.aria": "Curriculum vitae",
-    "cv.intro": "Web design is what I offer you. Hospitality is what I study and where I've worked, and it's where I learned that every detail of an experience counts.",
     "cv.role": "Hospitality & Hotel Management · Web design",
     "cv.profileH": "Profile",
     "cv.profile": "Hospitality and Hotel Management student at <mark>Vatel Madrid</mark>, with practical experience at a resort affiliated with <mark>The Leading Hotels of the World</mark>, in wedding catering and in customer-facing retail. I've lived in Spain, the Netherlands, Poland and Romania, and have worked alongside my studies since the age of 16.",
@@ -138,6 +137,7 @@ window.I18N = {
     "cv.refs": "References available upon request.",
     "theme.toLight": "Switch to light theme",
     "theme.toDark": "Switch to dark theme",
+    "cv.close": "Close CV",
     "cv.download": "Download CV (PDF)",
 
     "about.label": "About",
@@ -265,6 +265,7 @@ window.I18N = {
     "roles": ["Desarrollador web", "Diseñador web", "Diseñador UI / UX", "Tu socio digital"],
     "hero.intro": "Diseño y desarrollo webs de alta calidad que refuerzan tu marca, generan confianza en tus clientes y hacen crecer tu negocio.",
     "hero.cta": "Empezar un proyecto",
+    "hero.cv": "Ver mi CV",
     "hero.services": "Ver servicios",
     "hero.scroll": "Desliza",
 
@@ -332,9 +333,7 @@ window.I18N = {
     "side.location": "Ubicación",
     "side.locationVal": "Madrid",
     "cv.label": "CV",
-    "cv.title": "La imagen<br><em>completa.</em>",
     "cv.aria": "Currículum vítae",
-    "cv.intro": "El diseño web es lo que te ofrezco. La hostelería es lo que estudio y donde he trabajado, y es donde aprendí que cada detalle de una experiencia cuenta.",
     "cv.role": "Hostelería y Dirección Hotelera · Diseño web",
     "cv.profileH": "Perfil",
     "cv.profile": "Estudiante de Hostelería y Dirección Hotelera en <mark>Vatel Madrid</mark>, con experiencia práctica en un resort miembro de <mark>The Leading Hotels of the World</mark>, en catering de bodas y en atención al cliente en comercio. He vivido en España, Países Bajos, Polonia y Rumanía, y trabajo a la vez que estudio desde los 16 años.",
@@ -382,6 +381,7 @@ window.I18N = {
     "cv.refs": "Referencias disponibles a petición.",
     "theme.toLight": "Cambiar a tema claro",
     "theme.toDark": "Cambiar a tema oscuro",
+    "cv.close": "Cerrar CV",
     "cv.download": "Descargar CV (PDF)",
 
     "about.label": "Sobre mí",
@@ -509,6 +509,7 @@ window.I18N = {
     "roles": ["Développeur web", "Designer web", "Designer UI / UX", "Partenaire digital"],
     "hero.intro": "Je conçois et développe des sites web de grande qualité qui renforcent votre marque, gagnent la confiance de vos clients et font grandir votre activité.",
     "hero.cta": "Démarrer un projet",
+    "hero.cv": "Voir mon CV",
     "hero.services": "Voir les services",
     "hero.scroll": "Défiler",
 
@@ -576,9 +577,7 @@ window.I18N = {
     "side.location": "Basé à",
     "side.locationVal": "Madrid",
     "cv.label": "CV",
-    "cv.title": "Le portrait<br><em>complet.</em>",
     "cv.aria": "Curriculum vitae",
-    "cv.intro": "Le design web, c'est ce que je vous propose. L'hôtellerie, c'est ce que j'étudie et là où j'ai travaillé, et c'est là que j'ai appris que chaque détail d'une expérience compte.",
     "cv.role": "Hôtellerie et management hôtelier · Design web",
     "cv.profileH": "Profil",
     "cv.profile": "Étudiant en hôtellerie et management hôtelier à <mark>Vatel Madrid</mark>, avec une expérience pratique dans un resort membre de <mark>The Leading Hotels of the World</mark>, en traiteur de mariages et en vente au contact des clients. J'ai vécu en Espagne, aux Pays-Bas, en Pologne et en Roumanie, et je travaille en parallèle de mes études depuis l'âge de 16 ans.",
@@ -626,6 +625,7 @@ window.I18N = {
     "cv.refs": "Références disponibles sur demande.",
     "theme.toLight": "Passer au thème clair",
     "theme.toDark": "Passer au thème sombre",
+    "cv.close": "Fermer le CV",
     "cv.download": "Télécharger le CV (PDF)",
 
     "about.label": "À propos",

@@ -26,7 +26,7 @@
     "knowsAbout": ["Web design", "Web development", "UI/UX design", "SEO"]}
   </script>
   <link rel="stylesheet" href="styles.css">
-  <noscript><style>.intro { display: none; } html:has(body.loading), body.loading { overflow-y: visible; } .portrait { display: none; }</style></noscript>
+  <noscript><style>.intro { display: none; } .cv-modal { display: block; position: static; width: auto; height: auto; overflow: visible; background: none; } .cv-close { display: none; } html:has(body.loading), body.loading { overflow-y: visible; } .portrait { display: none; }</style></noscript>
 </head>
 <body class="loading">
   <!-- Text is translated by main.js using i18n.js (data-i18n = text, data-i18n-html = text with markup,
@@ -49,7 +49,7 @@
       <a href="#about" class="roll"><span data-text="About" data-i18n="nav.about">About</span></a>
       <a href="#services" class="roll"><span data-text="Services" data-i18n="nav.services">Services</span></a>
       <a href="#process" class="roll"><span data-text="Process" data-i18n="nav.process">Process</span></a>
-      <a href="#cv" class="roll"><span data-text="CV" data-i18n="nav.cv">CV</span></a>
+      <a href="#cv" class="roll" data-cv-open aria-haspopup="dialog"><span data-text="CV" data-i18n="nav.cv">CV</span></a>
       <a href="#faq" class="roll"><span data-text="FAQ" data-i18n="nav.faq">FAQ</span></a>
     </nav>
     <div class="nav-right">
@@ -93,6 +93,7 @@
             <p data-i18n="hero.intro">I design and build high-quality websites that strengthen your brand, earn your customers' trust and grow your business.</p>
             <div class="hero-actions">
               <a href="#contact" class="btn magnetic"><span class="btn-label" data-i18n="hero.cta">Start a project</span><span class="btn-arrow" aria-hidden="true">→</span></a>
+              <a href="#cv" class="btn btn-cv" data-cv-open aria-haspopup="dialog"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span class="btn-label" data-i18n="hero.cv">View my CV</span></a>
               <a href="#services" class="btn btn-ghost" data-i18n="hero.services">View services</a>
             </div>
           </div>
@@ -368,20 +369,79 @@
       </div>
     </section>
 
-    <!-- ============ CV ============ -->
-    <!-- The CV as a sheet of paper that settles onto the page (initCV in main.js); text lives in i18n.js.
-         EDIT: to update the downloadable PDF, replace files/Marcos-Canellas-CV.pdf -->
-    <section class="section cv" id="cv">
-      <div class="cv-head">
-        <div>
-          <span class="mono label"><span class="lnum">(06) </span><span data-i18n="cv.label">CV</span></span>
-          <h2 class="title" data-i18n-html="cv.title">The full<br><em>picture.</em></h2>
+    <!-- ============ FAQ ============ -->
+    <!-- EDIT: adjust the answers in i18n.js to match how you work -->
+    <section class="section faq" id="faq">
+      <div class="faq-layout">
+        <div class="section-head">
+          <span class="mono label"><span class="lnum">(06) </span><span data-i18n="faq.label">FAQ</span></span>
+          <h2 class="title" data-i18n-html="faq.title">Frequently asked<br><em>questions</em></h2>
         </div>
-        <div class="cv-aside reveal-up">
-          <p class="cv-intro" data-i18n="cv.intro">Web design is what I offer you. Hospitality is what I study and where I've worked, and it's where I learned that every detail of an experience counts.</p>
-          <a class="btn btn-ghost" href="files/Marcos-Canellas-CV.pdf" download><span class="btn-label" data-i18n="cv.download">Download CV (PDF)</span><span class="btn-arrow" aria-hidden="true">↓</span></a>
+        <div class="faq-list">
+          <details><summary data-i18n="q1">How long does a website take?</summary><p data-i18n="a1">It depends on the size of the project — a one-page site is quicker than a multi-page site or an online shop. You'll get a clear timeline together with your quote.</p></details>
+          <details><summary data-i18n="q2">What do you need from me?</summary><p data-i18n="a2">Your logo, any text and photos you already have, and a few examples of websites you like. I'll guide you through everything else.</p></details>
+          <details><summary data-i18n="q3">Will I be able to update the website myself?</summary><p data-i18n="a3">Yes. If you need to change content regularly, I'll set the site up so you can edit it easily and show you how.</p></details>
+          <details><summary data-i18n="q4">Do you offer support after launch?</summary><p data-i18n="a4">Yes. Care &amp; support covers updates, improvements and fixes so your website keeps performing.</p></details>
+          <details><summary data-i18n="q5">How do we get started?</summary><p data-i18n="a5">Send me an email with a short description of your business and what you need. I'll reply within 24 hours to arrange a call.</p></details>
         </div>
       </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="section contact" id="contact">
+      <span class="mono label"><span class="lnum">(07) </span><span data-i18n="contact.label">Contact</span></span>
+      <h2 class="contact-title">
+        <span class="line"><span data-i18n="contact.l1">Let's work</span></span>
+        <span class="line"><span><em data-i18n="contact.l2">together.</em></span></span>
+      </h2>
+      <p class="contact-lead" data-i18n="contact.lead">Tell me about your business and your goals. I'll reply within 24 hours with ideas and a clear quote.</p>
+      <div class="contact-grid">
+        <!-- Sending opens the visitor's email app with the enquiry filled in -->
+        <form class="contact-form" data-email="Marcos.galarraga122@outlook.com">
+          <div class="field"><label for="cf-name" data-i18n="form.name">Name</label><input id="cf-name" name="name" required autocomplete="name"></div>
+          <div class="field"><label for="cf-email" data-i18n="form.email">Email</label><input id="cf-email" name="email" type="email" required autocomplete="email"></div>
+          <div class="field full"><label for="cf-company" data-i18n-html="form.company">Company <span>(optional)</span></label><input id="cf-company" name="company" autocomplete="organization"></div>
+          <div class="field full"><label for="cf-msg" data-i18n="form.msg">About your project</label><textarea id="cf-msg" name="message" rows="5" required placeholder="What does your business do, and what should the website achieve?" data-i18n-attr="placeholder:form.placeholder"></textarea></div>
+          <div class="form-foot full">
+            <button class="btn" type="submit"><span class="btn-label" data-i18n="form.send">Send enquiry</span><span class="btn-arrow" aria-hidden="true">→</span></button>
+            <p class="form-note" data-i18n="form.note">Opens your email app with your message ready to send.</p>
+          </div>
+        </form>
+
+        <aside class="contact-side">
+          <div><p class="mono" data-i18n="side.email">Email</p>
+            <button class="copy-email" type="button" data-email="Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com <span class="copy-state mono" data-i18n="copy">Copy</span></button>
+          </div>
+          <!-- EDIT: phone number goes here (waiting for the real number), e.g.
+          <div><p class="mono" data-i18n="side.phone">Phone</p><a class="contact-phone" href="tel:+34600000000">+34 600 000 000</a></div>
+          -->
+          <div><p class="mono" data-i18n="side.location">Based in</p><p data-i18n="side.locationVal">Madrid</p></div>
+          <div><p class="mono" data-i18n="side.response">Response time</p><p data-i18n="side.responseVal">Within 24 hours</p></div>
+          <div><p class="mono" data-i18n="side.availability">Availability</p><p><span class="status-dot"></span><span data-i18n="side.availabilityVal">Taking on new projects</span></p></div>
+        </aside>
+      </div>
+      <!-- EDIT: add your social profiles here when ready, e.g.
+      <ul class="socials">
+        <li><a href="https://www.linkedin.com/in/your-profile" class="roll"><span data-text="LinkedIn">LinkedIn</span></a></li>
+      </ul>
+      -->
+    </section>
+  </main>
+
+  <!-- "You are here": the current section's number and name (initSectionIndex in main.js) -->
+  <p class="where mono" aria-hidden="true"><span class="where-text"></span></p>
+
+  <!-- ============ CV ============ -->
+  <!-- The CV opens over the page from the "View my CV" button (initCV in main.js); text lives in i18n.js.
+       EDIT: to update the downloadable PDF, replace files/Marcos-Canellas-CV.pdf -->
+  <dialog class="cv-modal" id="cv" aria-labelledby="cv-modal-title" data-lenis-prevent>
+    <div class="cv-modal-bar">
+      <h2 class="mono" id="cv-modal-title" data-i18n="cv.label">CV</h2>
+      <div class="cv-modal-actions">
+        <a class="btn" href="files/Marcos-Canellas-CV.pdf" download><span class="btn-label" data-i18n="cv.download">Download CV (PDF)</span><span class="btn-arrow" aria-hidden="true">↓</span></a>
+        <button type="button" class="cv-close" data-cv-close aria-label="Close CV" data-i18n-attr="aria-label:cv.close"><span aria-hidden="true">✕</span></button>
+      </div>
+    </div>
       <div class="cv-desk">
         <article class="cv-sheet" aria-label="Curriculum vitae" data-i18n-attr="aria-label:cv.aria">
           <span class="cv-glare" aria-hidden="true"></span>
@@ -484,69 +544,7 @@
           </footer>
         </article>
       </div>
-    </section>
-
-    <!-- ============ FAQ ============ -->
-    <!-- EDIT: adjust the answers in i18n.js to match how you work -->
-    <section class="section faq" id="faq">
-      <div class="faq-layout">
-        <div class="section-head">
-          <span class="mono label"><span class="lnum">(07) </span><span data-i18n="faq.label">FAQ</span></span>
-          <h2 class="title" data-i18n-html="faq.title">Frequently asked<br><em>questions</em></h2>
-        </div>
-        <div class="faq-list">
-          <details><summary data-i18n="q1">How long does a website take?</summary><p data-i18n="a1">It depends on the size of the project — a one-page site is quicker than a multi-page site or an online shop. You'll get a clear timeline together with your quote.</p></details>
-          <details><summary data-i18n="q2">What do you need from me?</summary><p data-i18n="a2">Your logo, any text and photos you already have, and a few examples of websites you like. I'll guide you through everything else.</p></details>
-          <details><summary data-i18n="q3">Will I be able to update the website myself?</summary><p data-i18n="a3">Yes. If you need to change content regularly, I'll set the site up so you can edit it easily and show you how.</p></details>
-          <details><summary data-i18n="q4">Do you offer support after launch?</summary><p data-i18n="a4">Yes. Care &amp; support covers updates, improvements and fixes so your website keeps performing.</p></details>
-          <details><summary data-i18n="q5">How do we get started?</summary><p data-i18n="a5">Send me an email with a short description of your business and what you need. I'll reply within 24 hours to arrange a call.</p></details>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ CONTACT ============ -->
-    <section class="section contact" id="contact">
-      <span class="mono label"><span class="lnum">(08) </span><span data-i18n="contact.label">Contact</span></span>
-      <h2 class="contact-title">
-        <span class="line"><span data-i18n="contact.l1">Let's work</span></span>
-        <span class="line"><span><em data-i18n="contact.l2">together.</em></span></span>
-      </h2>
-      <p class="contact-lead" data-i18n="contact.lead">Tell me about your business and your goals. I'll reply within 24 hours with ideas and a clear quote.</p>
-      <div class="contact-grid">
-        <!-- Sending opens the visitor's email app with the enquiry filled in -->
-        <form class="contact-form" data-email="Marcos.galarraga122@outlook.com">
-          <div class="field"><label for="cf-name" data-i18n="form.name">Name</label><input id="cf-name" name="name" required autocomplete="name"></div>
-          <div class="field"><label for="cf-email" data-i18n="form.email">Email</label><input id="cf-email" name="email" type="email" required autocomplete="email"></div>
-          <div class="field full"><label for="cf-company" data-i18n-html="form.company">Company <span>(optional)</span></label><input id="cf-company" name="company" autocomplete="organization"></div>
-          <div class="field full"><label for="cf-msg" data-i18n="form.msg">About your project</label><textarea id="cf-msg" name="message" rows="5" required placeholder="What does your business do, and what should the website achieve?" data-i18n-attr="placeholder:form.placeholder"></textarea></div>
-          <div class="form-foot full">
-            <button class="btn" type="submit"><span class="btn-label" data-i18n="form.send">Send enquiry</span><span class="btn-arrow" aria-hidden="true">→</span></button>
-            <p class="form-note" data-i18n="form.note">Opens your email app with your message ready to send.</p>
-          </div>
-        </form>
-
-        <aside class="contact-side">
-          <div><p class="mono" data-i18n="side.email">Email</p>
-            <button class="copy-email" type="button" data-email="Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com <span class="copy-state mono" data-i18n="copy">Copy</span></button>
-          </div>
-          <!-- EDIT: phone number goes here (waiting for the real number), e.g.
-          <div><p class="mono" data-i18n="side.phone">Phone</p><a class="contact-phone" href="tel:+34600000000">+34 600 000 000</a></div>
-          -->
-          <div><p class="mono" data-i18n="side.location">Based in</p><p data-i18n="side.locationVal">Madrid</p></div>
-          <div><p class="mono" data-i18n="side.response">Response time</p><p data-i18n="side.responseVal">Within 24 hours</p></div>
-          <div><p class="mono" data-i18n="side.availability">Availability</p><p><span class="status-dot"></span><span data-i18n="side.availabilityVal">Taking on new projects</span></p></div>
-        </aside>
-      </div>
-      <!-- EDIT: add your social profiles here when ready, e.g.
-      <ul class="socials">
-        <li><a href="https://www.linkedin.com/in/your-profile" class="roll"><span data-text="LinkedIn">LinkedIn</span></a></li>
-      </ul>
-      -->
-    </section>
-  </main>
-
-  <!-- "You are here": the current section's number and name (initSectionIndex in main.js) -->
-  <p class="where mono" aria-hidden="true"><span class="where-text"></span></p>
+  </dialog>
 
   <footer class="footer mono">
     <span>© <span class="year">2026</span> Marcos Cañellas. <span data-i18n="footer.rights">All rights reserved.</span></span>
