@@ -317,7 +317,7 @@ function initShader() {
    once everything has settled the simulation sleeps until something changes. */
 function initPortrait() {
   const section = $(".portrait");
-  const canvas = $(".portrait-canvas");
+  const canvas = $(".portrait-canvas"), hint = $(".portrait-hint", section);
   const data = window.PORTRAIT;
   const gl = data && canvas.getContext("webgl", { antialias: false, premultipliedAlpha: false });
   if (!gl) { section.remove(); return; } // no data or no WebGL: leave the section out entirely
@@ -407,8 +407,14 @@ function initPortrait() {
     H = canvas.height = Math.floor(canvas.clientHeight * dpr);
     gl.viewport(0, 0, W, H);
     const wide = canvas.clientWidth >= 900;
-    const S = wide ? Math.min(H * 0.82, W * 0.5) : Math.min(W * 0.92, H * 0.5);
-    const cx = wide ? W * 0.68 : W / 2, cy = wide ? H / 2 : H * 0.7;
+    let S = wide ? Math.min(H * 0.82, W * 0.5) : Math.min(W * 0.92, H * 0.5);
+    let cx = wide ? W * 0.68 : W / 2, cy = wide ? H / 2 : H * 0.7;
+    if (!wide) {
+      // Below the text: the picture keeps a gap under the hint, moving down (and on short
+      // screens shrinking) rather than ever sliding under it
+      const free = (hint.offsetTop + hint.offsetHeight + 24) * dpr, floor = H * 0.97;
+      if (cy - S / 2 < free) { S = Math.min(S, floor - free); cy = free + S / 2; }
+    }
     homeCx = cx; homeCy = cy;
     cell = S / G;
     const far = Math.hypot(W, H); // scattered particles start fully off-screen
@@ -426,6 +432,8 @@ function initPortrait() {
   };
   layout();
   addEventListener("resize", layout);
+  // The hint can change height when the fonts arrive or the language changes
+  new ResizeObserver(() => layout()).observe(hint);
 
   // Scroll progress: 0 = exploded, 1 = fully assembled.
   // Measured in screen heights from when the section's top reaches the bottom of the screen
