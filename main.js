@@ -5,6 +5,62 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const finePointer = matchMedia("(pointer: fine)").matches;
 const hasGSAP = !!(window.gsap && window.ScrollTrigger);
 if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
+// The scripts arrived: stand down the CSS safety net that would open the page by itself at 7 s
+// (styles.css). If they took longer than that, the net has already opened it and stays.
+const bootedLate = performance.now() > 6500;
+if (!bootedLate) document.documentElement.classList.add("js-boot");
+
+/* ---------- Adaptive quality ----------
+   Three tiers: "high" is the full experience; "standard" keeps the same design with lighter
+   rendering (fewer particles, a softer-resolution background); "low" puts smooth scrolling
+   first, so the heaviest effects use their lightweight versions (no water intro, no grain,
+   no frosted-glass blurs). The starting tier comes from what the browser reports; after that
+   the frame rate the device actually achieves decides. Within a visit it only ever steps down,
+   so qualities never flicker back and forth. ?quality=high|standard|low forces a tier. */
+const QUALITIES = ["low", "standard", "high"];
+let quality = (() => {
+  const forced = new URLSearchParams(location.search).get("quality");
+  if (QUALITIES.includes(forced)) return forced;
+  const cores = navigator.hardwareConcurrency || 4, memory = navigator.deviceMemory || 8; // deviceMemory: Chromium only
+  // (Graphics that are missing or software-rendered also mean "low": initShader finds out)
+  if (!window.WebGLRenderingContext || navigator.connection?.saveData || cores <= 2 || memory <= 2) return "low";
+  if (cores < 8 || memory < 8 || matchMedia("(max-width: 899px)").matches) return "standard";
+  return "high";
+})();
+document.documentElement.dataset.quality = quality;
+const setQuality = (q) => {
+  if (QUALITIES.indexOf(q) >= QUALITIES.indexOf(quality)) return;
+  quality = q;
+  document.documentElement.dataset.quality = q;
+  document.dispatchEvent(new CustomEvent("qualitychange", { detail: q }));
+};
+// Watches the frame rate in short windows (after the intro, and while scrolling) and steps
+// down a tier when the median frame stays above ~22 ms (under ~45 fps). Gives up once a few
+// windows in a row have been smooth, so it costs nothing for the rest of the visit.
+function watchFrameRate() {
+  let samples = [], last = 0, running = false, calm = 0, until = 0, since = 0;
+  const tick = (now) => {
+    if (last && !document.hidden) { const dt = now - last; if (dt < 1000) samples.push(dt); }
+    last = now;
+    since ||= now;
+    // A window is 90 frames, or 1.5 s on a device too slow to show 90 in that time
+    if (samples.length >= 90 || (samples.length >= 8 && now - since > 1500)) {
+      const sorted = samples.sort((a, b) => a - b), median = sorted[sorted.length >> 1];
+      samples = []; since = 0;
+      if (median > 22 && quality !== "low") { setQuality(QUALITIES[QUALITIES.indexOf(quality) - 1]); calm = 0; }
+      else calm++;
+    }
+    if (calm >= 3 || quality === "low" || now > until) { running = false; last = 0; since = 0; samples = []; return; }
+    requestAnimationFrame(tick);
+  };
+  const arm = (ms) => {
+    if (calm >= 3 || quality === "low") return;
+    until = Math.max(until, performance.now() + ms);
+    if (!running) { running = true; requestAnimationFrame(tick); }
+  };
+  arm(6000);
+  addEventListener("scroll", () => arm(2500), { passive: true });
+}
 // Every fresh load starts at the very top. The browser, a leftover #hash and ScrollTrigger's
 // own scroll memory can each restore an old position, so all three are switched off here.
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -107,9 +163,12 @@ function applyTranslations() {
   $('meta[name="description"]').setAttribute("content", t("meta.desc"));
 }
 
-// Phones and machines with fewer than 8 cores get every second pixel (a quarter of the particles)
-const PORTRAIT_STEP = matchMedia("(max-width: 899px)").matches || (navigator.hardwareConcurrency || 8) < 8 ? 2 : 1;
-const portraitGrid = () => (window.PORTRAIT ? Math.ceil(window.PORTRAIT.w / PORTRAIT_STEP) : 0);
+// The portrait's colours: a 450 x 450 photo, one particle per pixel at the high tier, every
+// second pixel (a quarter of the particles) at standard, every third at low. Fixed at load,
+// so the particle count in the text always matches what is drawn.
+const PORTRAIT_SRC = "images/portrait-particles.jpg", PORTRAIT_SIZE = 450;
+let portraitStep = 0; // settled on first use, after initShader has had its say on the tier
+const portraitGrid = () => Math.ceil(PORTRAIT_SIZE / (portraitStep ||= { high: 1, standard: 2, low: 3 }[quality]));
 
 const roles = () => t("roles") || ["Web Developer", "Web Designer", "UI / UX Designer", "Digital Partner"];
 
@@ -126,6 +185,11 @@ if (window.Lenis && !reduceMotion) {
     requestAnimationFrame(raf);
   }
 }
+// Where smooth scrolling moves the page (mouse and trackpad), pinned sections are held in
+// place with transforms, updated in the same frame as the scroll: browsers count a section
+// switching to position: fixed as a layout shift, though nothing visibly moves. Touch
+// scrolling is native and runs ahead of scripts, so there the fixed pins stay (no wobble).
+if (hasGSAP && lenis && finePointer) ScrollTrigger.defaults({ pinType: "transform" });
 
 $$('a[href^="#"]').forEach((a) =>
   a.addEventListener("click", (e) => {
@@ -141,8 +205,14 @@ $$('a[href^="#"]').forEach((a) =>
 /* ---------- WebGL hero background ---------- */
 function initShader() {
   const canvas = $(".hero-canvas");
-  const gl = canvas.getContext("webgl", { antialias: false });
+  // A context the browser would only software-render (no usable GPU) means the low tier
+  let gl = canvas.getContext("webgl", { antialias: false, failIfMajorPerformanceCaveat: true });
+  if (!gl) { setQuality("low"); gl = canvas.getContext("webgl", { antialias: false }); }
   if (!gl) { canvas.classList.add("fallback"); return; }
+  // Phones can take the graphics context away (a backgrounded tab, low memory): fall back to
+  // the CSS gradient in the same colours rather than leave a blank hero
+  let lost = false;
+  canvas.addEventListener("webglcontextlost", () => { lost = true; canvas.classList.add("fallback"); });
 
   const vert = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
   const frag = `
@@ -155,7 +225,8 @@ function initShader() {
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
       return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}
-    float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p*=2.;a*=.5;}return v;}
+    uniform float oct, nt; // octaves of cloud detail, cursor ripples traced (both by quality tier)
+    float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){if(float(i)>=oct)break;v+=a*noise(p);p*=2.;a*=.5;}return v*(.96875/(1.-pow(.5,oct)));}
     void main(){
       vec2 uv=gl_FragCoord.xy/r;
       vec2 p=(gl_FragCoord.xy-.5*r)/r.y;
@@ -166,6 +237,7 @@ function initShader() {
       vec2 disp=vec2(0.);
       float ring=0.;
       for(int i=0;i<16;i++){
+        if(float(i)>=nt)break;
         float age=s-tr[i].z;
         if(age>0.&&age<1.3){
           vec2 dv=p-(tr[i].xy-.5*r)/r.y;
@@ -229,6 +301,7 @@ function initShader() {
   const uV = gl.getUniformLocation(prog, "v");
   const uTr = gl.getUniformLocation(prog, "tr");
   const uLt = gl.getUniformLocation(prog, "lt");
+  const uOct = gl.getUniformLocation(prog, "oct"), uNt = gl.getUniformLocation(prog, "nt");
   const uW = ["uProf", "uProfS", "uProfA", "dp", "wc", "wk"].map((n) => gl.getUniformLocation(prog, n));
   let profTex = null; // the intro's wave profile, uploaded each frame while it plays
   const setTheme = () => gl.uniform1f(uLt, document.documentElement.dataset.theme === "light" ? 1 : 0);
@@ -238,16 +311,27 @@ function initShader() {
 
   const start = performance.now();
 
-  // Render at reduced resolution — the soft gradient doesn't need full detail
-  const scale = Math.min(devicePixelRatio, 2) * 0.5;
+  // Render at reduced resolution — the soft gradient doesn't need full detail. Lower tiers
+  // render fewer pixels and octaves, trace fewer cursor ripples, and the low tier draws at
+  // 30 fps (the clouds drift slowly enough not to show it)
+  const TIER = { high: [0.5, 5, 16, 1], standard: [0.4, 4, 12, 1], low: [0.3, 3, 8, 2] };
+  let scale, every = 1, skip = 0;
   let w, h;
+  const applyQuality = () => {
+    const [k, oct, nt, ev] = TIER[quality];
+    scale = Math.min(devicePixelRatio, quality === "low" ? 1.5 : 2) * k;
+    every = ev;
+    gl.uniform1f(uOct, oct); gl.uniform1f(uNt, nt);
+    resize();
+  };
   const resize = () => {
     w = canvas.width = Math.max(1, Math.floor(canvas.clientWidth * scale));
     h = canvas.height = Math.max(1, Math.floor(canvas.clientHeight * scale));
     gl.viewport(0, 0, w, h);
   };
-  resize();
+  applyQuality();
   addEventListener("resize", resize);
+  document.addEventListener("qualitychange", () => { applyQuality(); if (!running) frame(performance.now()); });
 
   const mouse = { x: 0.7, y: 0.6 }, smooth = { ...mouse }, vel = { x: 0, y: 0 };
   let prevX = null, prevY = null;
@@ -270,11 +354,17 @@ function initShader() {
     }
   });
 
-  let visible = true;
-  new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(canvas);
+  // The loop runs only while the hero is on screen, and restarts when it comes back
+  let visible = true, running = false;
+  new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting;
+    if (visible && !running && !reduceMotion) { running = true; requestAnimationFrame(frame); }
+  }).observe(canvas);
 
   const frame = (now) => {
-    if (visible) {
+    if (!visible || lost) { running = false; return; }
+    if (every > 1 && skip++ % every) { if (!reduceMotion) requestAnimationFrame(frame); return; }
+    {
       smooth.x += (mouse.x - smooth.x) * 0.05;
       smooth.y += (mouse.y - smooth.y) * 0.05;
       gl.uniform2f(uR, w, h);
@@ -305,6 +395,7 @@ function initShader() {
     }
     if (!reduceMotion) requestAnimationFrame(frame);
   };
+  running = true;
   requestAnimationFrame(frame);
   // Switch palettes with the theme (with reduced motion the single still frame is redrawn)
   document.addEventListener("themechange", () => { setTheme(); if (reduceMotion) frame(performance.now()); });
@@ -318,23 +409,38 @@ function initShader() {
 function initPortrait() {
   const section = $(".portrait");
   const canvas = $(".portrait-canvas"), hint = $(".portrait-hint", section);
-  const data = window.PORTRAIT;
-  const gl = data && canvas.getContext("webgl", { antialias: false, premultipliedAlpha: false });
-  if (!gl) { section.remove(); return; } // no data or no WebGL: leave the section out entirely
+  const gl = canvas.getContext("webgl", { antialias: false, premultipliedAlpha: false });
+  if (!gl) { section.remove(); return; } // no WebGL: leave the section out entirely
+  // If the graphics context is taken away (see initShader), the particles stop and the
+  // section keeps its text
+  canvas.addEventListener("webglcontextlost", () => { ready = false; });
   // Draw on a full-screen layer outside the (pinned) section, so particles are never
   // clipped by section edges — they only vanish when they fly off the screen
   document.body.append(canvas);
 
   const G = portraitGrid(); // particles per side
   const N = G * G;
-  const raw = atob(data.rgb);
-  const colors = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    const sx = Math.min(data.w - 1, (i % G) * PORTRAIT_STEP);
-    const sy = Math.min(data.h - 1, ((i / G) | 0) * PORTRAIT_STEP);
-    const src = (sy * data.w + sx) * 3;
-    for (let k = 0; k < 3; k++) colors[i * 3 + k] = raw.charCodeAt(src + k) / 255;
-  }
+  // The colours arrive with the photo, which downloads alongside the page without holding it
+  // up; until then the section is set up but draws nothing
+  let ready = false;
+  const photo = new Image();
+  photo.src = PORTRAIT_SRC;
+  photo.decode().then(() => {
+    const S = PORTRAIT_SIZE, c = document.createElement("canvas");
+    c.width = c.height = S;
+    const x = c.getContext("2d", { willReadFrequently: true });
+    x.drawImage(photo, 0, 0, S, S);
+    const px = x.getImageData(0, 0, S, S).data, colors = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) {
+      const src = (Math.min(S - 1, ((i / G) | 0) * portraitStep) * S + Math.min(S - 1, (i % G) * portraitStep)) * 4;
+      for (let k = 0; k < 3; k++) colors[i * 3 + k] = px[src + k] / 255;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+    ready = true;
+    idle = false;
+    if (visible && !running) { running = true; requestAnimationFrame(frame); }
+  }).catch(() => { section.remove(); if (hasGSAP) ScrollTrigger.refresh(); }); // e.g. opened from disk, where browsers refuse to read the photo's pixels
 
   const vert = `
     attribute vec2 a_pos; attribute vec3 a_col;
@@ -375,7 +481,7 @@ function initPortrait() {
 
   const colBuf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
-  gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, N * 12, gl.STATIC_DRAW);
   const aCol = gl.getAttribLocation(prog, "a_col");
   gl.enableVertexAttribArray(aCol);
   gl.vertexAttribPointer(aCol, 3, gl.FLOAT, false, 0, 0);
@@ -483,6 +589,7 @@ function initPortrait() {
   });
 
   const frame = () => {
+    if (!ready) { running = false; return; }
     // The picture follows the section as it scrolls in and out of view
     const top = section.getBoundingClientRect().top;
     const offset = (document.documentElement.classList.contains("portal-on") ? Math.min(0, top) : top) * dpr;
@@ -557,7 +664,7 @@ function initPortrait() {
   let visible = false, running = false;
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
-    if (visible && !running) { running = true; idle = false; requestAnimationFrame(frame); }
+    if (visible && !running && ready) { running = true; idle = false; requestAnimationFrame(frame); }
   }, { rootMargin: "150% 0px 150% 0px" }).observe(section);
 }
 
@@ -588,10 +695,11 @@ function measureCounter(ch) {
   x.fillText(ch.textContent, pad, pad + r.height / 2);
   const d = x.getImageData(0, 0, w, h).data;
   const ink = (px, py) => d[(py * w + px) * 4 + 3] > 128;
-  let x0 = w, y0 = h, x1 = 0, y1 = 0;
-  for (let py = 0; py < h; py++) for (let px = 0; px < w; px++) {
-    if (ink(px, py)) { if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py; }
-  }
+  // The letter's ink box comes from the font's own metrics, so only four lines of pixels
+  // are scanned below, not the whole (very large) letter
+  const m = x.measureText(ch.textContent);
+  const x0 = Math.max(0, Math.floor(pad - m.actualBoundingBoxLeft)), x1 = Math.min(w - 1, Math.ceil(pad + m.actualBoundingBoxRight));
+  const y0 = Math.max(0, Math.floor(pad + r.height / 2 - m.actualBoundingBoxAscent)), y1 = Math.min(h - 1, Math.ceil(pad + r.height / 2 + m.actualBoundingBoxDescent));
   const fallback = { cx: r.left + r.width / 2, cy: r.top + r.height * 0.6, rx: r.width * 0.2, ry: r.height * 0.15 };
   if (x1 <= x0) return fallback;
   const mx = Math.round((x0 + x1) / 2), my = Math.round((y0 + y1) / 2);
@@ -661,7 +769,7 @@ function initPortal(chars) {
     for (const [el, dir] of [[top, -1], [bottom, 1]]) {
       el.style.opacity = t > 0 ? 1 - ui : "";
       el.style.transform = t > 0 ? `translateY(${dir * 70 * ui}px) scale(${1 + 0.12 * ui})` : "";
-      el.style.filter = t > 0 ? `blur(${8 * ui}px)` : "";
+      el.style.filter = t > 0 && quality !== "low" ? `blur(${8 * ui}px)` : "";
     }
     heroCanvas.style.transformOrigin = `${m.cx + dx}px ${m.cy + dy}px`;
     heroCanvas.style.transform = t > 0 ? `scale(${1 + 0.35 * t})` : "";
@@ -1053,7 +1161,10 @@ function initScramble() {
   const el = $(".scramble");
   el.textContent = roles()[0];
   scramble = new Scramble(el);
+  let onScreen = true;
+  new IntersectionObserver(([e]) => (onScreen = e.isIntersecting)).observe(el);
   setInterval(() => {
+    if (!onScreen || document.hidden) return;
     roleIndex = (roleIndex + 1) % roles().length;
     scramble.set(roles()[roleIndex]);
   }, 3500);
@@ -1082,19 +1193,29 @@ function initNameFit() {
 function initNameWeight(chars) {
   if (!finePointer || reduceMotion) return;
   const name = $(".hero-name");
-  addEventListener("pointermove", (e) => {
+  // Pointer events can arrive several times a frame: keep the latest and update once per
+  // frame, measuring every letter first and only then restyling them (measuring between
+  // style changes would make the browser lay the name out again for every letter)
+  let px = 0, py = 0, queued = false;
+  const update = () => {
+    queued = false;
     // Paused only once the zoom into the "o" is really under way (smooth scrolling can
     // leave the page a fraction of a pixel from the top, which used to switch it off)
     if (scrollY > innerHeight || portalT > PORTAL_HOVER_LIMIT || document.documentElement.classList.contains("intro-active")) return;
     const base = parseFloat(getComputedStyle(name).fontWeight);
-    chars.forEach((c) => {
+    const near = chars.map((c) => {
       const r = c.getBoundingClientRect();
-      const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
-      const near = Math.max(0, 1 - d / 350);
-      c.style.fontWeight = near > 0 ? Math.round(base - 400 * near) : "";
-      c.style.scale = (1 + 0.15 * near).toFixed(3);
-      c.style.color = near > 0.6 ? "var(--accent)" : "";
+      return Math.max(0, 1 - Math.hypot(px - (r.left + r.width / 2), py - (r.top + r.height / 2)) / 350);
     });
+    chars.forEach((c, i) => {
+      c.style.fontWeight = near[i] > 0 ? Math.round(base - 400 * near[i]) : "";
+      c.style.scale = (1 + 0.15 * near[i]).toFixed(3);
+      c.style.color = near[i] > 0.6 ? "var(--accent)" : "";
+    });
+  };
+  addEventListener("pointermove", (e) => {
+    px = e.clientX; py = e.clientY;
+    if (!queued) { queued = true; requestAnimationFrame(update); }
   });
 }
 
@@ -1144,17 +1265,21 @@ function initMarquee() {
   const track = $(".marquee-track");
   renderMarquee();
   if (reduceMotion) return;
-  let x = 0, speed = 0;
+  let x = 0, speed = 0, quarter = 0, onScreen = false, running = false;
+  new ResizeObserver(() => (quarter = track.scrollWidth / 4)).observe(track);
   const loop = () => {
+    if (!onScreen) { running = false; return; }
     const v = lenis ? Math.abs(lenis.velocity) : 0;
     speed += (0.5 + Math.min(v, 40) * 0.12 - speed) * 0.08;
     x -= speed;
-    const quarter = track.scrollWidth / 4;
-    if (-x >= quarter) x += quarter;
+    if (quarter && -x >= quarter) x += quarter;
     track.style.transform = `translate3d(${x}px,0,0)`;
     requestAnimationFrame(loop);
   };
-  loop();
+  new IntersectionObserver(([e]) => {
+    onScreen = e.isIntersecting;
+    if (onScreen && !running) { running = true; requestAnimationFrame(loop); }
+  }).observe(track.parentElement);
 }
 
 /* ---------- Enquiry form: opens the visitor's email app with the message filled in ---------- */
@@ -1351,11 +1476,13 @@ function initScrollAnimations(aboutWords) {
 
     // Content: elements entering together are batched and staggered 60ms apart;
     // a light blur bridges the fade so it reads as one smooth motion
-    gsap.set(".reveal-up", { opacity: 0, y: 24, filter: "blur(6px)" });
+    // (The low tier skips the blur: animating it is costly on weak graphics hardware)
+    const blur = quality !== "low";
+    gsap.set(".reveal-up", { opacity: 0, y: 24, ...(blur && { filter: "blur(6px)" }) });
     ScrollTrigger.batch(".reveal-up", {
       start: "top 88%", once: true,
       onEnter: (els) => gsap.to(els, {
-        opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, stagger: 0.06, ease: "power4.out",
+        opacity: 1, y: 0, ...(blur && { filter: "blur(0px)" }), duration: 0.9, stagger: 0.06, ease: "power4.out",
         clearProps: "filter",
       }),
     });
@@ -1390,6 +1517,7 @@ function intro(chars, fitName) {
   const overlay = $(".intro");
   const root = document.documentElement;
   const finish = () => {
+    watchFrameRate();
     overlay.remove();
     root.classList.remove("intro-active");
     document.body.classList.remove("loading");
@@ -1417,24 +1545,26 @@ function intro(chars, fitName) {
   // Reduced motion: a simple fade, no drop or movement
   if (reduceMotion) { gsap.to(overlay, { opacity: 0, duration: 0.3, onComplete: finish }); return; }
 
-  // The drop plays once per visitor; later visits get the short reveal (add ?intro to the address to see it again)
+  // The drop plays once per visitor; later visits get the short reveal (add ?intro to the address to see it again).
+  // The low tier gets the short reveal too, as does a visit whose scripts took so long to
+  // arrive that the page was already opened by the safety net in styles.css
   let played = false;
   try { played = localStorage.getItem("introPlayed") === "1"; } catch {}
   if (new URLSearchParams(location.search).has("intro")) played = false;
-  if (played) { quickReveal(); return; }
+  if (played || quality === "low" || bootedLate) { quickReveal(); return; }
 
   root.classList.add("intro-active");
-  const run = typeof waterIntro === "function" ? waterIntro({ overlay, chars, fitName }) : Promise.resolve(false);
+  const run = typeof waterIntro === "function" ? waterIntro({ overlay, chars, fitName, onStruggle: () => setQuality("low") }) : Promise.resolve(false);
   run.then((ok) => (ok ? finish() : (root.classList.remove("intro-active"), quickReveal())));
 }
 
 /* ---------- Boot ---------- */
+initShader(); // first: it settles the quality tier if the graphics turn out to be software-rendered
 applyTranslations(); // before any text is split into letters/words
 const nameChars = $$(".name-line").flatMap(splitChars);
 const aboutWords = splitWords($(".about-text"));
 $(".year").textContent = new Date().getFullYear();
 
-initShader();
 initScramble();
 const fitName = initNameFit();
 initNameWeight(nameChars);

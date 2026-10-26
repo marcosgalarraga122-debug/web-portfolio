@@ -12,7 +12,9 @@
   <script>try { var th = localStorage.getItem("theme"); if (th === "light" || th === "dark") document.documentElement.dataset.theme = th; } catch (e) {}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..800;1,9..144,200..800&family=Inter+Tight:wght@300..800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..800;1,9..144,200..800&family=Inter+Tight:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230e1612'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='40' fill='%23c9a66b'%3EM%3C/text%3E%3C/svg%3E">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Marcos Cañellas — Web Developer & Designer">
@@ -113,7 +115,7 @@
     </section>
 
     <!-- ============ PARTICLE PORTRAIT ============ -->
-    <!-- The photo is rebuilt from the pixel colours in portrait-data.js -->
+    <!-- The photo is rebuilt from the pixel colours of images/portrait-particles.jpg (450 x 450) -->
     <section class="portrait" id="portrait" aria-label="Interactive particle portrait of Marcos" data-i18n-attr="aria-label:portrait.aria">
       <canvas class="portrait-canvas" aria-hidden="true"></canvas>
       <div class="portrait-copy">
@@ -141,8 +143,15 @@
       <div class="about-grid">
         <p class="about-text" data-i18n="about.text">I'm Marcos, a web developer and designer who helps businesses stand out online. I combine clear design, smooth interaction and clean, reliable code to deliver fast websites that represent your brand professionally and turn visitors into clients.</p>
         <div class="about-photos">
-          <figure class="photo photo-main"><img src="images/marcos-suit-portrait.jpg" alt="Marcos in a navy suit and green tie" data-i18n-attr="alt:about.alt1" loading="lazy"></figure>
-          <figure class="photo photo-second"><img src="images/marcos-suit-ivy.jpg" alt="Marcos standing in front of an ivy-covered wall" data-i18n-attr="alt:about.alt2" loading="lazy"></figure>
+          <!-- Each photo comes in two widths, as AVIF with a JPEG fallback, so phones download the small one -->
+          <figure class="photo photo-main"><picture>
+            <source type="image/avif" srcset="images/marcos-suit-portrait-480.avif 480w, images/marcos-suit-portrait-860.avif 860w" sizes="(max-width: 899px) 70vw, 430px">
+            <img src="images/marcos-suit-portrait-480.jpg" srcset="images/marcos-suit-portrait-480.jpg 480w, images/marcos-suit-portrait-860.jpg 860w" sizes="(max-width: 899px) 70vw, 430px" width="860" height="1261" alt="Marcos in a navy suit and green tie" data-i18n-attr="alt:about.alt1" loading="lazy" decoding="async">
+          </picture></figure>
+          <figure class="photo photo-second"><picture>
+            <source type="image/avif" srcset="images/marcos-suit-ivy-280.avif 280w, images/marcos-suit-ivy-520.avif 520w" sizes="(max-width: 899px) 40vw, 240px">
+            <img src="images/marcos-suit-ivy-280.jpg" srcset="images/marcos-suit-ivy-280.jpg 280w, images/marcos-suit-ivy-520.jpg 520w" sizes="(max-width: 899px) 40vw, 240px" width="520" height="775" alt="Marcos standing in front of an ivy-covered wall" data-i18n-attr="alt:about.alt2" loading="lazy" decoding="async">
+          </picture></figure>
           <span class="photo-tag mono"><i></i><span data-i18n="about.tag">Marcos — Web Developer</span></span>
         </div>
       </div>
@@ -566,7 +575,6 @@
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script defer src="i18n.js"></script>
-  <script defer src="portrait-data.js"></script>
   <script defer src="intro.js"></script>
   <script defer src="main.js"></script>
 </body>

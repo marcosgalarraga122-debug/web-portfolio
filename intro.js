@@ -498,7 +498,7 @@ function waterWaves(rd, R, U) {
   return out;
 }
 
-function waterIntro({ overlay, chars, fitName }) {
+function waterIntro({ overlay, chars, fitName, onStruggle }) {
   return new Promise(async (resolve) => {
     const q = (s) => document.querySelector(s), qa = (s) => [...document.querySelectorAll(s)];
     const params = new URLSearchParams(location.search);
@@ -859,7 +859,7 @@ function waterIntro({ overlay, chars, fitName }) {
       resolve(true);
     };
     setTimeout(finish, 12000);                                 // never block the page
-    let warm = 0;
+    let warm = 0, warmFrom = 0;
     const frame = (now) => {
       if (done) return;
       // Hold the first frame until frames arrive at a steady pace (the GPU finishes preparing
@@ -867,7 +867,8 @@ function waterIntro({ overlay, chars, fitName }) {
       if (!start) {
         const steady = last && now - last < 34;
         last = now;
-        if (!steady && ++warm < 10) { render(0); requestAnimationFrame(frame); return; }
+        warmFrom ||= now;
+        if (!steady && ++warm < 10 && now - warmFrom < 600) { render(0); requestAnimationFrame(frame); return; }
         start = now;
       }
       if (last && last !== start) {
@@ -875,9 +876,13 @@ function waterIntro({ overlay, chars, fitName }) {
         times.push([now - start, dt]);
         // Too slow for this device? Render fewer pixels (the scene is soft enough to take it).
         // Checked all the way through, since the splash costs more than the opening.
-        if (times.length % 20 === 0) {
-          const s = times.slice(-20).map((x) => x[1]).sort((a, b) => a - b), med = s[10];
-          if (med > 20 && pxScale > 0.6) { pxScale = Math.max(0.6, pxScale * (med > 30 ? 0.7 : 0.85)); resize(); }
+        // (First after 8 frames, then every 20: a very slow device may only manage a dozen)
+        if (times.length % 20 === 0 || times.length === 8) {
+          const s = times.slice(-20).map((x) => x[1]).sort((a, b) => a - b), med = s[s.length >> 1];
+          // Under ~22 fps, or under ~28 at the lowest resolution: this device can't carry the
+          // scene, so the water fades away now (as if skipped) and the rest of the site runs lighter
+          if ((med > 45 || (med > 36 && pxScale <= 0.6)) && !skipAt) { skipAt = now; onStruggle && onStruggle(); }
+          else if (med > 20 && pxScale > 0.6) { pxScale = Math.max(0.6, pxScale * (med > 30 ? 0.7 : 0.85)); resize(); }
         }
       }
       last = now;
