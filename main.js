@@ -12,7 +12,7 @@ if (!bootedLate) document.documentElement.classList.add("js-boot");
 
 /* ---------- Adaptive quality ----------
    Three tiers: "high" is the full experience; "standard" keeps the same design with lighter
-   rendering (fewer particles, a softer-resolution background); "low" puts smooth scrolling
+   rendering (a softer-resolution background); "low" puts smooth scrolling
    first, so the heaviest effects use their lightweight versions (no water intro, no grain,
    no frosted-glass blurs). The starting tier comes from what the browser reports; after that
    the frame rate the device actually achieves decides. Within a visit it only ever steps down,
@@ -145,7 +145,7 @@ function applyTranslations() {
   $$("[data-i18n]").forEach((el) => {
     const text = t(el.dataset.i18n);
     if (text == null) return;
-    el.textContent = text.replace("{n}", new Intl.NumberFormat(lang).format(portraitGrid() ** 2));
+    el.textContent = text;
     if (el.hasAttribute("data-text")) el.dataset.text = text;
   });
   $$("[data-i18n-html]").forEach((el) => {
@@ -162,13 +162,6 @@ function applyTranslations() {
   document.title = t("meta.title");
   $('meta[name="description"]').setAttribute("content", t("meta.desc"));
 }
-
-// The portrait's colours: a 450 x 450 photo, one particle per pixel at the high tier, every
-// second pixel (a quarter of the particles) at standard, every third at low. Fixed at load,
-// so the particle count in the text always matches what is drawn.
-const PORTRAIT_SRC = "images/portrait-particles.jpg", PORTRAIT_SIZE = 450;
-let portraitStep = 0; // settled on first use, after initShader has had its say on the tier
-const portraitGrid = () => Math.ceil(PORTRAIT_SIZE / (portraitStep ||= { high: 1, standard: 2, low: 3 }[quality]));
 
 const roles = () => t("roles") || ["Web Developer", "Web Designer", "UI / UX Designer", "Digital Partner"];
 
@@ -401,279 +394,28 @@ function initShader() {
   document.addEventListener("themechange", () => { setTheme(); if (reduceMotion) frame(performance.now()); });
 }
 
-/* ---------- Particle portrait ----------
-   Every pixel of the photo becomes a particle with its own spring. Scrolling
-   assembles them from an explosion; the cursor pushes them aside like sand;
-   a click sends a shockwave. Rendered with WebGL points (up to ~200k particles);
-   once everything has settled the simulation sleeps until something changes. */
-function initPortrait() {
+/* ---------- "This is me" ----------
+   The section the zoom through the "o" lands on. It is pinned for a screen of scroll while
+   the facts come in one by one (see initFacts). Progress is measured in screen heights from
+   when the section's top reaches the bottom of the screen (it's underneath the hero then,
+   seen only through the "o" — see initPortal). */
+function initThisIsMe() {
   const section = $(".portrait");
-  const canvas = $(".portrait-canvas"), hint = $(".portrait-hint", section);
-  const gl = canvas.getContext("webgl", { antialias: false, premultipliedAlpha: false });
-  if (!gl) { section.remove(); return; } // no WebGL: leave the section out entirely
-  // If the graphics context is taken away (see initShader), the particles stop and the
-  // section keeps its text
-  canvas.addEventListener("webglcontextlost", () => { ready = false; });
-  // Draw on a full-screen layer outside the (pinned) section, so particles are never
-  // clipped by section edges — they only vanish when they fly off the screen
-  document.body.append(canvas);
-
-  const G = portraitGrid(); // particles per side
-  const N = G * G;
-  // The colours arrive with the photo, which downloads alongside the page without holding it
-  // up; until then the section is set up but draws nothing
-  let ready = false;
-  const photo = new Image();
-  photo.src = PORTRAIT_SRC;
-  photo.decode().then(() => {
-    const S = PORTRAIT_SIZE, c = document.createElement("canvas");
-    c.width = c.height = S;
-    const x = c.getContext("2d", { willReadFrequently: true });
-    x.drawImage(photo, 0, 0, S, S);
-    const px = x.getImageData(0, 0, S, S).data, colors = new Float32Array(N * 3);
-    for (let i = 0; i < N; i++) {
-      const src = (Math.min(S - 1, ((i / G) | 0) * portraitStep) * S + Math.min(S - 1, (i % G) * portraitStep)) * 4;
-      for (let k = 0; k < 3; k++) colors[i * 3 + k] = px[src + k] / 255;
-    }
-    gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-    ready = true;
-    idle = false;
-    if (visible && !running) { running = true; requestAnimationFrame(frame); }
-  }).catch(() => { section.remove(); if (hasGSAP) ScrollTrigger.refresh(); }); // e.g. opened from disk, where browsers refuse to read the photo's pixels
-
-  const vert = `
-    attribute vec2 a_pos; attribute vec3 a_col;
-    uniform vec2 u_res; uniform float u_size;
-    varying vec3 v_col;
-    void main(){
-      vec2 c=a_pos/u_res*2.-1.;
-      gl_Position=vec4(c.x,-c.y,0.,1.);
-      gl_PointSize=u_size;
-      v_col=a_col;
-    }`;
-  const frag = `
-    precision mediump float;
-    varying vec3 v_col; uniform float u_alpha;
-    void main(){
-      float r=length(gl_PointCoord-.5);
-      if(r>.5) discard;
-      vec3 c=v_col;
-      float l=dot(c,vec3(.299,.587,.114));
-      c=mix(vec3(l),c,1.15);       // a touch of extra saturation, kept understated
-      c=(c-.5)*1.05+.5+.02;        // slight contrast and lift so it reads on the dark background
-      gl_FragColor=vec4(clamp(c,0.,1.),smoothstep(.5,.3,r)*u_alpha);
-    }`;
-  const compile = (type, src) => {
-    const s = gl.createShader(type);
-    gl.shaderSource(s, src);
-    gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(s));
-    return s;
-  };
-  const prog = gl.createProgram();
-  gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
-  gl.linkProgram(prog);
-  gl.useProgram(prog);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-  const colBuf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
-  gl.bufferData(gl.ARRAY_BUFFER, N * 12, gl.STATIC_DRAW);
-  const aCol = gl.getAttribLocation(prog, "a_col");
-  gl.enableVertexAttribArray(aCol);
-  gl.vertexAttribPointer(aCol, 3, gl.FLOAT, false, 0, 0);
-
-  const pos = new Float32Array(N * 2);
-  const posBuf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
-  gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW);
-  const aPos = gl.getAttribLocation(prog, "a_pos");
-  gl.enableVertexAttribArray(aPos);
-  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-  const uRes = gl.getUniformLocation(prog, "u_res");
-  const uSize = gl.getUniformLocation(prog, "u_size");
-  const uAlpha = gl.getUniformLocation(prog, "u_alpha");
-
-  // Per-particle state; random seeds are fixed so a resize doesn't reshuffle the explosion
-  const home = new Float32Array(N * 2), scatter = new Float32Array(N * 2);
-  const vel = new Float32Array(N * 2), delay = new Float32Array(N);
-  const seedA = new Float32Array(N), seedR = new Float32Array(N), seedD = new Float32Array(N);
-  for (let i = 0; i < N; i++) { seedA[i] = Math.random() * Math.PI * 2; seedR[i] = 1.05 + Math.random() * 0.8; seedD[i] = Math.random(); }
-
-  const dpr = Math.min(devicePixelRatio, 2);
-  let W = 0, H = 0, cell = 1, first = true;
-  let idle = false, lastProgress = -1, lastOffset = NaN, lastShift = NaN; // simulation sleeps once particles settle
-  let homeCx = 0, homeCy = 0;
-  const layout = () => {
-    W = canvas.width = Math.floor(canvas.clientWidth * dpr);
-    H = canvas.height = Math.floor(canvas.clientHeight * dpr);
-    gl.viewport(0, 0, W, H);
-    const wide = canvas.clientWidth >= 900;
-    let S = wide ? Math.min(H * 0.82, W * 0.5) : Math.min(W * 0.92, H * 0.5);
-    let cx = wide ? W * 0.68 : W / 2, cy = wide ? H / 2 : H * 0.7;
-    if (!wide) {
-      // Below the text: the picture keeps a gap under the hint, moving down (and on short
-      // screens shrinking) rather than ever sliding under it
-      const free = (hint.offsetTop + hint.offsetHeight + 24) * dpr, floor = H * 0.97;
-      if (cy - S / 2 < free) { S = Math.min(S, floor - free); cy = free + S / 2; }
-    }
-    homeCx = cx; homeCy = cy;
-    cell = S / G;
-    const far = Math.hypot(W, H); // scattered particles start fully off-screen
-    for (let i = 0; i < N; i++) {
-      const gx = i % G, gy = (i / G) | 0;
-      const hx = cx - S / 2 + (gx + 0.5) * cell, hy = cy - S / 2 + (gy + 0.5) * cell;
-      home[i * 2] = hx; home[i * 2 + 1] = hy;
-      scatter[i * 2] = hx + Math.cos(seedA[i]) * seedR[i] * far;
-      scatter[i * 2 + 1] = hy + Math.sin(seedA[i]) * seedR[i] * far;
-      // Assemble from the centre outwards, with a little randomness
-      delay[i] = 0.42 * Math.hypot(hx - cx, hy - cy) / (S * 0.71) + seedD[i] * 0.08;
-    }
-    if (first) { pos.set(scatter); first = false; }
-    idle = false;
-  };
-  layout();
-  addEventListener("resize", layout);
-  // The hint can change height when the fonts arrive or the language changes
-  new ResizeObserver(() => layout()).observe(hint);
-
-  // Scroll progress: 0 = exploded, 1 = fully assembled.
-  // Measured in screen heights from when the section's top reaches the bottom of the screen
-  // (it's underneath the hero then, seen only through the "o" — see initPortal):
-  //   0 → 1    assembles while you travel through the "o", landing as the zoom ends
-  //   1 → 2    holds while the section is pinned, so you can play with it
-  //   2 → 2.5  explodes as you scroll on — the reverse of coming in
-  let progress = hasGSAP && !reduceMotion ? 0 : 1;
-  if (hasGSAP && !reduceMotion) {
-    ScrollTrigger.create({ trigger: section, start: "top top", end: "+=100%", pin: true });
-    const span = 2.5;
-    const updateFacts = initFacts();
-    ScrollTrigger.create({
-      trigger: section, start: "top bottom", end: () => `+=${innerHeight * span}`,
-      onUpdate: (self) => {
-        const s = self.progress * span;
-        const assemble = Math.min(1, s);
-        const explode = Math.min(1, Math.max(0, (s - 2) / 0.5));
-        progress = assemble * (1 - explode);
-        updateFacts(s);
-      },
-    });
-  }
-
-  // Cursor gently parts nearby particles; a click (or tap) on the section sends a shockwave
-  const mouse = { x: 0, y: 0, active: false };
-  addEventListener("pointermove", (e) => {
-    if (e.pointerType !== "mouse") return;
-    const r = section.getBoundingClientRect();
-    mouse.active = e.clientY >= r.top && e.clientY <= r.bottom;
-    mouse.x = e.clientX * dpr; mouse.y = e.clientY * dpr;
-    if (mouse.active) idle = false;
+  if (!section || !hasGSAP || reduceMotion) return;
+  ScrollTrigger.create({ trigger: section, start: "top top", end: "+=100%", pin: true });
+  const span = 2.5, updateFacts = initFacts();
+  ScrollTrigger.create({
+    trigger: section, start: "top bottom", end: () => `+=${innerHeight * span}`,
+    onUpdate: (self) => updateFacts(self.progress * span),
   });
-  document.addEventListener("pointerleave", () => (mouse.active = false));
-  section.addEventListener("pointerdown", (e) => {
-    const x = e.clientX * dpr, y = e.clientY * dpr;
-    const R = 420 * dpr;
-    for (let i = 0; i < N; i++) {
-      const dx = pos[i * 2] - x, dy = pos[i * 2 + 1] - y;
-      const d = Math.hypot(dx, dy) || 1;
-      if (d > R) continue;
-      const f = (1 - d / R) * 36 * dpr;
-      vel[i * 2] += (dx / d) * f;
-      vel[i * 2 + 1] += (dy / d) * f;
-    }
-    idle = false;
-  });
-
-  const frame = () => {
-    if (!ready) { running = false; return; }
-    // The picture follows the section as it scrolls in and out of view
-    const top = section.getBoundingClientRect().top;
-    const offset = (document.documentElement.classList.contains("portal-on") ? Math.min(0, top) : top) * dpr;
-    // Static (reduced-motion) picture: just stop and clear once the section is far away
-    if (!visible && (reduceMotion || !hasGSAP)) { running = false; gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); return; }
-    // Sleep while nothing moves: the canvas keeps showing the last frame. Scrolling only
-    // matters while the picture is (partly) assembled — once fully exploded every particle
-    // is off-screen, so there's nothing to recompute (this was costing ~130k updates per
-    // scroll frame while reading the About section and stats)
-    // While travelling through the "o" (at the centre of the screen), keep the picture centred
-    // inside it, then let it slide to its final place as the zoom completes
-    const portal = document.documentElement.classList.contains("portal-on") && portalT < 1 ? 1 - easeInOutCubic(portalT) : 0;
-    const shiftX = (W / 2 - homeCx) * portal, shiftY = (H / 2 - homeCy) * portal;
-    const exploded = progress === 0 && lastProgress === 0;
-    if (progress !== lastProgress || shiftX !== lastShift || (offset !== lastOffset && !exploded)) idle = false;
-    if (idle) {
-      if (!visible && exploded) { running = false; gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); return; }
-      requestAnimationFrame(frame);
-      return;
-    }
-    lastProgress = progress; lastOffset = offset; lastShift = shiftX;
-    let maxV2 = 0, maxE2 = 0;
-    const pA = progress;
-    const R = 38 * dpr, R2 = R * R, push = 2.2 * dpr;
-    for (let i = 0; i < N; i++) {
-      const ix = i * 2, iy = ix + 1;
-      let l = (pA - delay[i]) / 0.5;
-      l = l < 0 ? 0 : l > 1 ? 1 : l;
-      const e = 1 - (1 - l) * (1 - l) * (1 - l);
-      // Blend from the scattered spot to the picture's current place. The scroll offset only
-      // applies as much as the particle is assembled: a scattered target that followed the page
-      // would drag off-screen particles back through the viewport as you keep scrolling
-      const tx = scatter[ix] + (home[ix] + shiftX - scatter[ix]) * e;
-      const ty = scatter[iy] + (home[iy] + offset + shiftY - scatter[iy]) * e;
-      const ex = tx - pos[ix], ey = ty - pos[iy];
-      let vx = vel[ix] + ex * 0.09;
-      let vy = vel[iy] + ey * 0.09;
-      if (mouse.active) {
-        const dx = pos[ix] - mouse.x, dy = pos[iy] - mouse.y;
-        const d2 = dx * dx + dy * dy;
-        if (d2 < R2) {
-          const d = Math.sqrt(d2) || 1;
-          const f = (1 - d / R) * push;
-          vx += (dx / d) * f; vy += (dy / d) * f;
-        }
-      }
-      vx *= 0.8; vy *= 0.8;
-      const v2 = vx * vx + vy * vy, e2 = ex * ex + ey * ey;
-      if (v2 > maxV2) maxV2 = v2;
-      if (e2 > maxE2) maxE2 = e2;
-      vel[ix] = vx; vel[iy] = vy;
-      pos[ix] += vx; pos[iy] += vy;
-    }
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, pos);
-    gl.uniform2f(uRes, W, H);
-    gl.uniform1f(uSize, Math.max(1.5, cell * 1.02));
-    gl.uniform1f(uAlpha, 1);
-    gl.drawArrays(gl.POINTS, 0, N);
-    // Sleep only once *every* particle has stopped and reached its target. (An average over
-    // all particles let the loop sleep while a few thousand were still in flight, freezing
-    // them mid-screen for seconds after the explosion.)
-    if (maxV2 < 0.01 && maxE2 < 0.25) idle = true;
-    requestAnimationFrame(frame);
-  };
-
-  // Run while the section is near the viewport. When it moves away, the loop only stops
-  // (and clears the layer) once every particle has settled off-screen — never mid-flight,
-  // which is what used to make particles vanish as the stats scrolled into view
-  let visible = false, running = false;
-  new IntersectionObserver(([e]) => {
-    visible = e.isIntersecting;
-    if (visible && !running && ready) { running = true; idle = false; requestAnimationFrame(frame); }
-  }, { rootMargin: "150% 0px 150% 0px" }).observe(section);
 }
 
 /* ---------- Portal: scrolling travels into the "o" of Marcos ----------
    The hero is pinned for 1.6 screens of scroll. Over that distance the camera dollies into
    the "o" (exponential scale, so the speed feels constant) while the "o" glides to the centre
    of the screen. A soft-edged mask opens in the hero exactly where the letter's counter (its
-   hole) is, so through it you see the next section — the particle portrait — which sits
-   underneath the hero, assembling as you approach and landing just as the zoom completes.
+   hole) is, so through it you see the next section — "This is me" — which sits underneath
+   the hero, its text arriving just as the zoom completes.
    Everything is driven by scroll position, so scrolling back up reverses it. */
 let portalT = 0;
 const PORTAL_HOVER_LIMIT = 0.05; // the name's hover effect works until the zoom passes this point
@@ -721,7 +463,6 @@ function initPortal(chars) {
 
   const heroCanvas = $(".hero-canvas");
   const top = $(".hero-top"), bottom = $(".hero-bottom");
-  const world = () => $(".portrait-canvas");      // particle layer (moved to <body> by initPortrait)
   const worldCopy = () => $(".portrait-copy");
   let m = null; // measurements at scale 1, relative to the hero
 
@@ -774,12 +515,6 @@ function initPortal(chars) {
     heroCanvas.style.transformOrigin = `${m.cx + dx}px ${m.cy + dy}px`;
     heroCanvas.style.transform = t > 0 ? `scale(${1 + 0.35 * t})` : "";
 
-    // The world inside the "o" approaches: it grows towards full size as you pass through
-    const w = world();
-    if (w) {
-      w.style.transformOrigin = "50% 50%";
-      w.style.transform = t > 0 && t < 1 ? `scale(${0.78 + 0.22 * easeInOutCubic(t)})` : "";
-    }
     const copy = worldCopy();
     if (copy) copy.style.opacity = t > 0 && t < 1 ? smoothstep(0.8, 1, t) : "";
 
@@ -1106,8 +841,8 @@ function initSectionIndex() {
   $$("main > section").forEach((s) => io.observe(s));
 }
 
-// "This is me" facts: while the portrait is pinned, each row draws its hairline and its value
-// decodes in, one after another; as the picture explodes they leave in reverse order
+// "This is me" facts: while the section is pinned, each row draws its hairline and its value
+// decodes in, one after another; as you scroll on they leave in reverse order
 function initFacts() {
   const rows = $$(".fact");
   if (!rows.length) return () => {};
@@ -1577,7 +1312,7 @@ initOdometers();
 initLangSwitch();
 initThemeToggle();
 initPortal(nameChars);
-initPortrait();
+initThisIsMe();
 initJourney();
 initServicesTrack();
 initWhyStack();

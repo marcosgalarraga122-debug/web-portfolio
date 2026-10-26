@@ -314,14 +314,11 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
 }
 .marquee-track b { font-style: normal; font-weight: 300; color: var(--accent); }
 
-/* ---------- Particle portrait ---------- */
+/* ---------- This is me ---------- */
 .portrait { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; }
-/* Full-screen layer (moved to <body> by main.js) so particles can fly across every section.
-   It sits behind the page content, so flying particles pass under text and buttons, never over them. */
-.portrait-canvas { position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%; display: block; pointer-events: none; }
 .portrait-copy {
   position: relative; pointer-events: none;
-  height: 100%; max-width: 44%;
+  height: 100%;
   display: flex; flex-direction: column; justify-content: center;
   padding: 0 var(--pad);
 }
@@ -330,9 +327,7 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
   font-size: clamp(3rem, 8vw, 8rem); line-height: .95; letter-spacing: -.03em;
 }
 .portrait-title em { font-style: italic; color: var(--accent); }
-.portrait-copy p { color: var(--soft); max-width: 380px; margin-top: 24px; }
-.portrait-copy .portrait-hint { color: var(--muted); }
-/* "About me" facts beside the portrait: each row draws its hairline, then its text arrives */
+/* "About me" facts: each row draws its hairline, then its text arrives */
 .facts { margin-top: 32px; max-width: 420px; border-top: 1px solid var(--line); }
 .fact { position: relative; display: grid; grid-template-columns: 92px 1fr; gap: 16px; align-items: baseline; padding: 12px 0; }
 .fact::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line); transform-origin: left; }
@@ -874,7 +869,6 @@ html.cv-open, html.cv-open body { overflow: hidden; }
   .cv-side { padding: 28px 0 0; border-left: 0; border-top: 1px solid var(--ink-line); grid-template-columns: 1fr 1fr; }
   .cv-item { grid-template-columns: 1fr; gap: 6px; }
   .cv-desk::before { display: none; }
-  .portrait-copy { max-width: none; justify-content: flex-start; padding-top: 84px; }
   .journey-pin { grid-template-columns: 1fr; }
   .traits { grid-template-columns: 1fr 1fr; row-gap: 40px; }
   .trait:nth-child(odd) { padding-left: 0; border-left: 0; }
@@ -893,8 +887,6 @@ html.cv-open, html.cv-open body { overflow: hidden; }
   .map-coords { right: 14px; bottom: 10px; }
   .facts { margin-top: 16px; }
   .fact { grid-template-columns: 68px 1fr; gap: 12px; padding: 7px 0; font-size: .85rem; }
-  .fact-note { display: none; }
-  .portrait-copy p:not(.portrait-hint) { display: none; }
   .socials { gap: 20px; }
 }
 

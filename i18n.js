@@ -31,12 +31,7 @@ window.I18N = {
 
     "marquee": ["Web Design", "Web Development", "UI / UX", "Responsive Websites", "SEO", "Performance"],
 
-    "portrait.aria": "Interactive particle portrait of Marcos",
-    "portrait.label": "Interactive portrait",
     "portrait.title": "This is<br><em>me.</em>",
-    "portrait.text": "{n} particles — each one a pixel of my photo — rebuilt live in your browser.",
-    "portrait.hintFine": "Move through the picture · Click for a shockwave",
-    "portrait.hintTouch": "Tap the picture for a shockwave",
     "fact.k1": "Age",
     "fact.v1": "20",
     "fact.k2": "Studying",
@@ -279,12 +274,7 @@ window.I18N = {
 
     "marquee": ["Diseño web", "Desarrollo web", "UI / UX", "Webs responsive", "SEO", "Rendimiento"],
 
-    "portrait.aria": "Retrato interactivo de partículas de Marcos",
-    "portrait.label": "Retrato interactivo",
     "portrait.title": "Este<br><em>soy yo.</em>",
-    "portrait.text": "{n} partículas —cada una, un píxel de mi foto— reconstruidas en directo en tu navegador.",
-    "portrait.hintFine": "Mueve el cursor por la imagen · Haz clic para una onda expansiva",
-    "portrait.hintTouch": "Toca la imagen para una onda expansiva",
     "fact.k1": "Edad",
     "fact.v1": "20 años",
     "fact.k2": "Estudio",
@@ -527,12 +517,7 @@ window.I18N = {
 
     "marquee": ["Design web", "Développement web", "UI / UX", "Sites responsive", "SEO", "Performance"],
 
-    "portrait.aria": "Portrait interactif en particules de Marcos",
-    "portrait.label": "Portrait interactif",
     "portrait.title": "C'est<br><em>moi.</em>",
-    "portrait.text": "{n} particules — chacune un pixel de ma photo — recomposées en direct dans votre navigateur.",
-    "portrait.hintFine": "Passez la souris sur l'image · Cliquez pour une onde de choc",
-    "portrait.hintTouch": "Touchez l'image pour une onde de choc",
     "fact.k1": "Âge",
     "fact.v1": "20 ans",
     "fact.k2": "Études",
