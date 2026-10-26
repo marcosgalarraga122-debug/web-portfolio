@@ -4,7 +4,7 @@
    mobile), site language and a random visitor ID kept in that browser. Not stored: IP
    addresses, user agents, precise location, or anything that identifies a person. */
 import { LANGS } from "./text.js";
-import { HttpError, readJson, clientKey, isVisitorId, dayOf } from "./util.js";
+import { HttpError, readJson, clientKey, underLimits, isVisitorId, dayOf } from "./util.js";
 
 const TYPES = ["pageview", "chat_open", "chat_message", "contact_click"];
 const DEVICES = ["desktop", "tablet", "mobile"];
@@ -23,10 +23,9 @@ export async function handleEvent(request, env) {
   const body = await readJson(request, 2048);
   if (!TYPES.includes(body.type)) throw new HttpError(400, "invalid_type");
   if (!isVisitorId(body.visitorId)) throw new HttpError(400, "invalid_visitor");
-  if (env.EVENT_LIMIT) {
-    const { success } = await env.EVENT_LIMIT.limit({ key: await clientKey(request, env) });
-    if (!success) throw new HttpError(429, "rate_limited");
-  }
+  const key = await clientKey(request, env);
+  if (env.EVENT_LIMIT && !(await env.EVENT_LIMIT.limit({ key })).success) throw new HttpError(429, "rate_limited");
+  if (!(await underLimits(env, key, [["event-min", 60, 60], ["event-day", 1000, 86400]]))) throw new HttpError(429, "rate_limited");
   const now = Date.now();
   await env.DB.prepare(
     "INSERT INTO events (ts, day, type, visitor_id, path, referrer, device, lang, detail) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)"

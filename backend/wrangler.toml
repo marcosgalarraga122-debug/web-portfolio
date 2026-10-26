@@ -14,13 +14,14 @@ fallthrough = false
 [[d1_databases]]
 binding = "DB"
 database_name = "assistant"
-database_id = "00000000-0000-0000-0000-000000000000" # replaced by the real id after `wrangler d1 create assistant`
+database_id = "3108a2a2-8fcf-4572-bc66-f4d0df6ced94" # created with --jurisdiction eu
 migrations_dir = "migrations"
 
 [ai]
 binding = "AI"
 
-# Per-visitor limits (keyed by a daily-salted hash of the IP address, never stored)
+# Per-visitor limits (keyed by a daily-salted hash of the IP address, never stored). These are
+# approximate; strict counts are also kept in the database (limits table, see underLimits)
 [[ratelimits]]
 name = "CHAT_LIMIT"
 namespace_id = "1001"
@@ -43,12 +44,14 @@ crons = ["17 3 * * *"]
 [vars]
 SITE_ORIGIN = "https://marcosgalarraga122-debug.github.io"
 SITE_URL = "https://marcosgalarraga122-debug.github.io/web-portfolio/"
-MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
-AI_DAILY_LIMIT = "300"                 # model replies per day; Workers Free gives 10,000 neurons/day
+MODEL = "@cf/mistralai/mistral-small-3.1-24b-instruct"   # chosen after comparing 4 free models on EN/ES/FR conversations
+AI_DAILY_LIMIT = "130"                 # model replies per day; ≈ what the 10,000 free neurons/day cover with this model
 MAX_MESSAGES_PER_CONVERSATION = "30"   # visitor messages per conversation
+CHAT_PER_VISITOR_PER_DAY = "40"        # chat messages per visitor per day (keeps one visitor from using the day's AI budget)
 CONVERSATION_RETENTION_DAYS = "90"
 ANALYTICS_RETENTION_DAYS = "365"
 
 # Secrets (set with `npx wrangler secret put NAME`, never committed):
 #   ADMIN_PASSWORD  the dashboard password (at least 12 characters)
-#   HASH_SECRET     random string used to key hashes (rate limiting, password comparison)
+#   HASH_SECRET     optional: key for hashes (rate limiting, password comparison); if unset the
+#                   Worker generates one and keeps it in its database (settings table)

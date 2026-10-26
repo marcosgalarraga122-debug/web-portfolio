@@ -45,11 +45,22 @@ export async function safeEqual(secret, a, b) {
   return crypto.subtle.timingSafeEqual(x, y);
 }
 
+// The key for hashing: the HASH_SECRET secret if set, otherwise a random key the Worker
+// creates once and keeps in its own database (never sent to the browser)
+let hashKey = null;
+export async function hashSecret(env) {
+  if (env.HASH_SECRET) return env.HASH_SECRET;
+  if (hashKey) return hashKey;
+  await env.DB.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES ('hash_secret', ?1)").bind(randomToken(48)).run();
+  hashKey = (await env.DB.prepare("SELECT value FROM settings WHERE key = 'hash_secret'").first()).value;
+  return hashKey;
+}
+
 // A key for rate limiting: the visitor's IP address, keyed with a secret that changes every
 // day, so it can't be reversed or linked across days. It is never stored.
 export async function clientKey(request, env) {
   const ip = request.headers.get("cf-connecting-ip") || "local";
-  return (await hmac(`${env.HASH_SECRET}:${dayOf(Date.now())}`, ip)).slice(0, 32);
+  return (await hmac(`${await hashSecret(env)}:${dayOf(Date.now())}`, ip)).slice(0, 32);
 }
 
 export function allowedOrigins(env) {
@@ -62,3 +73,15 @@ export const isVisitorId = (s) => typeof s === "string" && /^[0-9a-f]{32}$/.test
 
 export const withTimeout = (promise, ms) =>
   Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))]);
+
+// Count one request against strict per-visitor limits, e.g. [["chat-min", 8, 60], ["chat-day", 40, 86400]]
+// ([scope, max requests, window in seconds]). Returns false once any limit is exceeded.
+export async function underLimits(env, key, limits) {
+  const now = Date.now();
+  const rows = await env.DB.batch(limits.map(([scope, , secs]) => {
+    const win = Math.floor(now / (secs * 1000));
+    return env.DB.prepare("INSERT INTO limits (k, n, exp) VALUES (?1, 1, ?2) ON CONFLICT(k) DO UPDATE SET n = n + 1 RETURNING n")
+      .bind(`${scope}:${key}:${win}`, (win + 1) * secs * 1000);
+  }));
+  return rows.every((r, i) => r.results[0].n <= limits[i][1]);
+}

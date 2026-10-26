@@ -1,7 +1,7 @@
 /* The private owner dashboard's API (/admin/api/*). Every route except login requires a valid
    session; sessions live in D1 and the browser only holds an HttpOnly, Secure, SameSite=Strict
    cookie. The password is a Worker secret (ADMIN_PASSWORD) and never reaches the browser. */
-import { HttpError, json, readJson, randomToken, sha256, safeEqual, clientKey, dayOf, int, isUuid } from "./util.js";
+import { HttpError, json, readJson, randomToken, sha256, safeEqual, clientKey, hashSecret, underLimits, dayOf, int, isUuid } from "./util.js";
 import { runModel } from "./chat.js";
 import { LANGS } from "./text.js";
 
@@ -28,16 +28,15 @@ export function requireSameOrigin(request) {
 }
 
 async function login(request, env) {
-  if (!env.ADMIN_PASSWORD || env.ADMIN_PASSWORD.length < 12 || !env.HASH_SECRET) throw new HttpError(503, "not_configured");
-  if (env.LOGIN_LIMIT) {
-    const { success } = await env.LOGIN_LIMIT.limit({ key: await clientKey(request, env) });
-    if (!success) throw new HttpError(429, "rate_limited");
-  }
+  const key = await clientKey(request, env);
+  if (env.LOGIN_LIMIT && !(await env.LOGIN_LIMIT.limit({ key })).success) throw new HttpError(429, "rate_limited");
+  if (!(await underLimits(env, key, [["login-min", 5, 60], ["login-day", 50, 86400]]))) throw new HttpError(429, "rate_limited");
+  if (!env.ADMIN_PASSWORD || env.ADMIN_PASSWORD.length < 12) throw new HttpError(503, "not_configured");
   const day = dayOf(Date.now());
   const usage = await env.DB.prepare("SELECT login_failures FROM usage WHERE day = ?1").bind(day).first();
   if (usage && usage.login_failures >= MAX_LOGIN_FAILURES_PER_DAY) throw new HttpError(429, "locked");
   const body = await readJson(request, 1024);
-  const ok = typeof body.password === "string" && (await safeEqual(env.HASH_SECRET, body.password, env.ADMIN_PASSWORD));
+  const ok = typeof body.password === "string" && (await safeEqual(await hashSecret(env), body.password, env.ADMIN_PASSWORD));
   if (!ok) {
     await env.DB.prepare("INSERT INTO usage (day, login_failures) VALUES (?1, 1) ON CONFLICT(day) DO UPDATE SET login_failures = login_failures + 1").bind(day).run();
     throw new HttpError(401, "wrong_password");
@@ -242,5 +241,6 @@ export async function retention(env) {
     env.DB.prepare("DELETE FROM events WHERE ts < ?1").bind(evBefore),
     env.DB.prepare("DELETE FROM sessions WHERE expires_at < ?1").bind(now),
     env.DB.prepare("DELETE FROM usage WHERE day < ?1").bind(dayOf(now - 60 * 864e5)),
+    env.DB.prepare("DELETE FROM limits WHERE exp < ?1").bind(now),
   ]);
 }

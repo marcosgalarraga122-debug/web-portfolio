@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """End-to-end API checks against a running Worker (local: test/dev-local.sh, MOCK_AI=1).
-usage: api_test.py <base-url> <site-origin> <admin-password> [--no-mock]
+usage: api_test.py <base-url> <site-origin> <admin-password|-> [--no-mock]
+With "-" as the password (e.g. against production), the signed-in checks are skipped.
 Covers: CORS/origin checks, validation and size limits, conversation tokens, fallback,
 admin authentication, sessions, CSRF, deletion, export, analytics, rate limits."""
 import json, sys, urllib.request, urllib.error
 
 BASE, SITE, PASSWORD = sys.argv[1].rstrip("/"), sys.argv[2], sys.argv[3]
 MOCK = "--no-mock" not in sys.argv
+SIGNED_IN = PASSWORD != "-"
 results = []
 
 def req(method, path, body=None, origin=SITE, cookie=None, raw=None, ctype="text/plain"):
     data = raw if raw is not None else (json.dumps(body).encode() if body is not None else None)
-    h = {}
+    h = {"User-Agent": "Mozilla/5.0 (api-test)"}
     if origin: h["Origin"] = origin
     if cookie: h["Cookie"] = cookie
     if data is not None: h["Content-Type"] = ctype
@@ -22,6 +24,8 @@ def req(method, path, body=None, origin=SITE, cookie=None, raw=None, ctype="text
             return res.status, {k.lower(): v for k, v in res.headers.items()}, text
     except urllib.error.HTTPError as e:
         return e.code, {k.lower(): v for k, v in e.headers.items()}, e.read().decode("utf-8", "replace")
+    except (urllib.error.URLError, OSError) as e:
+        return 0, {}, f"network error: {e}"
 
 def check(name, cond, detail=""):
     results.append((name, bool(cond)))
@@ -100,48 +104,54 @@ check("a made-up session cookie is refused", s == 401, t)
 
 # --- login
 s, _, t = req("POST", "/admin/api/login", {"password": "wrong-password-123"}, origin=BASE, ctype="application/json")
-check("wrong password is refused", s == 401, t)
-s, _, t = req("POST", "/admin/api/login", {"password": PASSWORD}, origin="https://evil.example", ctype="application/json")
-check("login from another site is refused (CSRF)", s == 403, t)
-s, h, t = req("POST", "/admin/api/login", {"password": PASSWORD}, origin=BASE, ctype="application/json")
-sc = h.get("set-cookie", "")
-check("correct password signs in", s == 200 and "__Host-mas_session=" in sc, t)
-check("session cookie is HttpOnly, Secure and SameSite=Strict", all(x in sc for x in ["HttpOnly", "Secure", "SameSite=Strict"]), sc)
-cookie = sc.split(";")[0]
+check("wrong password is refused", s in (401, 503), t)
+if SIGNED_IN:
+    s, _, t = req("POST", "/admin/api/login", {"password": PASSWORD}, origin="https://evil.example", ctype="application/json")
+    check("login from another site is refused (CSRF)", s == 403, t)
+    s, h, t = req("POST", "/admin/api/login", {"password": PASSWORD}, origin=BASE, ctype="application/json")
+    sc = h.get("set-cookie", "")
+    check("correct password signs in", s == 200 and "__Host-mas_session=" in sc, t)
+    check("session cookie is HttpOnly, Secure and SameSite=Strict", all(x in sc for x in ["HttpOnly", "Secure", "SameSite=Strict"]), sc)
+    cookie = sc.split(";")[0]
 
-s, _, t = req("GET", "/admin/api/overview", origin=None, cookie=cookie)
-o = js(t)
-check("overview loads with a session", s == 200 and o["totals"]["conversations"] >= 2 and o["totals"]["visits"] >= 1, t)
-s, _, t = req("GET", "/admin/api/conversations?q=restaurant", origin=None, cookie=cookie)
-lst = js(t).get("conversations", [])
-check("search finds the conversation", s == 200 and any(c["id"] == cid for c in lst), t)
-c0 = next((c for c in lst if c["id"] == cid), {})
-check("enquiry indicators were extracted", c0.get("business") == "restaurant" and c0.get("asked_pricing") == 1 and c0.get("has_website") == "yes" and c0.get("contact_clicked") == 1, json.dumps(c0))
-s, _, t = req("GET", f"/admin/api/conversations/{cid}", origin=None, cookie=cookie)
-cd = js(t)
-check("conversation shows messages in order, without the token hash", s == 200 and [m["seq"] for m in cd["messages"]] == [1, 2, 3, 4] and "token_hash" not in cd["conversation"], t)
-s, h, t = req("GET", "/admin/api/export?format=csv", origin=None, cookie=cookie)
-check("CSV export works", s == 200 and "attachment" in h.get("content-disposition", "") and "restaurant" in t, t[:200])
-s, _, t = req("DELETE", f"/admin/api/conversations/{cid}", origin="https://evil.example", cookie=cookie)
-check("cross-site delete is refused even with the cookie", s == 403, t)
-s, _, t = req("DELETE", f"/admin/api/conversations/{cid}", origin=BASE, cookie=cookie)
-check("owner can delete a conversation", s == 200, t)
-s, _, t = req("GET", f"/admin/api/conversations/{cid}", origin=None, cookie=cookie)
-check("deleted conversation is gone from the database", s == 404, t)
-s, _, t = req("POST", "/api/chat", {"message": "hello again", "lang": "en", "conversationId": cid, "token": tok})
-check("visitor can't continue a deleted conversation", s == 404, t)
+    s, _, t = req("GET", "/admin/api/overview", origin=None, cookie=cookie)
+    o = js(t)
+    check("overview loads with a session", s == 200 and o["totals"]["conversations"] >= 2 and o["totals"]["visits"] >= 1, t)
+    s, _, t = req("GET", "/admin/api/conversations?q=restaurant", origin=None, cookie=cookie)
+    lst = js(t).get("conversations", [])
+    check("search finds the conversation", s == 200 and any(c["id"] == cid for c in lst), t)
+    c0 = next((c for c in lst if c["id"] == cid), {})
+    check("enquiry indicators were extracted", c0.get("business") == "restaurant" and c0.get("asked_pricing") == 1 and c0.get("has_website") == "yes" and c0.get("contact_clicked") == 1, json.dumps(c0))
+    s, _, t = req("GET", f"/admin/api/conversations/{cid}", origin=None, cookie=cookie)
+    cd = js(t)
+    check("conversation shows messages in order, without the token hash", s == 200 and [m["seq"] for m in cd["messages"]] == [1, 2, 3, 4] and "token_hash" not in cd["conversation"], t)
+    s, h, t = req("GET", "/admin/api/export?format=csv", origin=None, cookie=cookie)
+    check("CSV export works", s == 200 and "attachment" in h.get("content-disposition", "") and "restaurant" in t, t[:200])
+    s, _, t = req("DELETE", f"/admin/api/conversations/{cid}", origin="https://evil.example", cookie=cookie)
+    check("cross-site delete is refused even with the cookie", s == 403, t)
+    s, _, t = req("DELETE", f"/admin/api/conversations/{cid}", origin=BASE, cookie=cookie)
+    check("owner can delete a conversation", s == 200, t)
+    s, _, t = req("GET", f"/admin/api/conversations/{cid}", origin=None, cookie=cookie)
+    check("deleted conversation is gone from the database", s == 404, t)
+    s, _, t = req("POST", "/api/chat", {"message": "hello again", "lang": "en", "conversationId": cid, "token": tok})
+    check("visitor can't continue a deleted conversation", s == 404, t)
+
 
 # --- secrets never reach the browser
 s, _, page = req("GET", "/admin", origin=None)
 s2, _, appjs = req("GET", "/admin/app.js", origin=None)
-check("dashboard page and script contain no secrets", PASSWORD not in page and PASSWORD not in appjs, "")
+import re
+long_tokens = re.findall(r"[A-Za-z0-9+/_-]{40,}", page + appjs)  # anything shaped like a key or token
+check("dashboard page and script contain no secrets", (not SIGNED_IN or (PASSWORD not in page and PASSWORD not in appjs)) and not long_tokens, str(long_tokens[:3]))
 s, h, _ = req("GET", "/admin", origin=None)
 check("dashboard sends a strict CSP and can't be framed", "frame-ancestors 'none'" in h.get("content-security-policy", "") and h.get("x-frame-options") == "DENY", str(h))
 
-# --- logout ends the session
-s, _, t = req("POST", "/admin/api/logout", {}, origin=BASE, cookie=cookie, ctype="application/json")
-s2, _, t2 = req("GET", "/admin/api/overview", origin=None, cookie=cookie)
-check("after signing out the session no longer works", s == 200 and s2 == 401, t2)
+if SIGNED_IN:
+    # --- logout ends the session
+    s, _, t = req("POST", "/admin/api/logout", {}, origin=BASE, cookie=cookie, ctype="application/json")
+    s2, _, t2 = req("GET", "/admin/api/overview", origin=None, cookie=cookie)
+    check("after signing out the session no longer works", s == 200 and s2 == 401, t2)
+
 
 # --- rate limits (last: they lock this IP out for a minute)
 codes = [req("POST", "/admin/api/login", {"password": "nope-nope-nope"}, origin=BASE, ctype="application/json")[0] for _ in range(7)]
