@@ -225,6 +225,9 @@
     log.replaceChildren();
     addBot({ text: T().welcome, local: true });
     chat.messages.forEach((m) => (m.role === "user" ? addMe(m.text) : addBot(m)));
+    // A question left without an answer (it failed before a reload) can be sent again
+    const last = chat.messages[chat.messages.length - 1];
+    if (last && last.role === "user") addError(T().errServer, () => send(last.text, true));
     suggest.hidden = chat.messages.length > 0;
     suggest.replaceChildren(...T().suggestions.map((q) => {
       const b = h("button", "assist-chip", q);
