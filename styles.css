@@ -137,14 +137,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   background-color: var(--bg);
   transition: background-color 350ms ease;
 }
-.intro.live { background-color: transparent; }
+.intro.live { background-color: transparent; }   /* the canvas paints the surface from here on */
 /* Safety net: if the scripts never arrive (blocked, offline, failed), the page opens by itself
    after 7 s. main.js marks the page html.js-boot as soon as it runs, which stands this down. */
 .intro { animation: intro-safety 400ms 7s forwards; }
 html:has(body.loading), body.loading { animation: scroll-safety 0s 7s forwards; }
 html.js-boot .intro, html.js-boot body.loading, html.js-boot:has(body.loading) { animation: none; }
 @keyframes intro-safety { to { opacity: 0; visibility: hidden; } }
-@keyframes scroll-safety { to { overflow-y: visible; } }   /* the canvas paints the surface from here on */
+@keyframes scroll-safety { to { overflow-y: visible; } }
 .intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Depth of field under the water: three blur layers whose clear centres open behind the wave */
 .intro-blur {
