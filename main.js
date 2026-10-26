@@ -1293,32 +1293,29 @@ function intro(chars, fitName) {
   run.then((ok) => (ok ? finish() : (root.classList.remove("intro-active"), quickReveal())));
 }
 
-/* ---------- Boot ---------- */
-initShader(); // first: it settles the quality tier if the graphics turn out to be software-rendered
-applyTranslations(); // before any text is split into letters/words
-const nameChars = $$(".name-line").flatMap(splitChars);
-const aboutWords = splitWords($(".about-text"));
-$(".year").textContent = new Date().getFullYear();
+/* ---------- Boot ----------
+   Each feature starts on its own: if one fails (an old cached file, a browser quirk), the
+   rest of the site still works, and the page always opens instead of staying blank. */
+const safely = (fn, ...args) => { try { return fn(...args); } catch (e) { console.error(e); } };
+const openPage = () => {
+  $(".intro")?.remove();
+  document.documentElement.classList.remove("intro-active");
+  document.body.classList.remove("loading");
+};
 
-initScramble();
-const fitName = initNameFit();
-initNameWeight(nameChars);
-initMagnetic();
-initMarquee();
-initCopyEmail();
-initContactForm();
-initNavActive();
-initOdometers();
-initLangSwitch();
-initThemeToggle();
-initPortal(nameChars);
-initThisIsMe();
-initJourney();
-initServicesTrack();
-initWhyStack();
-initContactCurtain();
-initSectionIndex();
-initCV();
-initConsent();
-if (hasGSAP) initScrollAnimations(aboutWords);
-intro(nameChars, fitName);
+safely(initShader); // first: it settles the quality tier if the graphics turn out to be software-rendered
+safely(applyTranslations); // before any text is split into letters/words
+const nameChars = safely(() => $$(".name-line").flatMap(splitChars)) || [];
+const aboutWords = safely(() => splitWords($(".about-text"))) || [];
+safely(() => { $(".year").textContent = new Date().getFullYear(); });
+
+safely(initScramble);
+const fitName = safely(initNameFit);
+safely(initNameWeight, nameChars);
+for (const init of [initMagnetic, initMarquee, initCopyEmail, initContactForm, initNavActive, initOdometers,
+  initLangSwitch, initThemeToggle]) safely(init);
+safely(initPortal, nameChars);
+for (const init of [initThisIsMe, initJourney, initServicesTrack, initWhyStack, initContactCurtain,
+  initSectionIndex, initCV, initConsent]) safely(init);
+if (hasGSAP) safely(initScrollAnimations, aboutWords);
+try { intro(nameChars, fitName); } catch (e) { console.error(e); openPage(); }
