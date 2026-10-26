@@ -945,6 +945,30 @@ function initCV() {
 }
 let refreshCV = () => {};
 
+/* ---------- Cookies: asked every time the site is opened ----------
+   The answer is deliberately not saved, so the card returns on every visit. Nothing optional
+   runs unless the visitor accepts; the answer is on window.cookieConsent, and a
+   "cookieconsent" event announces it. */
+let showConsent = () => {};
+function initConsent() {
+  const box = $(".consent");
+  if (!box) return;
+  // EDIT: optional cookies (e.g. analytics) start here, and only once the visitor accepts
+  const loadOptional = () => {};
+  window.cookieConsent = null;
+  $$("[data-consent]", box).forEach((b) => b.addEventListener("click", () => {
+    window.cookieConsent = b.dataset.consent;
+    document.dispatchEvent(new CustomEvent("cookieconsent", { detail: b.dataset.consent }));
+    if (b.dataset.consent === "accepted") loadOptional();
+    box.classList.remove("in");
+    setTimeout(() => (box.hidden = true), reduceMotion ? 0 : 300);
+  }));
+  showConsent = () => {
+    box.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add("in")));
+  };
+}
+
 /* ---------- "You are here": the current section's number and name, bottom left ---------- */
 let refreshWhere = () => {};
 function initSectionIndex() {
@@ -1373,6 +1397,7 @@ function intro(chars, fitName) {
     if (lenis) { lenis.scrollTo(0, { immediate: true, force: true }); lenis.start(); }
     if (hasGSAP) ScrollTrigger.refresh();
     try { localStorage.setItem("introPlayed", "1"); } catch {}
+    setTimeout(showConsent, reduceMotion ? 0 : 700);
   };
   if (!hasGSAP) { finish(); return; }
   lenis && lenis.stop();
@@ -1429,5 +1454,6 @@ initWhyStack();
 initContactCurtain();
 initSectionIndex();
 initCV();
+initConsent();
 if (hasGSAP) initScrollAnimations(aboutWords);
 intro(nameChars, fitName);

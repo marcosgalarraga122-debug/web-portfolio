@@ -4,6 +4,10 @@ window.I18N = {
   en: {
     "meta.title": "Marcos Cañellas — Web Developer & Designer",
     "meta.desc": "Marcos designs and builds high-quality, high-performance websites for businesses.",
+    "consent.title": "Cookies",
+    "consent.text": "I'd like to use optional cookies to understand how visitors use this site and improve it. Everything works the same if you reject them.",
+    "consent.reject": "Reject",
+    "consent.accept": "Accept",
     "skip": "Skip to content",
     "preloader": "Marcos Cañellas — Web Developer & Designer",
     "lang.label": "Language",
@@ -248,6 +252,10 @@ window.I18N = {
   es: {
     "meta.title": "Marcos Cañellas — Desarrollador y diseñador web",
     "meta.desc": "Marcos diseña y desarrolla webs de alta calidad y alto rendimiento para empresas.",
+    "consent.title": "Cookies",
+    "consent.text": "Me gustaría usar cookies opcionales para entender cómo se usa esta web y mejorarla. Todo funciona igual si las rechazas.",
+    "consent.reject": "Rechazar",
+    "consent.accept": "Aceptar",
     "skip": "Saltar al contenido",
     "preloader": "Marcos Cañellas — Desarrollador y diseñador web",
     "lang.label": "Idioma",
@@ -492,6 +500,10 @@ window.I18N = {
   fr: {
     "meta.title": "Marcos Cañellas — Développeur & designer web",
     "meta.desc": "Marcos conçoit et développe des sites web de grande qualité et performants pour les entreprises.",
+    "consent.title": "Cookies",
+    "consent.text": "J'aimerais utiliser des cookies facultatifs pour comprendre comment ce site est utilisé et l'améliorer. Tout fonctionne de la même façon si vous les refusez.",
+    "consent.reject": "Refuser",
+    "consent.accept": "Accepter",
     "skip": "Aller au contenu",
     "preloader": "Marcos Cañellas — Développeur & designer web",
     "lang.label": "Langue",

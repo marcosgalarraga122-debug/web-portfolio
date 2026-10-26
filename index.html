@@ -33,6 +33,16 @@
        data-i18n-attr = attributes). The English here is the fallback. -->
   <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
 
+  <!-- Cookies: asked every time the site is opened, once the intro has finished (initConsent in main.js) -->
+  <div class="consent" role="dialog" aria-labelledby="consent-title" aria-describedby="consent-text" hidden>
+    <p class="consent-title mono" id="consent-title" data-i18n="consent.title">Cookies</p>
+    <p class="consent-text" id="consent-text" data-i18n="consent.text">I'd like to use optional cookies to understand how visitors use this site and improve it. Everything works the same if you reject them.</p>
+    <div class="consent-actions">
+      <button type="button" class="btn btn-ghost" data-consent="rejected" data-i18n="consent.reject">Reject</button>
+      <button type="button" class="btn" data-consent="accepted" data-i18n="consent.accept">Accept</button>
+    </div>
+  </div>
+
   <!-- Intro: on the first visit of a session, particles assemble the name and the site opens around it -->
   <div class="intro" aria-hidden="true">
     <canvas class="intro-canvas"></canvas>
