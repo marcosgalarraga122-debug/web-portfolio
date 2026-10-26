@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy · Marcos Cañellas</title>
+  <meta name="description" content="How marcosgalarraga122-debug.github.io/web-portfolio handles data: the AI assistant, optional analytics and contact.">
+  <script>try { var th = localStorage.getItem("theme"); if (th === "light" || th === "dark") document.documentElement.dataset.theme = th; } catch (e) {}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..800;1,9..144,200..800&family=Inter+Tight:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20261026c">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230e1612'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='40' fill='%23c9a66b'%3EM%3C/text%3E%3C/svg%3E">
+  <style>
+    .privacy { max-width: 760px; margin: 0 auto; padding: 48px var(--pad) 96px; }
+    .privacy-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 56px; }
+    .privacy-top .logo { font-family: var(--display); font-weight: 600; font-size: 1.2rem; letter-spacing: -.02em; }
+    .privacy-top .logo span { color: var(--accent); }
+    .privacy-langs { display: flex; gap: 6px; }
+    .privacy-langs a { padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: .8rem; }
+    .privacy section { scroll-margin-top: 24px; }
+    .privacy section + section { margin-top: 96px; padding-top: 56px; border-top: 1px solid var(--line); }
+    .privacy h1 { font-family: var(--name-font); font-weight: 500; font-size: clamp(2.2rem, 6vw, 3.4rem); line-height: 1.05; letter-spacing: -.02em; }
+    .privacy h2 { font-family: var(--name-font); font-weight: 500; font-size: 1.45rem; margin: 40px 0 12px; }
+    .privacy p, .privacy li { color: var(--soft); line-height: 1.65; }
+    .privacy p + p { margin-top: 12px; }
+    .privacy ul { margin: 12px 0 0; padding-left: 20px; list-style: disc; }
+    .privacy li + li { margin-top: 6px; }
+    .privacy a:not(.logo):not(.privacy-langs a) { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .privacy .updated { margin-top: 12px; color: var(--muted); }
+    .privacy strong { color: var(--fg); font-weight: 500; }
+  </style>
+</head>
+<body>
+  <main class="privacy">
+    <div class="privacy-top">
+      <a class="logo" href="./">Marcos<span>.</span></a>
+      <nav class="privacy-langs mono" aria-label="Language"><a href="#en" hreflang="en">EN</a><a href="#es" hreflang="es">ES</a><a href="#fr" hreflang="fr">FR</a></nav>
+    </div>
+
+    <section id="en" lang="en">
+      <h1>Privacy</h1>
+      <p class="updated mono">Last updated: 26 October 2026</p>
+      <p>This website belongs to Marcos Cañellas, a freelance web designer and developer based in Madrid, Spain, who is responsible for the data described here. For any privacy question or request, email <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>.</p>
+
+      <h2 id="chat">Marcos's AI Assistant (the chat)</h2>
+      <p>The chat button opens an <strong>AI assistant</strong>: replies are written by an AI model, not by Marcos, and can contain mistakes. It only uses information about Marcos's services that he has provided.</p>
+      <ul>
+        <li><strong>What is stored:</strong> the messages you send and the replies you receive, their time, the language, the section of the page where you opened the chat, and whether you used a contact option offered in the chat. If you have accepted analytics (below), the conversation is also linked to your analytics ID.</li>
+        <li><strong>What is not stored:</strong> your IP address or browser details. Please don't share sensitive information in the chat. If you choose to type your name or contact details, they are stored as part of the conversation.</li>
+        <li><strong>Why:</strong> to answer your questions, and so Marcos can read the conversations to follow up on enquiries and improve the assistant. The basis is Marcos's legitimate interest in answering questions about his services. You can object at any time by email.</li>
+        <li><strong>How long:</strong> conversations are deleted automatically 90 days after the last message, or earlier on request.</li>
+        <li><strong>In your browser:</strong> while the tab is open, the conversation is kept in your browser's session storage so it isn't lost when you close the chat. This is needed for the chat to work and is cleared when you close the tab.</li>
+        <li><strong>Who processes it:</strong> the chat runs on Cloudflare (Cloudflare Workers, D1 and Workers AI), which acts as Marcos's service provider. Conversations and analytics are stored in Cloudflare's EU data jurisdiction. To write a reply, the AI model may run in a Cloudflare data centre outside the EU; Cloudflare states that it does not keep the messages after answering and does not use them to train AI models.</li>
+      </ul>
+
+      <h2 id="analytics">Visit analytics (only if you accept)</h2>
+      <p>If you click <strong>Accept</strong> in the cookie banner, the site records page views, opening the assistant, sending it a question and clicks on contact options, together with the page, the website you came from (its domain only), your device type (desktop, tablet or mobile), the site language and a random ID stored in your browser (local storage) to count unique visitors. Your IP address, browser fingerprint and location are not collected.</p>
+      <p>If you click <strong>Reject</strong>, nothing is recorded and the random ID is removed from your browser. The banner asks again on each visit, so you can change your choice at any time; you can also clear this site's data in your browser. Analytics records are deleted automatically after 12 months. They are processed on Cloudflare, as above.</p>
+
+      <h2>Contact by email</h2>
+      <p>The contact form and email links open your own email app; nothing is sent until you press send there. Marcos uses your email only to reply to you and keeps it as long as needed for that conversation or any resulting project.</p>
+
+      <h2>Hosting and other services</h2>
+      <ul>
+        <li>The site is hosted on <strong>GitHub Pages</strong>. GitHub may log technical data such as IP addresses for security; see GitHub's privacy statement.</li>
+        <li>Fonts are loaded from <strong>Google Fonts</strong> and some scripts from the public code libraries <strong>cdnjs</strong> (Cloudflare) and <strong>unpkg</strong>, which receive your IP address to deliver the files.</li>
+      </ul>
+
+      <h2>Your rights</h2>
+      <p>You can ask to access, correct or delete your data, to restrict or object to its use, and to receive a copy of it, by emailing <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>. You can also complain to the Spanish data protection authority, the <a href="https://www.aepd.es" rel="noopener">AEPD</a>.</p>
+    </section>
+
+    <section id="es" lang="es">
+      <h1>Privacidad</h1>
+      <p class="updated mono">Última actualización: 26 de octubre de 2026</p>
+      <p>Esta web pertenece a Marcos Cañellas, diseñador y desarrollador web freelance con sede en Madrid (España), responsable de los datos que se describen aquí. Para cualquier pregunta o solicitud sobre privacidad, escribe a <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>.</p>
+
+      <h2 id="chat-es">El asistente de IA de Marcos (el chat)</h2>
+      <p>El botón del chat abre un <strong>asistente de inteligencia artificial</strong>: las respuestas las escribe un modelo de IA, no Marcos, y pueden contener errores. Solo usa la información sobre los servicios de Marcos que él ha proporcionado.</p>
+      <ul>
+        <li><strong>Qué se guarda:</strong> los mensajes que envías y las respuestas que recibes, su hora, el idioma, la sección de la página donde abriste el chat y si usaste alguna opción de contacto ofrecida en el chat. Si has aceptado la analítica (más abajo), la conversación también se vincula a tu identificador de analítica.</li>
+        <li><strong>Qué no se guarda:</strong> tu dirección IP ni los datos de tu navegador. Por favor, no compartas información sensible en el chat. Si decides escribir tu nombre o tus datos de contacto, se guardan como parte de la conversación.</li>
+        <li><strong>Para qué:</strong> para responder a tus preguntas y para que Marcos pueda leer las conversaciones, hacer seguimiento de las consultas y mejorar el asistente. La base es el interés legítimo de Marcos en responder preguntas sobre sus servicios. Puedes oponerte en cualquier momento por email.</li>
+        <li><strong>Cuánto tiempo:</strong> las conversaciones se borran automáticamente 90 días después del último mensaje, o antes si lo pides.</li>
+        <li><strong>En tu navegador:</strong> mientras la pestaña está abierta, la conversación se guarda en el almacenamiento de sesión del navegador para no perderla al cerrar el chat. Es necesario para que el chat funcione y se borra al cerrar la pestaña.</li>
+        <li><strong>Quién la trata:</strong> el chat funciona en Cloudflare (Cloudflare Workers, D1 y Workers AI), que actúa como proveedor de servicios de Marcos. Las conversaciones y la analítica se guardan en la jurisdicción de datos de la UE de Cloudflare. Para escribir una respuesta, el modelo de IA puede ejecutarse en un centro de datos de Cloudflare fuera de la UE; Cloudflare indica que no conserva los mensajes después de responder y que no los usa para entrenar modelos de IA.</li>
+      </ul>
+
+      <h2 id="analytics-es">Analítica de visitas (solo si aceptas)</h2>
+      <p>Si pulsas <strong>Aceptar</strong> en el aviso de cookies, la web registra las páginas vistas, la apertura del asistente, el envío de preguntas y los clics en las opciones de contacto, junto con la página, la web desde la que llegaste (solo su dominio), el tipo de dispositivo (ordenador, tablet o móvil), el idioma de la web y un identificador aleatorio guardado en tu navegador (almacenamiento local) para contar visitantes únicos. No se recogen tu dirección IP, la huella de tu navegador ni tu ubicación.</p>
+      <p>Si pulsas <strong>Rechazar</strong>, no se registra nada y el identificador aleatorio se borra de tu navegador. El aviso vuelve a preguntar en cada visita, así que puedes cambiar de opinión cuando quieras; también puedes borrar los datos de esta web en tu navegador. Los registros de analítica se borran automáticamente a los 12 meses y se tratan en Cloudflare, como se indica arriba.</p>
+
+      <h2>Contacto por email</h2>
+      <p>El formulario de contacto y los enlaces de email abren tu propia aplicación de correo; no se envía nada hasta que pulsas enviar. Marcos usa tu email solo para responderte y lo conserva el tiempo necesario para esa conversación o el proyecto que pueda surgir.</p>
+
+      <h2>Alojamiento y otros servicios</h2>
+      <ul>
+        <li>La web está alojada en <strong>GitHub Pages</strong>. GitHub puede registrar datos técnicos, como direcciones IP, por seguridad; consulta la declaración de privacidad de GitHub.</li>
+        <li>Las fuentes se cargan desde <strong>Google Fonts</strong> y algunos scripts desde las bibliotecas públicas <strong>cdnjs</strong> (Cloudflare) y <strong>unpkg</strong>, que reciben tu dirección IP para entregar los archivos.</li>
+      </ul>
+
+      <h2>Tus derechos</h2>
+      <p>Puedes solicitar el acceso, la rectificación o la supresión de tus datos, la limitación u oposición a su tratamiento y una copia de ellos escribiendo a <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>. También puedes reclamar ante la <a href="https://www.aepd.es" rel="noopener">Agencia Española de Protección de Datos (AEPD)</a>.</p>
+    </section>
+
+    <section id="fr" lang="fr">
+      <h1>Confidentialité</h1>
+      <p class="updated mono">Dernière mise à jour : 26 octobre 2026</p>
+      <p>Ce site appartient à Marcos Cañellas, designer et développeur web freelance basé à Madrid (Espagne), responsable des données décrites ici. Pour toute question ou demande liée à la confidentialité, écrivez à <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>.</p>
+
+      <h2 id="chat-fr">L'assistant IA de Marcos (le chat)</h2>
+      <p>Le bouton du chat ouvre un <strong>assistant d'intelligence artificielle</strong> : les réponses sont rédigées par un modèle d'IA, pas par Marcos, et peuvent contenir des erreurs. Il n'utilise que les informations sur les services de Marcos que celui-ci a fournies.</p>
+      <ul>
+        <li><strong>Ce qui est conservé :</strong> les messages que vous envoyez et les réponses reçues, leur heure, la langue, la section de la page où vous avez ouvert le chat et le fait d'avoir utilisé ou non une option de contact proposée dans le chat. Si vous avez accepté la mesure d'audience (ci-dessous), la conversation est aussi liée à votre identifiant d'audience.</li>
+        <li><strong>Ce qui n'est pas conservé :</strong> votre adresse IP et les informations de votre navigateur. Merci de ne pas partager d'informations sensibles dans le chat. Si vous choisissez d'indiquer votre nom ou vos coordonnées, ils sont conservés avec la conversation.</li>
+        <li><strong>Pourquoi :</strong> pour répondre à vos questions, et pour que Marcos puisse lire les conversations afin de donner suite aux demandes et d'améliorer l'assistant. La base est l'intérêt légitime de Marcos à répondre aux questions sur ses services. Vous pouvez vous y opposer à tout moment par e-mail.</li>
+        <li><strong>Durée :</strong> les conversations sont supprimées automatiquement 90 jours après le dernier message, ou plus tôt sur demande.</li>
+        <li><strong>Dans votre navigateur :</strong> tant que l'onglet est ouvert, la conversation est conservée dans le stockage de session du navigateur pour ne pas la perdre en fermant le chat. C'est nécessaire au fonctionnement du chat, et elle est effacée à la fermeture de l'onglet.</li>
+        <li><strong>Qui la traite :</strong> le chat fonctionne sur Cloudflare (Cloudflare Workers, D1 et Workers AI), qui agit comme prestataire de Marcos. Les conversations et les données d'audience sont stockées dans la juridiction de données de l'UE de Cloudflare. Pour rédiger une réponse, le modèle d'IA peut s'exécuter dans un centre de données Cloudflare hors de l'UE ; Cloudflare indique ne pas conserver les messages après la réponse et ne pas les utiliser pour entraîner des modèles d'IA.</li>
+      </ul>
+
+      <h2 id="analytics-fr">Mesure d'audience (seulement si vous acceptez)</h2>
+      <p>Si vous cliquez sur <strong>Accepter</strong> dans le bandeau cookies, le site enregistre les pages vues, l'ouverture de l'assistant, l'envoi de questions et les clics sur les options de contact, avec la page, le site d'où vous venez (son domaine uniquement), le type d'appareil (ordinateur, tablette ou mobile), la langue du site et un identifiant aléatoire stocké dans votre navigateur (stockage local) pour compter les visiteurs uniques. Votre adresse IP, l'empreinte de votre navigateur et votre localisation ne sont pas collectées.</p>
+      <p>Si vous cliquez sur <strong>Refuser</strong>, rien n'est enregistré et l'identifiant aléatoire est supprimé de votre navigateur. Le bandeau vous redemande à chaque visite : vous pouvez donc changer d'avis à tout moment, ou effacer les données de ce site dans votre navigateur. Les données d'audience sont supprimées automatiquement après 12 mois et traitées sur Cloudflare, comme indiqué ci-dessus.</p>
+
+      <h2>Contact par e-mail</h2>
+      <p>Le formulaire de contact et les liens e-mail ouvrent votre propre messagerie ; rien n'est envoyé tant que vous n'appuyez pas sur Envoyer. Marcos utilise votre e-mail uniquement pour vous répondre et le conserve le temps nécessaire à cet échange ou au projet qui pourrait en découler.</p>
+
+      <h2>Hébergement et autres services</h2>
+      <ul>
+        <li>Le site est hébergé sur <strong>GitHub Pages</strong>. GitHub peut enregistrer des données techniques, comme les adresses IP, pour des raisons de sécurité ; voir la déclaration de confidentialité de GitHub.</li>
+        <li>Les polices sont chargées depuis <strong>Google Fonts</strong> et certains scripts depuis les bibliothèques publiques <strong>cdnjs</strong> (Cloudflare) et <strong>unpkg</strong>, qui reçoivent votre adresse IP pour fournir les fichiers.</li>
+      </ul>
+
+      <h2>Vos droits</h2>
+      <p>Vous pouvez demander l'accès, la rectification ou l'effacement de vos données, la limitation ou l'opposition à leur traitement, et en recevoir une copie, en écrivant à <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>. Vous pouvez aussi saisir l'autorité espagnole de protection des données, l'<a href="https://www.aepd.es" rel="noopener">AEPD</a>.</p>
+    </section>
+  </main>
+</body>
+</html>

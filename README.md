@@ -8,6 +8,8 @@ A one-page interactive CV that shows my skills and work. It's built to stand out
 - Split-letter animations and a text-scramble role switcher
 - Smooth scrolling (Lenis) and scroll-driven animations (GSAP ScrollTrigger)
 - Process timeline that fills and lights up step by step as you scroll
+- Marcos's AI Assistant: a chat (bottom-right button) that answers visitors' questions about the services in English, Spanish and French, grounded in `backend/src/knowledge.js`. The chat window (`assistant.js`, `assistant.css`) only downloads on first use; replies come from the backend in `backend/` (Cloudflare Workers + D1 + Workers AI, free plan), which also serves the private owner dashboard. See `backend/README.md`
+- Visit analytics only after the visitor accepts in the cookie banner; what is collected is explained in `privacy.html`
 - English / Spanish / French switcher (all text in `i18n.js`)
 - Stat numbers that roll in like an odometer
 - Enquiry form that opens the visitor's email app with their message filled in

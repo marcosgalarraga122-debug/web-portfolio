@@ -1,0 +1,54 @@
+# Marcos's AI Assistant: Cloudflare Worker (free plan) + D1 database + Workers AI
+name = "marcos-assistant"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = false
+
+# The dashboard's page, styles and script are bundled as text
+[[rules]]
+type = "Text"
+globs = ["**/admin-ui/*.html", "**/admin-ui/*.css", "**/admin-ui/*.client.js"]
+fallthrough = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "assistant"
+database_id = "00000000-0000-0000-0000-000000000000" # replaced by the real id after `wrangler d1 create assistant`
+migrations_dir = "migrations"
+
+[ai]
+binding = "AI"
+
+# Per-visitor limits (keyed by a daily-salted hash of the IP address, never stored)
+[[ratelimits]]
+name = "CHAT_LIMIT"
+namespace_id = "1001"
+simple = { limit = 8, period = 60 }
+
+[[ratelimits]]
+name = "EVENT_LIMIT"
+namespace_id = "1002"
+simple = { limit = 60, period = 60 }
+
+[[ratelimits]]
+name = "LOGIN_LIMIT"
+namespace_id = "1003"
+simple = { limit = 5, period = 60 }
+
+# Nightly clean-up: retention limits and expired sessions
+[triggers]
+crons = ["17 3 * * *"]
+
+[vars]
+SITE_ORIGIN = "https://marcosgalarraga122-debug.github.io"
+SITE_URL = "https://marcosgalarraga122-debug.github.io/web-portfolio/"
+MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
+AI_DAILY_LIMIT = "300"                 # model replies per day; Workers Free gives 10,000 neurons/day
+MAX_MESSAGES_PER_CONVERSATION = "30"   # visitor messages per conversation
+CONVERSATION_RETENTION_DAYS = "90"
+ANALYTICS_RETENTION_DAYS = "365"
+
+# Secrets (set with `npx wrangler secret put NAME`, never committed):
+#   ADMIN_PASSWORD  the dashboard password (at least 12 characters)
+#   HASH_SECRET     random string used to key hashes (rate limiting, password comparison)

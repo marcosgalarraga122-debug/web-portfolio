@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dashboard · Marcos's AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230e1612'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='40' fill='%23c9a66b'%3EM%3C/text%3E%3C/svg%3E">
+  <script defer src="/admin/app.js"></script>
+</head>
+<body>
+  <!-- Login -->
+  <main class="login" id="login" hidden>
+    <form class="login-card" id="login-form">
+      <p class="brand">Marcos<span>.</span></p>
+      <h1>Owner dashboard</h1>
+      <p class="muted">Private. Visitors' conversations and analytics are only shown after you sign in.</p>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required minlength="12">
+      <button class="btn" type="submit">Sign in</button>
+      <p class="error" id="login-error" role="alert"></p>
+    </form>
+  </main>
+
+  <!-- Dashboard -->
+  <div class="app" id="app" hidden>
+    <header class="top">
+      <p class="brand">Marcos<span>.</span> <em>Dashboard</em></p>
+      <nav class="tabs" aria-label="Sections">
+        <button class="tab" data-view="overview" aria-current="page">Overview</button>
+        <button class="tab" data-view="conversations">Conversations</button>
+        <button class="tab" data-view="data">Data &amp; privacy</button>
+      </nav>
+      <button class="link" id="logout">Sign out</button>
+    </header>
+
+    <div class="filters" role="group" aria-label="Date range">
+      <div class="chips">
+        <button class="chip" data-range="today">Today</button>
+        <button class="chip" data-range="7">7 days</button>
+        <button class="chip" data-range="30">30 days</button>
+        <button class="chip" data-range="90">90 days</button>
+        <button class="chip" data-range="custom">Custom</button>
+      </div>
+      <div class="custom" id="custom" hidden>
+        <label>From <input type="date" id="from"></label>
+        <label>To <input type="date" id="to"></label>
+        <button class="btn small" id="apply">Apply</button>
+      </div>
+    </div>
+
+    <main id="view" class="view" aria-live="polite"></main>
+  </div>
+
+  <!-- One conversation -->
+  <dialog class="drawer" id="drawer" aria-label="Conversation">
+    <div class="drawer-head">
+      <p class="mono muted" id="drawer-meta"></p>
+      <button class="link" id="drawer-close" aria-label="Close">Close ✕</button>
+    </div>
+    <div id="drawer-body"></div>
+  </dialog>
+
+  <div class="tip" id="tip" role="tooltip" hidden></div>
+</body>
+</html>

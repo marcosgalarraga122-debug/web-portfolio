@@ -1,0 +1,20 @@
+{
+  "name": "marcos-assistant",
+  "private": true,
+  "description": "Backend for Marcos's AI Assistant and the private owner dashboard (Cloudflare Worker + D1 + Workers AI)",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 migrations apply assistant --local",
+    "db:remote": "wrangler d1 migrations apply assistant --remote",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "wrangler": "4.149.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261006.1": true
+  }
+}

@@ -795,6 +795,43 @@ html.cv-open, html.cv-open body { overflow: hidden; }
 .consent-text { margin-top: 8px; color: var(--soft); font-size: .92rem; line-height: 1.5; }
 .consent-actions { display: flex; gap: 10px; margin-top: 18px; }
 .consent-actions .btn { flex: 1; padding: 12px 18px; }
+.consent-link { color: var(--fg); text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+
+/* Marcos's AI Assistant: the floating button (the chat window's styles are in assistant.css).
+   Fixed to the viewport, above the page and below the cookie banner, which it moves up to clear. */
+:root { --fab-size: 56px; --fab-gap: clamp(16px, 2.4vw, 28px); }
+.assist-fab {
+  position: fixed; z-index: 65;
+  right: calc(var(--fab-gap) + env(safe-area-inset-right));
+  bottom: calc(var(--fab-gap) + env(safe-area-inset-bottom));
+  width: var(--fab-size); height: var(--fab-size); border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--card); color: var(--accent);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 18px 40px -18px var(--shadow), 0 0 0 0 var(--accent-tint);
+  translate: 0 calc(-1 * var(--fab-lift, 0px));
+  transition: translate 400ms var(--ease-out), scale 200ms var(--ease-out), border-color 200ms ease, opacity 300ms ease, background-color 350ms ease;
+}
+.assist-fab[hidden] { display: none; }
+/* Keep the hero's "Scroll" hint clear of the button */
+html.has-assist .scroll-cue { margin-right: max(0px, calc(var(--fab-gap) + var(--fab-size) + 16px - var(--pad))); }
+.assist-fab:hover { border-color: var(--accent); }
+.assist-fab:active { scale: .94; }
+.assist-fab-icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.assist-fab-icon .spark { fill: currentColor; stroke: none; }
+.assist-fab[aria-expanded="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.assist-fab-spinner { position: absolute; inset: -1px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--accent); opacity: 0; }
+.assist-fab.busy .assist-fab-spinner { opacity: 1; animation: fab-spin 800ms linear infinite; }
+@keyframes fab-spin { to { rotate: 360deg; } }
+/* It arrives once the intro has finished, with a single soft pulse to be noticed */
+body.loading .assist-fab { opacity: 0; pointer-events: none; }
+body:not(.loading) .assist-fab:not([hidden]) { animation: fab-in 600ms var(--ease-out) both, fab-pulse 1.6s 1.2s var(--ease-out) 1; }
+@keyframes fab-in { from { opacity: 0; scale: .6; } }
+@keyframes fab-pulse { 0% { box-shadow: 0 18px 40px -18px var(--shadow), 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 100% { box-shadow: 0 18px 40px -18px var(--shadow), 0 0 0 16px transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  body:not(.loading) .assist-fab:not([hidden]) { animation: none; }
+  .assist-fab.busy .assist-fab-spinner { animation-duration: 2s; }
+}
 
 .where {
   position: fixed; left: var(--pad); bottom: 22px; z-index: 40; pointer-events: none;

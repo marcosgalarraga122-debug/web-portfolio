@@ -796,20 +796,118 @@ let showConsent = () => {};
 function initConsent() {
   const box = $(".consent");
   if (!box) return;
-  // EDIT: optional cookies (e.g. analytics) start here, and only once the visitor accepts
-  const loadOptional = () => {};
+  // Optional cookies (visit analytics) start here, and only once the visitor accepts
+  const loadOptional = () => startAnalytics();
   window.cookieConsent = null;
   $$("[data-consent]", box).forEach((b) => b.addEventListener("click", () => {
     window.cookieConsent = b.dataset.consent;
     document.dispatchEvent(new CustomEvent("cookieconsent", { detail: b.dataset.consent }));
     if (b.dataset.consent === "accepted") loadOptional();
+    else stopAnalytics();
     box.classList.remove("in");
+    liftFab(0);
     setTimeout(() => (box.hidden = true), reduceMotion ? 0 : 300);
   }));
   showConsent = () => {
     box.hidden = false;
     requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add("in")));
+    // The chat button moves up above the banner while it's showing
+    const fit = () => { if (!box.hidden) liftFab(innerHeight - box.getBoundingClientRect().top); };
+    requestAnimationFrame(fit);
+    new ResizeObserver(fit).observe(box);
   };
+}
+
+/* ---------- Visit analytics (only after "Accept" in the cookie banner) ----------
+   Sends page views, opening the assistant, chat questions and contact clicks to the
+   assistant's backend (see backend/src/analytics.js), with a random ID kept in this browser.
+   Nothing is sent, and the ID is removed, when the visitor rejects. */
+const ASSIST_API = (document.querySelector('meta[name="assistant-api"]')?.content || "").replace(/\/$/, "");
+const VISITOR_KEY = "mas_vid";
+let analyticsOn = false;
+const visitorId = () => {
+  if (!analyticsOn) return null;
+  try {
+    let id = localStorage.getItem(VISITOR_KEY);
+    if (!/^[0-9a-f]{32}$/.test(id || "")) {
+      id = [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, "0")).join("");
+      localStorage.setItem(VISITOR_KEY, id);
+    }
+    return id;
+  } catch { return null; }
+};
+function track(type, detail) {
+  const id = visitorId();
+  if (!ASSIST_API || !id) return;
+  const coarse = matchMedia("(pointer: coarse)").matches;
+  fetch(`${ASSIST_API}/api/event`, {
+    method: "POST", keepalive: true, headers: { "content-type": "text/plain" },
+    body: JSON.stringify({
+      type, detail, visitorId: id, path: location.pathname, lang,
+      referrer: type === "pageview" ? document.referrer : undefined,
+      device: !coarse ? "desktop" : Math.min(screen.width, screen.height) >= 600 ? "tablet" : "mobile",
+    }),
+  }).catch(() => {});
+}
+function startAnalytics() {
+  if (analyticsOn || !ASSIST_API) return;
+  analyticsOn = true;
+  track("pageview");
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".assist")) return; // the chat reports its own contact clicks
+    if (e.target.closest(".copy-email")) track("contact_click", "email_copy");
+    else if (e.target.closest('a[href^="mailto:"]')) track("contact_click", "email_link");
+    else if (e.target.closest('a[href$=".pdf"]')) track("contact_click", "cv_download");
+  });
+  $(".contact-form")?.addEventListener("submit", (e) => { if (e.currentTarget.checkValidity()) track("contact_click", "contact_form"); });
+}
+function stopAnalytics() {
+  analyticsOn = false;
+  try { localStorage.removeItem(VISITOR_KEY); } catch {}
+}
+
+/* ---------- Marcos's AI Assistant: the floating button ----------
+   The button is part of the page; the chat window (assistant.js + assistant.css) only
+   downloads when a visitor first uses it, and its replies come from the backend set in
+   <meta name="assistant-api">. With no backend configured the button stays hidden. */
+let liftFab = () => {};
+function initAssistant() {
+  const fab = $(".assist-fab");
+  if (!fab || !ASSIST_API) return;
+  fab.hidden = false;
+  document.documentElement.classList.add("has-assist");
+  liftFab = (px) => fab.style.setProperty("--fab-lift", `${Math.max(0, px)}px`);
+  const version = ($('script[src^="main.js"]')?.getAttribute("src").split("?v=")[1]) || "";
+  let loading = null;
+  const load = () => loading ||= new Promise((resolve, reject) => {
+    const css = Object.assign(document.createElement("link"), { rel: "stylesheet", href: `assistant.css?v=${version}` });
+    const js = Object.assign(document.createElement("script"), { src: `assistant.js?v=${version}`, async: true });
+    let left = 2;
+    const done = () => { if (--left === 0) resolve(); };
+    css.onload = done; js.onload = done;
+    css.onerror = js.onerror = () => { loading = null; reject(new Error("assistant failed to load")); };
+    document.head.append(css, js);
+  }).then(() => window.MarcosAssistant.init({
+    api: ASSIST_API, fab, reduceMotion,
+    email: $(".copy-email")?.dataset.email || "",
+    lang: () => lang,
+    section: () => $(".where-text")?.textContent.trim().slice(0, 60) || (scrollY < innerHeight ? "hero" : ""),
+    visitorId, track,
+    pauseScroll: (on) => lenis && (on ? lenis.stop() : lenis.start()),
+    goToContact: () => {
+      const target = $("#contact");
+      if (lenis) lenis.scrollTo(target, { duration: 1.4 }); else target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+      setTimeout(() => $("#cf-name")?.focus({ preventScroll: true }), 900);
+    },
+  }));
+  // Start fetching as soon as the visitor shows intent, so the window opens instantly
+  for (const ev of ["pointerenter", "focus", "touchstart"]) fab.addEventListener(ev, () => load().catch(() => {}), { once: true, passive: true });
+  fab.addEventListener("click", async () => {
+    fab.classList.add("busy");
+    try { await load(); window.MarcosAssistant.toggle(); }
+    catch { location.hash = "contact"; }               // couldn't load: fall back to the contact section
+    finally { fab.classList.remove("busy"); }
+  });
 }
 
 /* ---------- "You are here": the current section's number and name, bottom left ---------- */
@@ -1165,6 +1263,7 @@ function initLangSwitch() {
       applyTranslations();
       rebuildAfterLanguageChange();
       document.body.classList.remove("lang-swapping");
+      document.dispatchEvent(new CustomEvent("langchange", { detail: lang }));
     }, 180);
   }));
 }
@@ -1316,6 +1415,6 @@ for (const init of [initMagnetic, initMarquee, initCopyEmail, initContactForm, i
   initLangSwitch, initThemeToggle]) safely(init);
 safely(initPortal, nameChars);
 for (const init of [initThisIsMe, initJourney, initServicesTrack, initWhyStack, initContactCurtain,
-  initSectionIndex, initCV, initConsent]) safely(init);
+  initSectionIndex, initCV, initConsent, initAssistant]) safely(init);
 if (hasGSAP) safely(initScrollAnimations, aboutWords);
 try { intro(nameChars, fitName); } catch (e) { console.error(e); openPage(); }

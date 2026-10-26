@@ -1,0 +1,117 @@
+/* Marcos's AI Assistant: the chat window (loaded on first use by main.js → initAssistant).
+   The floating button itself lives in styles.css so it shows without this file. */
+.assist {
+  position: fixed; z-index: 80;
+  right: var(--fab-gap); bottom: calc(var(--fab-gap) + var(--fab-size) + 12px + env(safe-area-inset-bottom));
+  width: min(400px, calc(100vw - 2 * var(--fab-gap)));
+  height: min(620px, calc(100dvh - var(--fab-gap) * 2 - var(--fab-size) - 24px));
+  display: flex; flex-direction: column;
+  background: var(--card); color: var(--fg);
+  border: 1px solid var(--border-strong); border-radius: 22px;
+  box-shadow: 0 40px 80px -40px var(--shadow), 0 12px 30px -18px var(--shadow);
+  overflow: hidden;
+  opacity: 0; translate: 0 12px; scale: .98; transform-origin: bottom right;
+  transition: opacity 220ms var(--ease-out), translate 320ms var(--ease-out), scale 320ms var(--ease-out);
+}
+.assist[hidden] { display: none; }
+.assist.in { opacity: 1; translate: 0 0; scale: 1; }
+
+.assist-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 14px 14px 18px; border-bottom: 1px solid var(--line);
+}
+.assist-avatar {
+  flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--bg); color: var(--accent); border: 1px solid var(--border-strong);
+  font-family: var(--name-font); font-style: italic; font-size: 1.2rem; line-height: 1;
+}
+.assist-who { flex: 1; min-width: 0; }
+.assist-title { font-weight: 600; font-size: .95rem; line-height: 1.25; }
+.assist-sub { color: var(--muted); font-size: .76rem; display: flex; align-items: center; gap: 6px; }
+.assist-sub::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--sage); }
+.assist.offline .assist-sub::before { background: var(--muted); }
+.assist-icon-btn {
+  flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  color: var(--muted); transition: background-color 160ms ease, color 160ms ease;
+}
+.assist-icon-btn:hover { background: var(--accent-tint); color: var(--fg); }
+.assist-icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+.assist-log {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: 18px 16px 8px; display: flex; flex-direction: column; gap: 12px;
+  scrollbar-width: thin;
+}
+.assist-msg { max-width: 86%; padding: 10px 14px; border-radius: 16px; font-size: .92rem; line-height: 1.5; overflow-wrap: anywhere; }
+.assist-msg p + p, .assist-msg p + ul, .assist-msg ul + p { margin-top: 8px; }
+.assist-msg ul { padding-left: 18px; list-style: disc; }
+.assist-msg li + li { margin-top: 3px; }
+.assist-msg strong { font-weight: 600; }
+.assist-msg a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.assist-msg.bot { align-self: flex-start; background: var(--bg-2); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.assist-msg.me { align-self: flex-end; background: var(--fg); color: var(--bg); border-bottom-right-radius: 6px; white-space: pre-wrap; }
+.assist-msg.err { align-self: flex-start; background: transparent; border: 1px dashed var(--border-strong); color: var(--soft); }
+.assist-note { margin-top: 6px; color: var(--muted); font-size: .72rem; }
+.assist-typing { display: inline-flex; gap: 4px; padding: 14px 16px; }
+.assist-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: assist-dot 1.2s infinite ease-in-out; }
+.assist-typing i:nth-child(2) { animation-delay: .15s; }
+.assist-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes assist-dot { 0%, 60%, 100% { opacity: .3; translate: 0 0; } 30% { opacity: 1; translate: 0 -3px; } }
+
+.assist-chips { display: flex; flex-wrap: wrap; gap: 8px; align-self: flex-start; max-width: 100%; }
+.assist-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+  border: 1px solid var(--border-strong); color: var(--fg); font-size: .84rem; line-height: 1.3; text-align: left;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+.assist-chip:hover { border-color: var(--accent); background: var(--accent-tint); }
+.assist-chip.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.assist-chip.primary:hover { background: var(--accent); filter: brightness(1.06); }
+.assist-suggest { padding: 0 16px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.assist-suggest[hidden] { display: none; }
+
+.assist-draft { align-self: stretch; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--accent); background: var(--accent-tint); }
+.assist-draft-label { color: var(--accent); font-size: .72rem; }
+.assist-draft pre { margin: 8px 0 10px; white-space: pre-wrap; font: inherit; font-size: .88rem; line-height: 1.5; color: var(--fg); }
+.assist-draft .assist-note { margin: 8px 0 0; }
+
+.assist-form {
+  display: flex; align-items: flex-end; gap: 8px; margin: 4px 12px 0; padding: 6px 6px 6px 14px;
+  border: 1px solid var(--border-strong); border-radius: 20px; background: var(--bg);
+  transition: border-color 160ms ease;
+}
+.assist-form:focus-within { border-color: var(--accent); }
+.assist-input {
+  flex: 1; min-width: 0; resize: none; border: 0; outline: 0; background: none; color: var(--fg);
+  font: inherit; font-size: 16px; line-height: 1.45; padding: 7px 0; max-height: 132px;
+}
+.assist-input::placeholder { color: var(--muted); }
+.assist .assist-input:focus-visible { outline: none; }  /* the field's border shows focus */
+.assist-send {
+  flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--fg); color: var(--bg); transition: opacity 160ms ease, scale 160ms var(--ease-out);
+}
+.assist-send:disabled { opacity: .35; cursor: default; }
+.assist-send:not(:disabled):active { scale: .94; }
+.assist-send svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.assist-count { padding: 4px 18px 0; text-align: right; color: var(--muted); font-size: .72rem; min-height: 1.1em; }
+.assist-foot { padding: 4px 18px 14px; color: var(--muted); font-size: .72rem; line-height: 1.45; }
+.assist-foot a { color: var(--soft); text-decoration: underline; text-underline-offset: 2px; }
+.assist :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.assist .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Phones: the chat takes the whole screen, above the keyboard */
+@media (max-width: 560px) {
+  .assist {
+    inset: 0; width: 100%; height: var(--assist-vh, 100dvh); border-radius: 0; border: 0;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    transform-origin: bottom center;
+  }
+  .assist-msg { max-width: 92%; }
+}
+html.assist-lock, html.assist-lock body { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .assist, .assist.in { transition: opacity 120ms linear; translate: none; scale: none; }
+  .assist-typing i { animation: none; opacity: .6; }
+}

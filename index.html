@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marcos Cañellas — Web Developer & Designer</title>
   <meta name="description" content="Marcos designs and builds high-quality, high-performance websites for businesses.">
+  <!-- Backend of Marcos's AI Assistant (backend/ folder). Empty = the chat button stays hidden. -->
+  <meta name="assistant-api" content="">
   <meta name="theme-color" content="#0e1612">
   <!-- Always start at the top: set before anything loads so the browser doesn't restore an old position -->
   <script>if ("scrollRestoration" in history) history.scrollRestoration = "manual";</script>
@@ -28,7 +30,7 @@
     "knowsAbout": ["Web design", "Web development", "UI/UX design", "SEO"]}
   </script>
   <!-- ?v= makes browsers fetch the new files after an update instead of mixing in cached ones: change it on every release -->
-  <link rel="stylesheet" href="styles.css?v=20261026b">
+  <link rel="stylesheet" href="styles.css?v=20261026c">
   <noscript><style>.intro { display: none; } .cv-modal { display: block; position: static; width: auto; height: auto; overflow: visible; background: none; } .cv-close { display: none; } html:has(body.loading), body.loading { overflow-y: visible; } .portrait { display: none; }</style></noscript>
 </head>
 <body class="loading">
@@ -39,7 +41,7 @@
   <!-- Cookies: asked every time the site is opened, once the intro has finished (initConsent in main.js) -->
   <div class="consent" role="dialog" aria-labelledby="consent-title" aria-describedby="consent-text" hidden>
     <p class="consent-title mono" id="consent-title" data-i18n="consent.title">Cookies</p>
-    <p class="consent-text" id="consent-text" data-i18n="consent.text">I'd like to use optional cookies to understand how visitors use this site and improve it. Everything works the same if you reject them.</p>
+    <p class="consent-text" id="consent-text"><span data-i18n="consent.text">I'd like to use optional analytics cookies to see how visitors use this site and improve it. Everything works the same if you reject them.</span> <a class="consent-link" href="privacy.html" data-i18n="consent.more">Privacy information</a></p>
     <div class="consent-actions">
       <button type="button" class="btn btn-ghost" data-consent="rejected" data-i18n="consent.reject">Reject</button>
       <button type="button" class="btn" data-consent="accepted" data-i18n="consent.accept">Accept</button>
@@ -561,8 +563,14 @@
       </div>
   </dialog>
 
+  <!-- ============ MARCOS'S AI ASSISTANT: floating button (the chat loads on first use, see initAssistant) ============ -->
+  <button class="assist-fab" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="assist" aria-label="Ask Marcos's AI Assistant" title="Ask Marcos's AI Assistant" data-i18n-attr="aria-label:assist.open;title:assist.open" hidden>
+    <svg class="assist-fab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-11.2 6.5L4 19.5l1.5-4.6A7.5 7.5 0 1 1 20 11.5z"/><path d="M12.5 8.2l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" class="spark"/></svg>
+    <span class="assist-fab-spinner" aria-hidden="true"></span>
+  </button>
+
   <footer class="footer mono">
-    <span>© <span class="year">2026</span> Marcos Cañellas. <span data-i18n="footer.rights">All rights reserved.</span></span>
+    <span>© <span class="year">2026</span> Marcos Cañellas. <span data-i18n="footer.rights">All rights reserved.</span> <a href="privacy.html" data-i18n="footer.privacy">Privacy</a></span>
     <a href="mailto:Marcos.galarraga122@outlook.com">Marcos.galarraga122@outlook.com</a>
     <a href="#top" data-i18n="footer.top">Back to top ↑</a>
   </footer>
@@ -570,8 +578,8 @@
   <script defer src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script defer src="i18n.js?v=20261026b"></script>
-  <script defer src="intro.js?v=20261026b"></script>
-  <script defer src="main.js?v=20261026b"></script>
+  <script defer src="i18n.js?v=20261026c"></script>
+  <script defer src="intro.js?v=20261026c"></script>
+  <script defer src="main.js?v=20261026c"></script>
 </body>
 </html>
