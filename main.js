@@ -406,7 +406,13 @@ function initThisIsMe() {
   const span = 2.5, updateFacts = initFacts();
   ScrollTrigger.create({
     trigger: section, start: "top bottom", end: () => `+=${innerHeight * span}`,
-    onUpdate: (self) => updateFacts(self.progress * span),
+    onUpdate: (self) => {
+      const s = self.progress * span;
+      updateFacts(s);
+      // The monogram draws in as you land (just after the zoom), and is gone again as you leave
+      const draw = Math.min(1, Math.max(0, (s - 0.85) / 0.7)) * (1 - Math.min(1, Math.max(0, (s - 2.05) / 0.35)));
+      section.style.setProperty("--me", draw.toFixed(3));
+    },
   });
 }
 

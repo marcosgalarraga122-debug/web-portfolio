@@ -327,6 +327,18 @@ html.portal-on .portrait { margin-top: calc(-1 * var(--hero-h, 100vh)); }
   font-size: clamp(3rem, 8vw, 8rem); line-height: .95; letter-spacing: -.03em;
 }
 .portrait-title em { font-style: italic; color: var(--accent); }
+/* The monogram filling the right half: brass outline drawn by scroll (--me: 0 → 1), with a
+   faint fill. Static and fully drawn without the scroll animation (reduced motion, no GSAP). */
+.me-mark {
+  position: absolute; right: calc(var(--pad) + 4vw); top: 50%; translate: 0 -50%;
+  width: min(30vw, 440px); pointer-events: none; text-align: center;
+}
+.me-mark svg { display: block; width: 100%; height: auto; overflow: visible; }
+.me-mark text { font-family: var(--name-font); font-style: italic; font-weight: 300; font-size: 470px; font-variation-settings: "opsz" 144; }
+.me-mark-line { fill: none; stroke: var(--accent); stroke-width: 1.4; stroke-dasharray: 2600; stroke-dashoffset: calc((1 - var(--me, 1)) * 2600); }
+.me-mark-fill { fill: var(--accent); opacity: calc(var(--me, 1) * .07); }
+.me-mark-cap { margin-top: 8px; color: var(--muted); opacity: var(--me, 1); letter-spacing: .14em; }
+@media (max-width: 899px) { .me-mark { display: none; } }
 /* "About me" facts: each row draws its hairline, then its text arrives */
 .facts { margin-top: 32px; max-width: 420px; border-top: 1px solid var(--line); }
 .fact { position: relative; display: grid; grid-template-columns: 92px 1fr; gap: 16px; align-items: baseline; padding: 12px 0; }
