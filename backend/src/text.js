@@ -110,7 +110,8 @@ export function sanitizeReply(text) {
   t = t.replace(/[\w.+-]+@[\w-]+\.[\w.-]*\w/g, () => CONTACT.email);           // only the real address
   t = t.replace(/(?:\+\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?){2,4}\d{2,4}/g, (m) => {
     const d = m.replace(/\D/g, "");                                            // no phone numbers but the real one
-    return d.length >= 9 && d !== (CONTACT.phone || "").replace(/\D/g, "") ? "" : m;
+    const real = (CONTACT.phone || "").replace(/\D/g, "");
+    return d.length >= 9 && !(real && real.endsWith(d)) ? "" : m;
   });
   t = t.replace(/[ \t]{2,}/g, " ").replace(/\n{3,}/g, "\n\n").trim();
   return t.slice(0, 2400);

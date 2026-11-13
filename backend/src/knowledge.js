@@ -8,7 +8,7 @@ export const CONTACT = {
   // The contact form at the bottom of the portfolio page (it opens the visitor's email app)
   formUrl: "https://marcosgalarraga122-debug.github.io/web-portfolio/#contact",
   // EDIT: add these only once they exist and are published on the website
-  phone: null,      // e.g. "+34 600 000 000"
+  phone: "+34 659 770 592",
   whatsapp: null,   // e.g. "https://wa.me/34600000000"
   booking: null,    // e.g. a real booking page URL
 };
@@ -21,9 +21,9 @@ export const CORE = `
 - Clients work directly with Marcos, from the first call to launch and beyond: no middlemen. Every message gets a reply within 24 hours.
 - Prices: no fixed prices are published. Every project gets a clear written quote before any work starts, so the client knows exactly what they get and what it costs. The price depends on the project (size, number of pages, features).
 - Timelines depend on the size of the project (a one-page site is quicker than a multi-page site or an online shop). A clear timeline comes with the quote, agreed together, with regular updates.
-- Contact: email ${CONTACT.email}, or the contact form at the bottom of this page (it opens the visitor's email app with the message ready to send). No phone number, WhatsApp, booking page or social profiles are published.
+- Contact: email ${CONTACT.email}, phone ${CONTACT.phone}, or the contact form at the bottom of this page (it opens the visitor's email app with the message ready to send). No WhatsApp, booking page or social profiles are published.
 - Getting started: send Marcos an email with a short description of the business and what you need; he replies within 24 hours to arrange a call.
-- Languages: Marcos works with clients in Spanish and English (both native). He is currently studying French.
+- Languages: Marcos works with clients in Spanish and English (both native). He is currently studying French and German.
 `.trim();
 
 // Retrieved when relevant (by keyword), and used for answers when the AI is unavailable.
@@ -102,9 +102,9 @@ export const ENTRIES = [
   {
     id: "contact",
     keywords: ["contact", "email", "mail", "phone", "call", "whatsapp", "reach", "contacto", "correo", "teléfono", "llamar", "contactar", "joindre", "téléphone", "appeler", "courriel", "e-mail"],
-    en: "You can reach Marcos by email at " + CONTACT.email + ", or through the contact form at the bottom of this page, which opens your email app with your message ready to send. He replies within 24 hours. There's no phone number or WhatsApp published at the moment.",
-    es: "Puedes contactar con Marcos por email en " + CONTACT.email + " o con el formulario de contacto al final de esta página, que abre tu aplicación de correo con el mensaje listo para enviar. Responde en menos de 24 horas. Por ahora no hay teléfono ni WhatsApp publicados.",
-    fr: "Vous pouvez joindre Marcos par e-mail à " + CONTACT.email + ", ou via le formulaire de contact en bas de cette page, qui ouvre votre messagerie avec votre message prêt à envoyer. Il répond sous 24 heures. Aucun numéro de téléphone ni WhatsApp n'est publié pour le moment.",
+    en: "You can reach Marcos by email at " + CONTACT.email + ", or through the contact form at the bottom of this page, which opens your email app with your message ready to send. You can also call him on " + CONTACT.phone + ". He replies within 24 hours. There's no WhatsApp published at the moment.",
+    es: "Puedes contactar con Marcos por email en " + CONTACT.email + " o con el formulario de contacto al final de esta página, que abre tu aplicación de correo con el mensaje listo para enviar. También puedes llamarle al " + CONTACT.phone + ". Responde en menos de 24 horas. Por ahora no hay WhatsApp publicado.",
+    fr: "Vous pouvez joindre Marcos par e-mail à " + CONTACT.email + ", ou via le formulaire de contact en bas de cette page, qui ouvre votre messagerie avec votre message prêt à envoyer. Vous pouvez aussi l'appeler au " + CONTACT.phone + ". Il répond sous 24 heures. Aucun WhatsApp n'est publié pour le moment.",
   },
   {
     id: "examples",
@@ -151,9 +151,9 @@ export const ENTRIES = [
   {
     id: "languages",
     keywords: ["language", "speak", "english", "spanish", "french", "multilingual", "idioma", "hablas", "inglés", "español", "francés", "langue", "parlez", "anglais", "espagnol", "français"],
-    en: "Marcos works with clients in Spanish and English (both native) and is currently studying French. Your website can also speak to more than one audience: this portfolio, for example, is in English, Spanish and French.",
-    es: "Marcos trabaja con clientes en español e inglés (ambos nativos) y actualmente estudia francés. Tu web también puede hablarle a varios públicos: este portfolio, por ejemplo, está en inglés, español y francés.",
-    fr: "Marcos travaille avec ses clients en espagnol et en anglais (deux langues maternelles) et étudie actuellement le français. Votre site peut aussi s'adresser à plusieurs publics : ce portfolio, par exemple, est en anglais, en espagnol et en français.",
+    en: "Marcos works with clients in Spanish and English (both native) and is currently studying French and German. Your website can also speak to more than one audience: this portfolio, for example, is in English, Spanish and French.",
+    es: "Marcos trabaja con clientes en español e inglés (ambos nativos) y actualmente estudia francés y alemán. Tu web también puede hablarle a varios públicos: este portfolio, por ejemplo, está en inglés, español y francés.",
+    fr: "Marcos travaille avec ses clients en espagnol et en anglais (deux langues maternelles) et étudie actuellement le français et l'allemand. Votre site peut aussi s'adresser à plusieurs publics : ce portfolio, par exemple, est en anglais, en espagnol et en français.",
   },
 ];
 
