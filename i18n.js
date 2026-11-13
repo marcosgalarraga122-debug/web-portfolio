@@ -149,6 +149,7 @@ window.I18N = {
     "theme.toDark": "Switch to dark theme",
     "cv.close": "Close CV",
     "cv.download": "Download CV (PDF)",
+    "cv.langPick": "CV language",
     "cv.file": "files/Marcos-Canellas-CV.pdf",
 
     "about.label": "About",
@@ -404,6 +405,7 @@ window.I18N = {
     "theme.toDark": "Cambiar a tema oscuro",
     "cv.close": "Cerrar CV",
     "cv.download": "Descargar CV (PDF)",
+    "cv.langPick": "Idioma del CV",
     "cv.file": "files/Marcos-Canellas-CV-ES.pdf",
 
     "about.label": "Sobre mí",
@@ -659,6 +661,7 @@ window.I18N = {
     "theme.toDark": "Passer au thème sombre",
     "cv.close": "Fermer le CV",
     "cv.download": "Télécharger le CV (PDF)",
+    "cv.langPick": "Langue du CV",
     "cv.file": "files/Marcos-Canellas-CV-FR.pdf",
 
     "about.label": "À propos",

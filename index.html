@@ -30,7 +30,7 @@
     "knowsAbout": ["Web design", "Web development", "UI/UX design", "SEO"]}
   </script>
   <!-- ?v= makes browsers fetch the new files after an update instead of mixing in cached ones: change it on every release -->
-  <link rel="stylesheet" href="styles.css?v=20261113d">
+  <link rel="stylesheet" href="styles.css?v=20261113e">
   <noscript><style>.intro { display: none; } .cv-modal { display: block; position: static; width: auto; height: auto; overflow: visible; background: none; } .cv-close { display: none; } html:has(body.loading), body.loading { overflow-y: visible; } .portrait { display: none; }</style></noscript>
 </head>
 <body class="loading">
@@ -459,7 +459,14 @@
     <div class="cv-modal-bar">
       <h2 class="mono" id="cv-modal-title" data-i18n="cv.label">CV</h2>
       <div class="cv-modal-actions">
-        <a class="btn" href="files/Marcos-Canellas-CV.pdf" download data-i18n-attr="href:cv.file"><span class="btn-label" data-i18n="cv.download">Download CV (PDF)</span><span class="btn-arrow" aria-hidden="true">↓</span></a>
+        <!-- The CV's own language: changes the sheet and the PDF, not the rest of the site (initCV) -->
+        <div class="cv-lang" role="group" aria-labelledby="cv-lang-label">
+          <span class="cv-lang-label mono" id="cv-lang-label" data-i18n="cv.langPick">CV language</span>
+          <button type="button" data-cv-lang="en" aria-pressed="true" lang="en" title="English">EN</button>
+          <button type="button" data-cv-lang="es" aria-pressed="false" lang="es" title="Español">ES</button>
+          <button type="button" data-cv-lang="fr" aria-pressed="false" lang="fr" title="Français">FR</button>
+        </div>
+        <a class="btn cv-download" href="files/Marcos-Canellas-CV.pdf" download aria-label="Download CV (PDF)" data-i18n-attr="aria-label:cv.download"><span class="btn-label" data-i18n="cv.download">Download CV (PDF)</span><span class="btn-short" aria-hidden="true">PDF</span><span class="btn-arrow" aria-hidden="true">↓</span></a>
         <button type="button" class="cv-close" data-cv-close aria-label="Close CV" data-i18n-attr="aria-label:cv.close"><span aria-hidden="true">✕</span></button>
       </div>
     </div>
@@ -571,8 +578,8 @@
   <script defer src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script defer src="i18n.js?v=20261113d"></script>
-  <script defer src="intro.js?v=20261113d"></script>
-  <script defer src="main.js?v=20261113d"></script>
+  <script defer src="i18n.js?v=20261113e"></script>
+  <script defer src="intro.js?v=20261113e"></script>
+  <script defer src="main.js?v=20261113e"></script>
 </body>
 </html>

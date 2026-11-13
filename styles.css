@@ -642,6 +642,28 @@ html.no-track .services-meta, html.no-track .services-progress { display: none; 
 }
 .cv-modal-bar h2 { font-size: .8rem; font-weight: 400; color: var(--muted); }
 .cv-modal-actions { display: flex; align-items: center; gap: 10px; }
+/* CV language: its own small switch, independent of the site's */
+.cv-lang { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid var(--border-strong); border-radius: 999px; }
+.cv-lang-label { padding: 0 8px 0 10px; font-size: .68rem; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
+.cv-lang button {
+  padding: 8px 11px; border-radius: 999px; cursor: pointer;
+  font: 500 .72rem "JetBrains Mono", monospace; letter-spacing: .06em; color: var(--muted);
+  transition: color 200ms ease, background-color 200ms ease, scale 160ms var(--ease-out);
+}
+.cv-lang button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.cv-lang button:active { scale: .94; }
+.cv-lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cv-download .btn-short { display: none; }
+@media (max-width: 639px) {
+  /* phones: the language switch, a short PDF button and close fit on one line */
+  .cv-modal-bar h2, .cv-lang-label { display: none; }
+  .cv-modal-actions { width: 100%; }
+  .cv-lang { margin-right: auto; }
+  .cv-download .btn-label { display: none; }
+  .cv-download .btn-short { display: inline; }
+}
+.cv-sheet .cv-rail, .cv-sheet .cv-main { transition: opacity 160ms ease; }
+.cv-sheet.cv-swapping .cv-rail, .cv-sheet.cv-swapping .cv-main { opacity: .15; }
 .cv-close {
   display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
   background: transparent; color: var(--fg); border: 1px solid var(--border-strong); font-size: 1rem;

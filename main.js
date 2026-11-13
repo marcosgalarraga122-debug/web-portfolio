@@ -771,6 +771,30 @@ function initCV() {
     root.classList.remove("cv-open");
     lenis && lenis.start();
   });
+  // The CV has its own language switch: it changes the sheet and the PDF to download, not the site.
+  // Until the visitor picks one, the CV follows the site's language.
+  let cvLang = null;
+  const download = $(".cv-download", modal);
+  const applyCVLang = () => {
+    const L = cvLang || lang;
+    const tr = (key) => window.I18N?.[L]?.[key] ?? window.I18N?.en?.[key];
+    sheet.lang = L;
+    if (window.I18N) {
+      $$("[data-i18n]", sheet).forEach((el) => { const v = tr(el.dataset.i18n); if (v != null) el.textContent = v; });
+      $$("[data-i18n-html]", sheet).forEach((el) => { const v = tr(el.dataset.i18nHtml); if (v != null) el.innerHTML = v; });
+      $$("[data-i18n-attr]", sheet).forEach((el) => el.dataset.i18nAttr.split(";").forEach((pair) => {
+        const [attr, key] = pair.split(":"); const v = tr(key); if (v != null) el.setAttribute(attr, v);
+      }));
+      download.setAttribute("href", tr("cv.file"));
+    }
+    $$("[data-cv-lang]", modal).forEach((b) => b.setAttribute("aria-pressed", b.dataset.cvLang === L));
+  };
+  $$("[data-cv-lang]", modal).forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.cvLang === (cvLang || lang)) return;
+    cvLang = b.dataset.cvLang;
+    sheet.classList.add("cv-swapping");
+    setTimeout(() => { refreshCV(); sheet.classList.remove("cv-swapping"); }, reduceMotion ? 0 : 160);
+  }));
   const marks = () => $$(".cv-sheet mark");
   const io = new IntersectionObserver((entries) => entries.forEach((e) => {
     if (!e.isIntersecting) return;
@@ -780,7 +804,11 @@ function initCV() {
   marks().forEach((m) => io.observe(m));
   // After a language change the marks are new elements: ones already read appear at once,
   // the rest still wait for their sweep
-  refreshCV = () => marks().forEach((m) => (modal.open && m.getBoundingClientRect().bottom < innerHeight * 0.82 ? m.classList.add("in") : io.observe(m)));
+  refreshCV = () => {
+    applyCVLang();       // after a site language change the CV keeps its own chosen language
+    marks().forEach((m) => (modal.open && m.getBoundingClientRect().bottom < innerHeight * 0.82 ? m.classList.add("in") : io.observe(m)));
+  };
+  applyCVLang();
 
   if (finePointer) {
     const glare = $(".cv-glare", sheet);
